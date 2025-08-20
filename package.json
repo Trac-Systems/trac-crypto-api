@@ -1,0 +1,36 @@
+{
+  "name": "trac-wallet",
+  "version": "0.0.43",
+  "main": "index.js",
+  "type": "module",
+  "pear": {
+    "name": "trac-wallet",
+    "type": "terminal"
+  },
+  "scripts": {
+    "test": "brittle-node -t 120000 test/all.test.js",
+    "test:bare": "brittle-bare -t 120000 test/all.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "b4a": "1.6.7",
+    "bare-fs": "^4.0.2",
+    "bech32": "^2.0.0",
+    "bip39-mnemonic": "^2.2.0",
+    "sodium-universal": "^5.0.1"
+  },
+  "devDependencies": {
+    "bip39": "^3.1.0",
+    "chai": "^5.2.0",
+    "chai-as-promised": "^8.0.1",
+    "micro-key-producer": "^0.7.5",
+    "mocha": "^11.1.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  }
+}
