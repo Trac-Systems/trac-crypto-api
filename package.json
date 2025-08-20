@@ -8,7 +8,7 @@
     "type": "terminal"
   },
   "scripts": {
-    "test": "brittle-node -t 120000 test/all.test.js",
+    "test:node": "brittle-node -t 120000 test/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/all.test.js"
   },
   "keywords": [],
@@ -23,11 +23,7 @@
     "sodium-universal": "^5.0.1"
   },
   "devDependencies": {
-    "bip39": "^3.1.0",
-    "chai": "^5.2.0",
-    "chai-as-promised": "^8.0.1",
-    "micro-key-producer": "^0.7.5",
-    "mocha": "^11.1.0"
+    "brittle": "^3.18.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
