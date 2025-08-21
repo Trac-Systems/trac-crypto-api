@@ -1,6 +1,7 @@
 import express from "express";
 import mnemonicRouter from "./routes/mnemonic.js";
 import nonceRouter from "./routes/nonce.js";
+import addressRouter from "./routes/address.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,8 @@ app.use("/api/mnemonic", mnemonicRouter);
 
 // Use the nonce router for all /api/nonce routes
 app.use("/api/nonce", nonceRouter);
+
+app.use("/api/address", addressRouter);
 
 // Start the server and capture the server instance in a variable
 const server = app.listen(PORT, () => {
