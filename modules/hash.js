@@ -1,24 +1,71 @@
+import { blake3 as blake3External} from "@tracsystems/blake3"
 import sodium from 'sodium-universal';
 import b4a from 'b4a';
 
-function blake3(message) {
-    // TODO
-    console.warn('blake3 is not implemented yet');
+/**
+ * Computes the Blake3 hash of the given message.
+ * @param {Buffer | Uint8Array} message - The input message to hash.
+ * @returns {Buffer} The Blake3 hash as a Buffer.
+ * @throws Will throw an error if the input is not of a supported type.
+ */
+async function blake3(message) {
+    const isBuffer = b4a.isBuffer(message)
+    if (!isBuffer && !(message instanceof Uint8Array)) {
+        throw new Error('Invalid input: must be a Buffer or Uint8Array');
+    }
+    const messageBytes = isBuffer ? message : b4a.from(message)
+    const hashBytes = await blake3External(messageBytes)
+    return b4a.from(hashBytes)
+}
+
+/**
+ * Computes the Blake3 hash of the given message.
+ * @param {Buffer | Uint8Array} message - The input message to hash.
+ * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
+ */
+async function blake3Safe(message){
+    try {
+        return await blake3(message);
+    } catch (err) {
+        console.error(err);
+    }
+    return b4a.alloc(0); // Return an empty buffer on error
 }
 
 /**
  * Computes the SHA-256 hash of the given message.
- * @param {Buffer | string} message - The input message to hash. Can be a Buffer or string.
+ * @param {Buffer | Uint8Array} message - The input message to hash.
  * @returns {Buffer} The SHA-256 hash as a Buffer.
+ * @throws Will throw an error if the input is not of a supported type.
  */
-// TODO: TThis will be completely replaced by blake3. Remove this function after Blake3 is functional
 function sha256(message) {
+    const isBuffer = b4a.isBuffer(message)
+    if (!isBuffer && !(message instanceof Uint8Array)) {
+        throw new Error('Invalid input: must be a Buffer or Uint8Array');
+    }
+    const messageBytes = isBuffer ? message : b4a.from(message)
     const out = b4a.alloc(sodium.crypto_hash_sha256_BYTES);
-    sodium.crypto_hash_sha256(out, b4a.from(message));
+    sodium.crypto_hash_sha256(out, messageBytes);
     return out;
+}
+
+/**
+ * Computes the SHA-256 hash of the given message.
+ * @param {Buffer | Uint8Array} message - The input message to hash.
+ * @returns {Buffer} The SHA-256 hash as a Buffer or an empty buffer in case of error
+ */
+function sha256Safe(message) {
+    try {
+        return sha256(message);
+    } catch (err) {
+        console.error(err);
+    }
+    return b4a.alloc(0); // Return an empty buffer on error
 }
 
 export default {
     blake3,
-    sha256
+    blake3Safe,
+    sha256,
+    sha256Safe
 };
