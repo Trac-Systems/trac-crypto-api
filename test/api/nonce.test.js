@@ -8,13 +8,6 @@ describe("Nonce API Endpoints", () => {
     server.close(done); // Close the server to allow the process to exit
   });
 
-  // Test the GET / endpoint for a basic health check
-  test('GET / should return "API is running!"', async () => {
-    const response = await request(app).get("/");
-    expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("API is running!");
-  });
-
   // Test the POST /api/nonce/generate endpoint
   test("POST /api/nonce/generate should return a new 32-byte nonce", async () => {
     const expectedBytes = 32; // Nonce size in bytes

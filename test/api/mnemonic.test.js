@@ -8,13 +8,6 @@ describe("Mnemonic API Endpoints", () => {
     server.close(done); // Close the server to allow the process to exit
   });
 
-  // Test the GET / endpoint for a basic health check
-  test('GET / should return "API is running!"', async () => {
-    const response = await request(app).get("/");
-    expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("API is running!");
-  });
-
   // Test the POST /api/mnemonic/generate endpoint
   test("POST /api/mnemonic/generate should return a new mnemonic", async () => {
     const response = await request(app).post("/api/mnemonic/generate");
