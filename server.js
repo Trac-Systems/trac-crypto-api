@@ -3,6 +3,7 @@ import mnemonicRouter from "./routes/mnemonic.js";
 import nonceRouter from "./routes/nonce.js";
 import addressRouter from "./routes/address.js";
 import hashRouter from "./routes/hash.js";
+import signatureRouter from "./routes/signature.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,7 @@ app.use("/api/mnemonic", mnemonicRouter);
 app.use("/api/nonce", nonceRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/hash", hashRouter);
+app.use("/api/signature", signatureRouter);
 
 // Start the server and capture the server instance in a variable
 const server = app.listen(PORT, () => {

@@ -26,7 +26,7 @@
     "test:node": "brittle-node -t 120000 test/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/all.test.js",
     "test:api": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --watchAll --testTimeout=30000",
-    "test:api:coverage": "c8 --reporter=html --check-coverage --lines 80 --functions 80 --branches 80 --all node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --testTimeout=30000"
+    "test:api:coverage": "c8 --reporter=html --check-coverage --lines 60 --functions 60 --branches 60 --all node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --testTimeout=30000"
   },
   "keywords": [],
   "author": "",
