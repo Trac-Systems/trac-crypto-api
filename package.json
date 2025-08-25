@@ -1,10 +1,10 @@
 {
-  "name": "trac-wallet",
-  "version": "0.0.43",
+  "name": "trac-crypto-api",
+  "version": "0.0.1",
   "main": "index.js",
   "type": "module",
   "pear": {
-    "name": "trac-wallet",
+    "name": "trac-crypto-api",
     "type": "terminal"
   },
   "scripts": {
