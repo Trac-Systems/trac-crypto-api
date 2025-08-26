@@ -3,6 +3,7 @@ import hash from './modules/hash.js';
 import mnemonic from './modules/mnemonic.js';
 import nonce from './modules/nonce.js';
 import signature from './modules/signature.js';
+import data from './modules/data.js';
 
 const sign = signature.sign;
 
@@ -12,5 +13,6 @@ export default {
     mnemonic,
     nonce,
     signature,
+    data,
     sign
 };

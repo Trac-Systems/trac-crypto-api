@@ -8,6 +8,7 @@ async function runTests() {
   await import('./mnemonic/mnemonic.test.js');
   await import('./nonce/nonce.test.js');
   await import('./signature/signature.test.js');
+  await import('./data/data.test.js');
 
   test.resume();
 }
