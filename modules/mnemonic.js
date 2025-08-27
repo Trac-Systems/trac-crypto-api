@@ -1,5 +1,6 @@
 import { generateMnemonic, validateMnemonic, mnemonicToSeed, normalizeMnemonic } from 'bip39-mnemonic';
 import b4a from 'b4a';
+import { MNEMONIC_WORD_COUNT } from '../constants.js';
 
 /**
  * Sanitizes and validates a mnemonic phrase.
@@ -8,9 +9,14 @@ import b4a from 'b4a';
  * @throws Will throw an error if the mnemonic is invalid.
  */
 function sanitize(mnemonic) {
+    if (typeof mnemonic !== 'string' || mnemonic.trim() === '') {
+        return null;
+    }
     const normalized = normalizeMnemonic(mnemonic);
+
+    // TODO: Also validate word count
     if (!validateMnemonic(normalized)) {
-        throw new Error('Invalid mnemonic phrase');
+        return null;
     }
     return normalized;
 }
