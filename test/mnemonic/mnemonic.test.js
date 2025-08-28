@@ -1,4 +1,3 @@
-
 import test from 'brittle';
 import mnemonic from '../../modules/mnemonic.js';
 import { MNEMONIC_WORD_COUNT } from '../../constants.js';
@@ -17,6 +16,24 @@ test('mnemonic.generate: should generate different mnemonics', (t) => {
   t.not(phrase1, phrase2);
 });
 
+test('mnemonic.validate: should return true for a valid mnemonic', (t) => {
+  const phrase = mnemonic.generate();
+  t.is(mnemonic.validate(phrase), true);
+});
+
+test('mnemonic.validate: should return false for an invalid mnemonic', (t) => {
+  t.is(mnemonic.validate('invalid mnemonic phrase'), false);
+});
+
+test('mnemonic.validate: should return false for empty input', (t) => {
+  t.is(mnemonic.validate(''), false);
+  t.is(mnemonic.validate(null), false);
+});
+
+test('mnemonic.validate: should return false for wrong word count', (t) => {
+  const phrase = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'; // 12 words
+  t.is(mnemonic.validate(phrase), false);
+});
 
 test('mnemonic.sanitize: should sanitize and validate mnemonic', (t) => {
   const phrase = mnemonic.generate();
@@ -32,13 +49,10 @@ test('mnemonic.sanitize: should return null for invalid input', (t) => {
   t.is(mnemonic.sanitize(null), null);
 });
 
-// Observation: This test was deactivated due to a limitation in the bip39 library,
-// where we are not able to select the word count in the generated phrase.
-// TODO: Reactivate once this problem is solved
-// test('mnemonic.sanitize: should return null for wrong word count', (t) => {
-//   const phrase = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'; // 12 words
-//   t.is(mnemonic.sanitize(phrase), null);
-// });
+test('mnemonic.sanitize: should return null for wrong word count', (t) => {
+  const phrase = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'; // 12 words
+  t.is(mnemonic.sanitize(phrase), null);
+});
 
 
 test('mnemonic.sanitize: should return null on invalid mnemonic', (t) => {

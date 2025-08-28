@@ -1,6 +1,27 @@
 import { generateMnemonic, validateMnemonic, mnemonicToSeed, normalizeMnemonic } from 'bip39-mnemonic';
 import b4a from 'b4a';
-import { MNEMONIC_WORD_COUNT } from '../constants.js';
+import { TRAC_MNEMONIC_WORD_COUNT } from '../constants.js';
+
+function _isString(input) {
+    return typeof input === 'string';
+}
+
+function _isMnemonicFormat(mnemonic) {
+    const words = mnemonic.split(' ');
+    return words.length === TRAC_MNEMONIC_WORD_COUNT;
+}
+
+/**
+ * Validates a mnemonic phrase for correct word count and word validity.
+ * @param {string} mnemonic - The mnemonic phrase to validate.
+ * @returns {boolean} True if the mnemonic is valid and has the correct number of words, false otherwise.
+ */
+function validate(mnemonic) {
+    if (!_isString(mnemonic) || !_isMnemonicFormat(mnemonic)) {
+        return false;
+    }
+    return validateMnemonic(mnemonic);
+}
 
 /**
  * Sanitizes and validates a mnemonic phrase.
@@ -9,13 +30,12 @@ import { MNEMONIC_WORD_COUNT } from '../constants.js';
  * @throws Will throw an error if the mnemonic is invalid.
  */
 function sanitize(mnemonic) {
-    if (typeof mnemonic !== 'string' || mnemonic.trim() === '') {
+    if (!_isString(mnemonic)) {
         return null;
     }
-    const normalized = normalizeMnemonic(mnemonic);
 
-    // TODO: Also validate word count
-    if (!validateMnemonic(normalized)) {
+    const normalized = normalizeMnemonic(mnemonic);
+    if (!_isMnemonicFormat(normalized) || !validateMnemonic(normalized)) {
         return null;
     }
     return normalized;
@@ -53,6 +73,7 @@ async function toSeed(mnemonic, passphrase = '') {
 }
 
 export default {
+    validate,
     sanitize,
     generate,
     toSeed
