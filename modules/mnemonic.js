@@ -76,5 +76,6 @@ export default {
     validate,
     sanitize,
     generate,
-    toSeed
+    toSeed,
+    WORD_COUNT: TRAC_MNEMONIC_WORD_COUNT
 };

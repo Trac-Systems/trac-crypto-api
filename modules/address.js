@@ -79,5 +79,7 @@ async function generate(hrp, mnemonic = null) {
 export default {
     generate,
     encode,
-    decode
+    decode,
+    PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
+    PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE
 };

@@ -1,13 +1,13 @@
 import test from 'brittle';
 import mnemonic from '../../modules/mnemonic.js';
-import { MNEMONIC_WORD_COUNT } from '../../constants.js';
+import { TRAC_MNEMONIC_WORD_COUNT } from '../../constants.js';
 
 
 test('mnemonic.generate: should generate a valid mnemonic', (t) => {
   const phrase = mnemonic.generate();
   t.is(typeof phrase, 'string');
   t.not(phrase, '');
-  t.is(phrase.split(' ').length, MNEMONIC_WORD_COUNT);
+  t.is(phrase.split(' ').length, TRAC_MNEMONIC_WORD_COUNT);
 });
 
 test('mnemonic.generate: should generate different mnemonics', (t) => {
