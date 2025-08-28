@@ -9,6 +9,7 @@ async function runTests() {
   await import('./nonce/nonce.test.js');
   await import('./signature/signature.test.js');
   await import('./data/data.test.js');
+  await import('./utils/utils.test.js');
 
   test.resume();
 }
