@@ -41,5 +41,6 @@ function verify(signature, message, publicKey) {
 
 export default {
     sign,
-    verify
+    verify,
+    SIZE: TRAC_SIGNATURE_SIZE
 };

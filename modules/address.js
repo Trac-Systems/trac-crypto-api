@@ -84,4 +84,6 @@ export default {
   generate,
   encode,
   decode,
+  PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
+  PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 };

@@ -2,6 +2,9 @@ import { blake3 as blake3External} from "@tracsystems/blake3"
 import sodium from 'sodium-universal';
 import b4a from 'b4a';
 
+// Observation: The Blake3 hash functions are not currently supported in the browser environment.
+// TODO: Implement Blake3 support on browser environment
+
 /**
  * Computes the Blake3 hash of the given message.
  * @param {Buffer | Uint8Array} message - The input message to hash.

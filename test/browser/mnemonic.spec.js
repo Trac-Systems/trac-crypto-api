@@ -31,17 +31,15 @@ test("should sanitize a mnemonic phrase in the browser using direct evaluation",
   expect(sanitizedMnemonic).toBe(expectedPhrase);
 });
 
-test("should throw an error while sanitizing a wrong mnemonic", async ({
-  page,
-}) => {
+test("should return null for a wrong mnemonic", async ({ page }) => {
   // Expose the sanitize function to the browser's window object
   await page.exposeFunction("sanitizeInBrowser", allModules.mnemonic.sanitize);
   const sabotagedPhrase = "wrong mnemonic phrase";
 
-  // Expect an error to be thrown when sanitizing an invalid mnemonic
-  await expect(
-    page.evaluate((mnemonic) => {
-      return window.sanitizeInBrowser(mnemonic);
-    }, sabotagedPhrase)
-  ).rejects.toThrow("Invalid mnemonic phrase");
+  // Expect the function to return null for an invalid mnemonic
+  const result = await page.evaluate((mnemonic) => {
+    return window.sanitizeInBrowser(mnemonic);
+  }, sabotagedPhrase);
+
+  expect(result).toBe(null);
 });

@@ -1,6 +1,10 @@
 import sodium from 'sodium-universal';
 import b4a from 'b4a';
 
+// Observation: The key derivation function `crypto_pwhash` is currently not exposed on
+// browser environment, as stated on the README file of sodium-universal: https://github.com/holepunchto/sodium-universal
+// This means this entire module is currently not working on browser environment
+
 /**
  * Derives a key from the password and salt using Argon2i.
  * @param {Buffer} password - The password to derive the key from.
