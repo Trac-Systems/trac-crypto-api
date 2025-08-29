@@ -1,5 +1,5 @@
 import { test, expect } from "playwright/test";
-import allModules from "../../index.js";
+import allModules from "../../../index.js";
 
 test("should generate a mnemonic in the browser environment", async ({
   page,

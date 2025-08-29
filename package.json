@@ -9,9 +9,10 @@
   },
   "scripts": {
     "build": "vite build",
-    "test:node": "brittle-node -t 120000 test/all.test.js",
-    "test:bare": "brittle-bare -t 120000 test/all.test.js",
-    "test:browser": "npm run build && npx playwright test test/browser"
+    "test:node": "brittle-node -t 120000 test/unit/all.test.js",
+    "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
+    "test:browser": "npm run build && npx playwright test test/browser/all.spec.js",
+    "test:all": "npm run test:node && npm run test:browser"
   },
   "keywords": [],
   "author": "",
