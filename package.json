@@ -18,10 +18,29 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "imports": {
+    "fs": {
+      "bare": "bare-fs",
+      "default": "fs"
+    },
+    "crypto": {
+      "bare": "bare-crypto",
+      "default": "crypto"
+    },
+    "node:crypto": {
+      "bare": "bare-crypto",
+      "default": "crypto"
+    }
+  },
   "dependencies": {
+    "@metamask/key-tree": "^10.1.1",
     "@tracsystems/blake3": "^0.0.6",
     "b4a": "1.6.7",
+    "bare-crypto": "^1.11.2",
+    "crypto": "npm:bare-node-crypto",
     "bare-fs": "^4.0.2",
+    "bare-utils": "^1.5.1",
+    "util": "npm:bare-node-util",
     "bech32": "^2.0.0",
     "bip39-mnemonic": "^2.2.0",
     "playwright": "^1.55.0",
