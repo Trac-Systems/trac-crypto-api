@@ -1,4 +1,8 @@
 import { default as test } from 'brittle';
+import { TextEncoder, TextDecoder } from 'bare-encoding';
+
+globalThis.TextEncoder = TextEncoder;
+globalThis.TextDecoder = TextDecoder;
 
 async function runTests() {
   test.pause();
