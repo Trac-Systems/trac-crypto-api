@@ -1,6 +1,6 @@
-import test from "brittle";
-import api from "../../../index.js";
-import b4a from "b4a";
+const test = require("brittle");
+const api = require("../../../index.js");
+const b4a = require("b4a");
 
 test("encrypt and decrypt: should encrypt and decrypt a message", (t) => {
   const password = b4a.from("someP@ssw0rd");

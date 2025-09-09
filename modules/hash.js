@@ -1,6 +1,6 @@
-import { blake3 as blake3External} from "@tracsystems/blake3"
-import sodium from 'sodium-universal';
-import b4a from 'b4a';
+const { blake3: blake3External } = require("@tracsystems/blake3");
+const sodium = require('sodium-universal');
+const b4a = require('b4a');
 
 // Observation: The Blake3 hash functions are not currently supported in the browser environment.
 // TODO: Implement Blake3 support on browser environment
@@ -66,7 +66,7 @@ function sha256Safe(message) {
     return b4a.alloc(0); // Return an empty buffer on error
 }
 
-export default {
+module.exports = {
     blake3,
     blake3Safe,
     sha256,

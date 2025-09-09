@@ -1,6 +1,6 @@
-import test from "brittle";
-import mnemonic from "../../../modules/mnemonic.js";
-import { TRAC_MNEMONIC_WORD_COUNT } from "../../../constants.js";
+const test = require("brittle");
+const mnemonic = require("../../../modules/mnemonic.js");
+const { TRAC_MNEMONIC_WORD_COUNT } = require("../../../constants.js");
 
 test("mnemonic.generate: should generate a valid mnemonic", (t) => {
   const phrase = mnemonic.generate();

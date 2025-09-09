@@ -1,9 +1,9 @@
-import mnemonicUtils from "./mnemonic.js";
-import hashUtils from "./hash.js";
-import sodium from "sodium-universal";
-import { bech32m } from "bech32";
-import b4a from "b4a";
-import { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } from "../constants.js";
+const mnemonicUtils = require("./mnemonic.js");
+const hashUtils = require("./hash.js");
+const sodium = require("sodium-universal");
+const { bech32m } = require("bech32");
+const b4a = require("b4a");
+const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
 
 /**
  * Generates an Ed25519 key pair from a mnemonic.
@@ -69,6 +69,13 @@ function decode(address) {
   return buffer;
 }
 
+
+/**
+ * Generates a new keypair and address.
+ * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
+ * @param {string|null} mnemonic - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
+ * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
+ */
 async function generate(hrp, mnemonic = null) {
   const keypair = await _generateKeyPair(mnemonic);
   const address = encode(hrp, keypair.publicKey);
@@ -80,7 +87,7 @@ async function generate(hrp, mnemonic = null) {
   };
 }
 
-export default {
+module.exports = {
   generate,
   encode,
   decode,

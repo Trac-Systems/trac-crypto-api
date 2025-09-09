@@ -1,6 +1,6 @@
-import test from "brittle";
-import hash from "../../../modules/hash.js";
-import b4a from "b4a";
+const test = require("brittle");
+const hash = require("../../../modules/hash.js");
+const b4a = require("b4a");
 
 const MESSAGE = "hello world";
 const MESSAGE_BUFFER = b4a.from(MESSAGE);

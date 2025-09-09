@@ -1,6 +1,6 @@
-import { generateMnemonic, validateMnemonic, mnemonicToSeed, normalizeMnemonic } from 'bip39-mnemonic';
-import b4a from 'b4a';
-import { TRAC_MNEMONIC_WORD_COUNT } from '../constants.js';
+const { generateMnemonic, validateMnemonic, mnemonicToSeed, normalizeMnemonic } = require('bip39-mnemonic');
+const b4a = require('b4a');
+const { TRAC_MNEMONIC_WORD_COUNT } = require('../constants.js');
 
 function _isString(input) {
     return typeof input === 'string';
@@ -72,7 +72,7 @@ async function toSeed(mnemonic, passphrase = '') {
     return mnemonicToSeed(mnemonic, passphrase);
 }
 
-export default {
+module.exports = {
     validate,
     sanitize,
     generate,

@@ -1,6 +1,6 @@
-import sodium from 'sodium-universal';
-import b4a from 'b4a';
-import { TRAC_NONCE_SIZE } from '../constants.js';
+const sodium = require('sodium-universal');
+const b4a = require('b4a');
+const { TRAC_NONCE_SIZE } = require('../constants.js');
 
 /**
  * Generates a random nonce with high entrophy.
@@ -13,7 +13,7 @@ function generate() {
     return nonce;
 }
 
-export default {
+module.exports = {
     generate,
     SIZE: TRAC_NONCE_SIZE
 };
