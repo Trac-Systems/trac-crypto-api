@@ -1,6 +1,6 @@
-import test from "brittle";
-import signature from "../../../modules/signature.js";
-import address from "../../../modules/address.js";
+const test = require("brittle");
+const signature = require("../../../modules/signature.js");
+const address = require("../../../modules/address.js");
 
 const hrp = "trac";
 

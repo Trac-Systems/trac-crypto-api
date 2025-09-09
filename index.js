@@ -1,14 +1,22 @@
-import address from './modules/address.js';
-import hash from './modules/hash.js';
-import mnemonic from './modules/mnemonic.js';
-import nonce from './modules/nonce.js';
-import signature from './modules/signature.js';
-import data from './modules/data.js';
-import utils from './modules/utils.js';
+const runtime = require('which-runtime');
+const util = require('util');
+
+if (runtime.isBare) {
+    global.TextEncoder = util.TextEncoder;
+    global.TextDecoder = util.TextDecoder;
+}
+
+const address = require('./modules/address.js');
+const hash = require('./modules/hash.js');
+const mnemonic = require('./modules/mnemonic.js');
+const nonce = require('./modules/nonce.js');
+const signature = require('./modules/signature.js');
+const data = require('./modules/data.js');
+const utils = require('./modules/utils.js');
 
 const sign = signature.sign;
 
-export default {
+module.exports = {
     address,
     hash,
     mnemonic,

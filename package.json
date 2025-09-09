@@ -2,7 +2,6 @@
   "name": "trac-crypto-api",
   "version": "0.0.1",
   "main": "index.js",
-  "type": "module",
   "pear": {
     "name": "trac-crypto-api",
     "type": "terminal"
@@ -18,6 +17,24 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "imports": {
+    "fs": {
+      "bare": "bare-fs",
+      "default": "fs"
+    },
+    "util": {
+      "bare": "bare-utils",
+      "default": "util"
+    },
+    "crypto": {
+      "bare": "bare-crypto",
+      "default": "crypto"
+    },
+    "node:crypto": {
+      "bare": "bare-crypto",
+      "default": "crypto"
+    }
+  },
   "dependencies": {
     "@tracsystems/blake3": "^0.0.6",
     "b4a": "1.6.7",
@@ -28,7 +45,8 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "sodium-javascript": "^0.8.0",
     "sodium-universal": "^5.0.1",
-    "vite": "^7.1.3"
+    "vite": "^7.1.3",
+    "which-runtime": "^1.3.1"
   },
   "devDependencies": {
     "brittle": "^3.18.0",

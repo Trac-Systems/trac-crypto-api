@@ -1,5 +1,5 @@
-import test from "brittle";
-import nonce from "../../../modules/nonce.js";
+const test = require("brittle");
+const nonce = require("../../../modules/nonce.js");
 
 test("nonce.generate: should generate a 32-byte nonce", (t) => {
   const n = nonce.generate();

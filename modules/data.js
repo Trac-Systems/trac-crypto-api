@@ -1,5 +1,5 @@
-import sodium from 'sodium-universal';
-import b4a from 'b4a';
+const sodium = require('sodium-universal');
+const b4a = require('b4a');
 
 // Observation: The key derivation function `crypto_pwhash` is currently not exposed on
 // browser environment, as stated on the README file of sodium-universal: https://github.com/holepunchto/sodium-universal
@@ -85,7 +85,7 @@ function decrypt(data, password) {
     return message;
 }
 
-export default {
+module.exports = {
     encrypt,
     decrypt
 };

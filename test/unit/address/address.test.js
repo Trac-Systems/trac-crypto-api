@@ -1,7 +1,7 @@
-import test from "brittle";
-import api from "../../../index.js";
-import { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } from "../../../constants.js";
-import b4a from "b4a";
+const test = require("brittle");
+const api = require("../../../index.js");
+const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../../../constants.js");
+const b4a = require("b4a");
 
 const hrp = "trac";
 

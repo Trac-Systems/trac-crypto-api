@@ -1,6 +1,6 @@
-import sodium from 'sodium-universal';
-import b4a from 'b4a';
-import { TRAC_PRIV_KEY_SIZE, TRAC_SIGNATURE_SIZE } from '../constants.js';
+const sodium = require('sodium-universal');
+const b4a = require('b4a');
+const { TRAC_PRIV_KEY_SIZE, TRAC_SIGNATURE_SIZE } = require('../constants.js');
 
 /**
  * Signs a message with the stored secret key.
@@ -39,7 +39,7 @@ function verify(signature, message, publicKey) {
     return false;
 }
 
-export default {
+module.exports = {
     sign,
     verify,
     SIZE: TRAC_SIGNATURE_SIZE
