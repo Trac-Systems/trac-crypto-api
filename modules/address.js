@@ -1,6 +1,4 @@
 const mnemonicUtils = require("./mnemonic.js");
-const hashUtils = require("./hash.js");
-const sodium = require("sodium-universal");
 const { bech32m } = require("bech32");
 const b4a = require("b4a");
 const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
@@ -14,6 +12,27 @@ if (runtime.isBare) {
   globalThis.TextDecoder = util.TextDecoder;
 } else {
   SLIP10Node = require('@metamask/key-tree').SLIP10Node;
+}
+
+function _isValidHrp(hrp) {
+  // HRP must be a non-empty string with length between 1 and 83 characters
+  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
+    return false;
+  }
+  // HRP must consist of printable ASCII characters (33-126)
+  for (let i = 0; i < hrp.length; i++) {
+    const charCode = hrp.charCodeAt(i);
+    if (charCode < 33 || charCode > 126) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function _validateHrp(hrp) {
+  if (!_isValidHrp(hrp)) {
+    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+  }
 }
 
 /**
@@ -65,7 +84,7 @@ function _sanitizeDerivationPath(path) {
  * @param {string} [path="m/0'/0'/0'"] - Optional derivation path. Defaults to "m/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
-async function _generateKeyPair(mnemonic = null, path = "m/0'/0'/0'") {
+async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0'/0'/0'") {
   let safeMnemonic;
   if (mnemonic === null) {
     safeMnemonic = mnemonicUtils.generate();
@@ -73,9 +92,15 @@ async function _generateKeyPair(mnemonic = null, path = "m/0'/0'/0'") {
     safeMnemonic = mnemonicUtils.sanitize(mnemonic); // Will throw if the mnemonic is invalid
   }
 
+  // TODO: Refactor this part of the code to use a BIP32-style path. Then, use _sanitizeDerivationPath to validate it.
+  let masterPath = [`bip39:${safeMnemonic}`];
+  for (let i = 0; i < masterPathSegments.length; i++) {
+    masterPath.push(`slip10:${masterPathSegments[i]}'`);
+  }
+
   const masterNode = await SLIP10Node.fromDerivationPath({
     curve: 'ed25519',
-    derivationPath: [`bip39:${safeMnemonic}`, `slip10:0'`],
+    derivationPath: masterPath,
   });
 
   const childNode = await masterNode.derive(_sanitizeDerivationPath(path));
@@ -86,7 +111,7 @@ async function _generateKeyPair(mnemonic = null, path = "m/0'/0'/0'") {
   // In order to keep consistency between key derivation and signing, we concatenate the private key with the public key here.
   // More info here:
   // https://libsodium.gitbook.io/doc/public-key_cryptography/public-key_signatures#generating-a-new-signing-key-pair
-  const publicKey = b4a.from(childNode.publicKeyBytes.subarray(1)); // Remove prefix byte 0x00
+  const publicKey = b4a.from(childNode.publicKeyBytes.subarray(1)); // Remove compressed public key prefix byte (always 0x00)
   const secretKey = b4a.concat([b4a.from(childNode.privateKeyBytes), publicKey]);
 
   // Sanity checks. Maybe not necessary, but better safe than sorry.
@@ -112,6 +137,7 @@ async function _generateKeyPair(mnemonic = null, path = "m/0'/0'/0'") {
  * @throws {Error} If the publicKey is not a Buffer or has incorrect length.
  */
 function encode(hrp, publicKey) {
+  _validateHrp(hrp);
   if (!b4a.isBuffer(publicKey) || publicKey.length !== TRAC_PUB_KEY_SIZE) {
     throw new Error(
       `Invalid public key. Expected a Buffer of length ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`
@@ -146,7 +172,9 @@ function decode(address) {
  * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
  */
 async function generate(hrp, mnemonic = undefined, derivationPath = undefined) {
-  const keypair = await _generateKeyPair(mnemonic, derivationPath);
+  _validateHrp(hrp);
+  const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
+  const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
   const address = encode(hrp, keypair.publicKey);
   return {
     address,
