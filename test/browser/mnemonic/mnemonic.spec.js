@@ -1,10 +1,10 @@
 import { test, expect } from "playwright/test"
-import allModules from "../../../index.js"
+import { mnemonic } from "trac-crypto-api"
 
 test("should generate a mnemonic in the browser environment", async ({
   page,
 }) => {
-  const mnemonicInNode = allModules.mnemonic.generate()
+  const mnemonicInNode = mnemonic.generate()
 
   const mnemonicInBrowser = await page.evaluate((mnemonic) => {
     return mnemonic
@@ -18,9 +18,9 @@ test("should sanitize a mnemonic phrase in the browser using direct evaluation",
   page,
 }) => {
   // Expose the sanitize function to the browser's window object
-  await page.exposeFunction("sanitizeInBrowser", allModules.mnemonic.sanitize)
+  await page.exposeFunction("sanitizeInBrowser", mnemonic.sanitize)
 
-  const expectedPhrase = allModules.mnemonic.generate()
+  const expectedPhrase = mnemonic.generate()
   const sabotagedPhrase = expectedPhrase.replaceAll(" ", "   ").toUpperCase()
 
   const sanitizedMnemonic = await page.evaluate((mnemonic) => {
@@ -33,7 +33,7 @@ test("should sanitize a mnemonic phrase in the browser using direct evaluation",
 
 test("should return null for a wrong mnemonic", async ({ page }) => {
   // Expose the sanitize function to the browser's window object
-  await page.exposeFunction("sanitizeInBrowser", allModules.mnemonic.sanitize)
+  await page.exposeFunction("sanitizeInBrowser", mnemonic.sanitize)
   const sabotagedPhrase = "wrong mnemonic phrase"
 
   // Expect the function to return null for an invalid mnemonic

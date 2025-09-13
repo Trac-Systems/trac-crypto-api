@@ -1,14 +1,14 @@
 // test/browser/nonce.spec.js
 
 import { test, expect } from "playwright/test"
-import allModules from "../../../index.js"
+import { nonce } from "trac-crypto-api"
 
 test("should generate a nonce with the correct length in the browser environment", async ({
   page,
 }) => {
   // 1. Gere um nonce no ambiente do Node.js.
   // Isso nos dá o tamanho e o tipo que esperamos no navegador.
-  const nonceInNode = allModules.nonce.generate()
+  const nonceInNode = nonce.generate()
   const expectedLength = nonceInNode.length
 
   // 2. No navegador, use a API nativa para gerar um nonce.
