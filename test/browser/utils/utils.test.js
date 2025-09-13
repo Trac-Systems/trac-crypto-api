@@ -32,14 +32,12 @@ test("should correctly zero out a buffer in the browser", async () => {
 test("should not change a non-buffer object in the browser", async () => {
 
   const { memzero } = window.TracCryptoApi.utils
-
   const nonBuffer = { a: 1, b: "test" }
   const originalValue = JSON.stringify(nonBuffer)
 
   memzero(nonBuffer)
 
   const isUnchanged = JSON.stringify(nonBuffer) === originalValue
-
 
   expect(isUnchanged).toBe(true)
 })
