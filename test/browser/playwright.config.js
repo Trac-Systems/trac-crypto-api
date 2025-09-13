@@ -1,10 +1,10 @@
 // playwright.config.js
 // @ts-check
-import { defineConfig } from "playwright/test";
+import { defineConfig } from "playwright/test"
 
 export default defineConfig({
   // Diretório onde os arquivos de teste estão.
-  testDir: "./test/browser",
+  testDir: "./",
 
   // Configuração para ambientes de teste.
   use: {
@@ -18,4 +18,4 @@ export default defineConfig({
   // IMPORTANTE: Isso resolve o 'Cannot find package'
   fullyParallel: true,
   reporter: "list",
-});
+})

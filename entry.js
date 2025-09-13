@@ -1,15 +1,13 @@
-import signatureModule from "./modules/signature.js";
-import utilsModule from "./modules/utils.js";
-import b4a from "b4a";
-import sodium from "sodium-universal";
+// entry.js
 
-const { sign, verify } = signatureModule;
-const { memzero } = utilsModule;
+const nonce = require('./modules/nonce.js')
+const signature = require('./modules/signature.js')
+const utils = require('./modules/utils.js')
+const sodium = require('sodium-javascript') // AQUI está a mudança
 
-window.TracCryptoApi = {
-  sign,
-  verify,
-  memzero,
-  b4a,
-  sodium,
-};
+module.exports = {
+  nonce,
+  signature,
+  utils,
+  sodium
+}
