@@ -11,6 +11,7 @@
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser:fixed": "cd test/browser && npm test",
+    "test:browser:jest": "cd test/browser && npm run test:browser",
     "test:all": "npm run test:node && npm run test:browser"
   },
   "keywords": [],
