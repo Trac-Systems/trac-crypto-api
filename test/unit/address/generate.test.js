@@ -15,6 +15,8 @@ test("address.generate: should generate a valid address and keypair with no mnem
   t.ok(b4a.isBuffer(result.secretKey));
   t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE);
   t.is(typeof result.mnemonic, "string");
+  t.is(typeof result.derivationPath, "string");
+  t.is(result.derivationPath, "m/0'/0'/0'");
 });
 
 test("address.generate: should generate the same keypair for the same mnemonic and derivation path", async (t) => {
@@ -25,9 +27,11 @@ test("address.generate: should generate the same keypair for the same mnemonic a
   t.ok(b4a.equals(result1.secretKey, result2.secretKey));
   t.is(result1.mnemonic, result2.mnemonic);
   t.is(result1.address, result2.address);
+  t.is(result1.derivationPath, result2.derivationPath);
+  t.is(result1.derivationPath, PATH1);
 });
 
-test("address.generate: should generate the different keypairs for different mnemonic and same derivation path", async (t) => {
+test("address.generate: should generate different keypairs for different mnemonic and same derivation path", async (t) => {
   const mnemonic1 = api.mnemonic.generate();
   const mnemonic2 = api.mnemonic.generate();
   const result1 = await api.address.generate(HRP, mnemonic1, PATH1);
@@ -35,15 +39,19 @@ test("address.generate: should generate the different keypairs for different mne
   t.not(b4a.equals(result1.publicKey, result2.publicKey));
   t.not(b4a.equals(result1.secretKey, result2.secretKey));
   t.not(result1.address, result2.address);
+  t.is(result1.derivationPath, result2.derivationPath);
+  t.is(result1.derivationPath, PATH1);
 });
 
-test("address.generate: should generate the different keypairs for the same mnemonic and different derivation path", async (t) => {
+test("address.generate: should generate different keypairs for the same mnemonic and different derivation path", async (t) => {
   const mnemonic = api.mnemonic.generate();
   const result1 = await api.address.generate(HRP, mnemonic, PATH1);
   const result2 = await api.address.generate(HRP, mnemonic, PATH2);
   t.not(b4a.equals(result1.publicKey, result2.publicKey));
   t.not(b4a.equals(result1.secretKey, result2.secretKey));
   t.not(result1.address, result2.address);
+  t.is(result1.derivationPath, PATH1);
+  t.is(result2.derivationPath, PATH2);
 });
 
 test("address.generate: should return an error for invalid mnemonic", async (t) => {
@@ -85,6 +93,12 @@ test("address.generate: should accept valid derivation paths", async (t) => {
     t.ok(b4a.isBuffer(result.secretKey), `Valid path: ${path}`);
     t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE, `Valid path: ${path}`);
     t.is(typeof result.mnemonic, "string", `Valid path: ${path}`);
+    t.is(typeof result.derivationPath, "string", `Valid path: ${path}`);
+    if (path === undefined) {
+      t.is(result.derivationPath, "m/0'/0'/0'", `Valid path: ${path}`); // Default path
+    } else {
+      t.is(result.derivationPath, path.replace(/\s+/g, ''), `Valid path: ${path}`); // Path with spaces trimmed
+    }
   }
 
   // Equivalent paths produce the same result
@@ -94,7 +108,7 @@ test("address.generate: should accept valid derivation paths", async (t) => {
   t.ok(b4a.equals(result1.secretKey, result2.secretKey));
   t.is(result1.mnemonic, result2.mnemonic);
   t.is(result1.address, result2.address);
-
+  t.is(result1.derivationPath, result2.derivationPath);
 });
 
 test("address.generate: should throw an error for invalid derivation paths", async (t) => {

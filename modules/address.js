@@ -74,7 +74,7 @@ function _sanitizeDerivationPath(path) {
     slip10Segments.push(`slip10:${seg}`);
   }
 
-  return slip10Segments;
+  return { safePath: path, slip10Segments };
 }
 
 /**
@@ -103,7 +103,8 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0
     derivationPath: masterPath,
   });
 
-  const childNode = await masterNode.derive(_sanitizeDerivationPath(path));
+  const { safePath, slip10Segments } = _sanitizeDerivationPath(path);
+  const childNode = await masterNode.derive(slip10Segments);
 
   // Observation:
   // libsodium uses a 64-byte secret key (32-byte seed + 32-byte public key)
@@ -126,6 +127,7 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0
     publicKey,
     secretKey,
     mnemonic: safeMnemonic,
+    derivationPath: safePath,
   };
 }
 
@@ -181,6 +183,7 @@ async function generate(hrp, mnemonic = undefined, derivationPath = undefined) {
     publicKey: keypair.publicKey,
     secretKey: keypair.secretKey,
     mnemonic: keypair.mnemonic,
+    derivationPath: keypair.derivationPath,
   };
 }
 
