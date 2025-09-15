@@ -7,6 +7,7 @@
     "type": "terminal"
   },
   "scripts": {
+    "build:browser": "rollup -c",
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",
@@ -46,7 +47,12 @@
     "which-runtime": "^1.3.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-replace": "^6.0.2",
     "brittle": "^3.18.0",
+    "rollup": "^4.50.2",
     "supertest": "^7.1.4"
   },
   "publishConfig": {
