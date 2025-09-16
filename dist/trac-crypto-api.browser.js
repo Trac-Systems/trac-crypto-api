@@ -155762,7 +155762,7 @@ zoo`.split('\n');
 		    slip10Segments.push(`slip10:${seg}`);
 		  }
 
-		  return slip10Segments;
+		  return { safePath: path, slip10Segments };
 		}
 
 		/**
@@ -155791,7 +155791,8 @@ zoo`.split('\n');
 		    derivationPath: masterPath,
 		  });
 
-		  const childNode = await masterNode.derive(_sanitizeDerivationPath(path));
+		  const { safePath, slip10Segments } = _sanitizeDerivationPath(path);
+		  const childNode = await masterNode.derive(slip10Segments);
 
 		  // Observation:
 		  // libsodium uses a 64-byte secret key (32-byte seed + 32-byte public key)
@@ -155814,6 +155815,7 @@ zoo`.split('\n');
 		    publicKey,
 		    secretKey,
 		    mnemonic: safeMnemonic,
+		    derivationPath: safePath,
 		  };
 		}
 
@@ -155869,6 +155871,7 @@ zoo`.split('\n');
 		    publicKey: keypair.publicKey,
 		    secretKey: keypair.secretKey,
 		    mnemonic: keypair.mnemonic,
+		    derivationPath: keypair.derivationPath,
 		  };
 		}
 
