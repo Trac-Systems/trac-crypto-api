@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAC Crypto API Manual Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #2c2c2c;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .test-section {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #1f1f1f;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        h2 {
+            color: #a0a0a0;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result-box {
+            background-color: #2a2a2a;
+            border-left: 5px solid;
+            padding: 15px;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .result-success {
+            border-color: #28a745;
+        }
+
+        .result-fail {
+            border-color: #dc3545;
+        }
+    </style>
+    <!-- 
+        IMPORTANT: The library MUST be imported here. 
+        You need to find the bundled file for the browser. 
+        Look in a 'dist' or 'build' folder and replace the path below.
+    -->
+      <script src="../node_modules/trac-crypto-api/dist/trac-crypto-api.browser.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>TRAC Crypto API Manual Test</h1>
+    <p>Click the buttons to run the Mnemonic module tests.</p>
+
+    <div class="test-section">
+        <h2>Mnemonic Generation Test</h2>
+        <button id="generateMnemonic">Generate Mnemonic</button>
+        <div id="generateResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Sanitization Test (Valid)</h2>
+        <button id="sanitizeValid">Sanitize Valid Phrase</button>
+        <div id="sanitizeValidResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Sanitization Test (Invalid)</h2>
+        <button id="sanitizeInvalid">Sanitize Invalid Phrase</button>
+        <div id="sanitizeInvalidResult" class="result-box"></div>
+    </div>
+</div>
+
+<script>
+    const mnemonic = window.TracCryptoApi?.mnemonic;
+
+    function displayResult(elementId, result, expected, message) {
+        const resultDiv = document.getElementById(elementId);
+        let finalMessage = message + '\n\n';
+
+        if (result === expected) {
+            finalMessage += `Passed! Result: "${result}"`;
+            resultDiv.className = 'result-box result-success';
+        } else {
+            finalMessage += `Failed! Expected: "${expected}", Got: "${result}"`;
+            resultDiv.className = 'result-box result-fail';
+        }
+        resultDiv.textContent = finalMessage;
+    }
+
+    // Mnemonic Generation Test
+    document.getElementById('generateMnemonic').addEventListener('click', async () => {
+        if (!mnemonic) {
+            document.getElementById('generateResult').textContent = "Error: 'mnemonic' module not found. Check if the library was loaded correctly.";
+            return;
+        }
+        const phrase = await mnemonic.generate();
+        const wordCount = phrase.split(' ').length;
+        displayResult('generateResult', wordCount, 24, `The generated phrase is:\n${phrase}`);
+    });
+
+    // Sanitization Test (Valid)
+    document.getElementById('sanitizeValid').addEventListener('click', async () => {
+        if (!mnemonic) {
+            document.getElementById('sanitizeValidResult').textContent = "Error: 'mnemonic' module not found.";
+            return;
+        }
+        const expectedPhrase = await mnemonic.generate();
+        const sabotagedPhrase = expectedPhrase.replaceAll(' ', '   ').toUpperCase();
+        const sanitizedMnemonic = await mnemonic.sanitize(sabotagedPhrase);
+        displayResult('sanitizeValidResult', sanitizedMnemonic, expectedPhrase, `The original phrase is:\n${expectedPhrase}\n\nThe sanitized phrase is:`);
+    });
+
+    // Sanitization Test (Invalid)
+    document.getElementById('sanitizeInvalid').addEventListener('click', async () => {
+        if (!mnemonic) {
+            document.getElementById('sanitizeInvalidResult').textContent = "Error: 'mnemonic' module not found.";
+            return;
+        }
+        const sabotagedPhrase = "wrong mnemonic phrase";
+        const sanitizedMnemonic = await mnemonic.sanitize(sabotagedPhrase);
+        displayResult('sanitizeInvalidResult', sanitizedMnemonic, null, 'The expected result is null.');
+    });
+
+    // Checks if the library was loaded on page load
+    window.onload = () => {
+        if (!window.TracCryptoApi || !window.TracCryptoApi.mnemonic) {
+            const resultDivs = document.querySelectorAll('.result-box');
+            resultDivs.forEach(div => {
+                div.textContent = "Error: 'trac-crypto-api' library not found. Check the path in your code.";
+                div.className = 'result-box result-fail';
+            });
+        }
+    };
+</script>
+</body>
+</html>
