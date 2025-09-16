@@ -1,6 +1,6 @@
 {
   "name": "trac-crypto-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "pear": {
     "name": "trac-crypto-api",
