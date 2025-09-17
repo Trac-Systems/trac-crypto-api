@@ -33,4 +33,17 @@ const isValid = tracCrypto.signature.verify(signature, Buffer.from('message'), p
 
 // Generate a secure nonce
 const nonce = tracCrypto.nonce.generate();
+
+// Forge a transaction
+const from = "trac1erl5alvuwq27ylssu20f2wwfh6xzr9pta6z5c4p6h9ram2uf4unstekq72"
+const to = "trac1xwggfmeffw08n49qfk9w4hu9u32wnxu9mn04dvprk70mv3larpvsade4d5"
+const validity = rundomeBuffer(32) // In a real case scenario, the current validity should be fetched through RPC call
+const amount = "1234abcd" // Amount in hex format
+const txData = await tracCrypto.transaction.preBuild(
+    fromKeyPair.address,
+    toKeyPair.address,
+    amount,
+    validity
+);
+const txPayload = tracCrypto.transaction.build(txData, yourSecretKey); // This function returns the signed payload to be sent via RPC
 ```
