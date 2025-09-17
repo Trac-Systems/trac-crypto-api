@@ -10,6 +10,7 @@ function runTests() {
   require('./signature/signature.test.js');
   require('./data/data.test.js');
   require('./utils/utils.test.js');
+  require('./transaction/transaction.test.js');
 
   test.resume();
 }

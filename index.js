@@ -13,6 +13,7 @@ const nonce = require('./modules/nonce.js');
 const signature = require('./modules/signature.js');
 const data = require('./modules/data.js');
 const utils = require('./modules/utils.js');
+const transaction = require('./modules/transaction.js');
 
 const sign = signature.sign;
 
@@ -24,5 +25,6 @@ module.exports = {
     signature,
     data,
     utils,
+    transaction,
     sign
 };

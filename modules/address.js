@@ -14,6 +14,11 @@ if (runtime.isBare) {
   SLIP10Node = require('@metamask/key-tree').SLIP10Node;
 }
 
+/**
+ * Checks if a given HRP (Human Readable Part) is valid.
+ * @param {string} hrp - The HRP to validate.
+ * @returns {boolean} True if the HRP is valid, false otherwise.
+ */
 function _isValidHrp(hrp) {
   // HRP must be a non-empty string with length between 1 and 83 characters
   if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
@@ -132,6 +137,48 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0
 }
 
 /**
+ * Checks if a given address is a valid TRAC bech32m address.
+ * Note that we only check the format and length, not the checksum.
+ * So, it is possible that even if an address is considered valid,
+ * it may not be a real address on the network.
+ * @param {string} address - The address to validate.
+ * @returns {boolean} True if the address is valid, false otherwise.
+ */
+function isValid(address) {
+  const _separateHrp = (address) => {
+    let ret = { prefix: null, suffix: null };
+    if (typeof address === 'string') {
+      const separatorIndex = address.indexOf('1');
+      if (separatorIndex > -1) {
+        ret.prefix = address.slice(0, separatorIndex);
+        ret.suffix = address.slice(separatorIndex + 1);
+      }
+    }
+    return ret;
+  }
+
+  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
+  const { prefix, suffix } = _separateHrp(address);
+
+  return typeof prefix === 'string' &&
+    typeof suffix === 'string' &&
+    _isValidHrp(prefix) &&
+    bech32Chars.test(suffix);
+}
+
+/**
+ * Converts a valid Trac address string to buffer format.
+ * @param {string} address - The Trac address to convert.
+ * @returns {Buffer} The buffer representation of the address.
+ */
+function toBuffer(address) {
+  if (!isValid(address)) {
+    throw new Error('Invalid address');
+  }
+  return b4a.from(address, 'ascii');
+}
+
+/**
  * Encodes a public key Buffer into a bech32m address string.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
  * @param {Buffer} publicKey - The buffer to encode.
@@ -173,6 +220,7 @@ function decode(address) {
  * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
  * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
  */
+// TODO: Currently, _generateKeyPair crashes if it receives null as defivation path. Is should use default path. Fix it and change default value to null
 async function generate(hrp, mnemonic = undefined, derivationPath = undefined) {
   _validateHrp(hrp);
   const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
@@ -191,6 +239,8 @@ module.exports = {
   generate,
   encode,
   decode,
+  isValid,
+  toBuffer,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 };
