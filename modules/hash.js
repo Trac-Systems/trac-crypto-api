@@ -2,9 +2,6 @@ const { blake3: blake3External } = require("@tracsystems/blake3");
 const sodium = require('sodium-universal');
 const b4a = require('b4a');
 
-// Observation: The Blake3 hash functions are not currently supported in the browser environment.
-// TODO: Implement Blake3 support on browser environment
-
 /**
  * Computes the Blake3 hash of the given message.
  * @param {Buffer | Uint8Array} message - The input message to hash.
@@ -26,7 +23,7 @@ async function blake3(message) {
  * @param {Buffer | Uint8Array} message - The input message to hash.
  * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
  */
-async function blake3Safe(message){
+async function blake3Safe(message) {
     try {
         return await blake3(message);
     } catch (err) {
