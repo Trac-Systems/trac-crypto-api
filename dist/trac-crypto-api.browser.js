@@ -115231,15 +115231,23 @@
 		const TRAC_PUB_KEY_SIZE = sodium.crypto_sign_PUBLICKEYBYTES;
 		const TRAC_PRIV_KEY_SIZE = sodium.crypto_sign_SECRETKEYBYTES;
 		const TRAC_SIGNATURE_SIZE = sodium.crypto_sign_BYTES;
-		const TRAC_NONCE_SIZE = 32;
 		const TRAC_MNEMONIC_WORD_COUNT = 24;
+
+		const TRAC_NONCE_SIZE = 32;
+		const TRAC_HASH_SIZE = 32;
+
+		const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16; // 128 bits / 16 bytes
+		const TRAC_VALIDITY_SIZE_BYTES = 32; // 256 bits / 32 bytes
 
 		constants$2 = {
 		    TRAC_PUB_KEY_SIZE,
 		    TRAC_PRIV_KEY_SIZE,
 		    TRAC_SIGNATURE_SIZE,
+		    TRAC_MNEMONIC_WORD_COUNT,
 		    TRAC_NONCE_SIZE,
-		    TRAC_MNEMONIC_WORD_COUNT
+		    TRAC_HASH_SIZE,
+		    TRAC_TOKEN_AMOUNT_SIZE_BYTES,
+		    TRAC_VALIDITY_SIZE_BYTES
 		};
 		return constants$2;
 	}
@@ -155702,6 +155710,11 @@ zoo`.split('\n');
 		  SLIP10Node = requireDist().SLIP10Node;
 		}
 
+		/**
+		 * Checks if a given HRP (Human Readable Part) is valid.
+		 * @param {string} hrp - The HRP to validate.
+		 * @returns {boolean} True if the HRP is valid, false otherwise.
+		 */
 		function _isValidHrp(hrp) {
 		  // HRP must be a non-empty string with length between 1 and 83 characters
 		  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
@@ -155768,16 +155781,20 @@ zoo`.split('\n');
 		/**
 		 * Generates an Ed25519 key pair from a mnemonic phrase.
 		 * @async
-		 * @param {string|null} mnemonic - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
-		 * @param {string} [path="m/0'/0'/0'"] - Optional derivation path. Defaults to "m/0'/0'/0'".
+		 * @param {string|null} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
+		 * @param {string} [path] - Optional derivation path. Defaults to "m/0'/0'/0'".
 		 * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
 		 */
-		async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0'/0'/0'") {
+		async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
 		  let safeMnemonic;
 		  if (mnemonic === null) {
 		    safeMnemonic = mnemonicUtils.generate();
 		  } else {
 		    safeMnemonic = mnemonicUtils.sanitize(mnemonic); // Will throw if the mnemonic is invalid
+		  }
+
+		  if (path === null) {
+		    path = "m/0'/0'/0'";
 		  }
 
 		  // TODO: Refactor this part of the code to use a BIP32-style path. Then, use _sanitizeDerivationPath to validate it.
@@ -155817,6 +155834,48 @@ zoo`.split('\n');
 		    mnemonic: safeMnemonic,
 		    derivationPath: safePath,
 		  };
+		}
+
+		/**
+		 * Checks if a given address is a valid TRAC bech32m address.
+		 * Note that we only check the format and length, not the checksum.
+		 * So, it is possible that even if an address is considered valid,
+		 * it may not be a real address on the network.
+		 * @param {string} address - The address to validate.
+		 * @returns {boolean} True if the address is valid, false otherwise.
+		 */
+		function isValid(address) {
+		  const _separateHrp = (address) => {
+		    let ret = { prefix: null, suffix: null };
+		    if (typeof address === 'string') {
+		      const separatorIndex = address.indexOf('1');
+		      if (separatorIndex > -1) {
+		        ret.prefix = address.slice(0, separatorIndex);
+		        ret.suffix = address.slice(separatorIndex + 1);
+		      }
+		    }
+		    return ret;
+		  };
+
+		  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
+		  const { prefix, suffix } = _separateHrp(address);
+
+		  return typeof prefix === 'string' &&
+		    typeof suffix === 'string' &&
+		    _isValidHrp(prefix) &&
+		    bech32Chars.test(suffix);
+		}
+
+		/**
+		 * Converts a valid Trac address string to buffer format.
+		 * @param {string} address - The Trac address to convert.
+		 * @returns {Buffer} The buffer representation of the address.
+		 */
+		function toBuffer(address) {
+		  if (!isValid(address)) {
+		    throw new Error('Invalid address');
+		  }
+		  return b4a.from(address, 'ascii');
 		}
 
 		/**
@@ -155861,7 +155920,7 @@ zoo`.split('\n');
 		 * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
 		 * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
 		 */
-		async function generate(hrp, mnemonic = undefined, derivationPath = undefined) {
+		async function generate(hrp, mnemonic = null, derivationPath = null) {
 		  _validateHrp(hrp);
 		  const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
 		  const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
@@ -155879,6 +155938,8 @@ zoo`.split('\n');
 		  generate,
 		  encode,
 		  decode,
+		  isValid,
+		  toBuffer,
 		  PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
 		  PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 		};
@@ -155946,9 +156007,6 @@ zoo`.split('\n');
 		const sodium = requireSodiumUniversal();
 		const b4a = requireBrowser$1();
 
-		// Observation: The Blake3 hash functions are not currently supported in the browser environment.
-		// TODO: Implement Blake3 support on browser environment
-
 		/**
 		 * Computes the Blake3 hash of the given message.
 		 * @param {Buffer | Uint8Array} message - The input message to hash.
@@ -155970,7 +156028,7 @@ zoo`.split('\n');
 		 * @param {Buffer | Uint8Array} message - The input message to hash.
 		 * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
 		 */
-		async function blake3Safe(message){
+		async function blake3Safe(message) {
 		    try {
 		        return await blake3(message);
 		    } catch (err) {
@@ -156222,6 +156280,138 @@ zoo`.split('\n');
 		return utils;
 	}
 
+	var transaction;
+	var hasRequiredTransaction;
+
+	function requireTransaction () {
+		if (hasRequiredTransaction) return transaction;
+		hasRequiredTransaction = 1;
+		const b4a = requireBrowser$1();
+		const nonceUtils = requireNonce();
+		const hashUtils = requireHash();
+		const signatureUtils = requireSignature();
+		const addressUtils = requireAddress();
+		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
+
+		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
+
+		function _isHexString(str) {
+		    return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
+		}
+
+		function _isUInt32(n) { return Number.isInteger(n) && n >= 1 && n <= 0xFFFFFFFF; }
+
+		function _writeUInt32BE(value, offset) {
+		    const buf = b4a.alloc(4);
+		    buf.writeUInt32BE(value, offset);
+		    return buf;
+		}
+
+		function _createMessage(...args) {
+
+		    if (args.length === 0) return b4a.alloc(0);
+
+		    const buffers = args.map(arg => {
+		        if (b4a.isBuffer(arg)) {
+		            return arg;
+		        } else if (typeof arg === 'number' && _isUInt32(arg)) {
+		            // Convert number to 4-byte big-endian buffer
+		            return _writeUInt32BE(arg, 0);
+		        }
+		    }).filter(buf => b4a.isBuffer(buf));
+
+		    if (buffers.length === 0) return b4a.alloc(0);
+		    return b4a.concat(buffers);
+		}
+
+		/**
+		 * Builds an unsigned transaction message.
+		 * @param {string} from - The sender's address.
+		 * @param {string} to - The recipient's address.
+		 * @param {string} amount - The amount to transfer as a hex string.
+		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 */
+		async function preBuild(from, to, amount, validity) {
+		    // validate inputs
+		    if (!addressUtils.isValid(from)) {
+		        throw new Error('Invalid "from" address format');
+		    }
+		    if (!addressUtils.isValid(to)) {
+		        throw new Error('Invalid "to" address format');
+		    }
+		    if (!_isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
+		        throw new Error(`Invalid "amount" format. Should be a hex string up to ${TRAC_TOKEN_AMOUNT_SIZE_BYTES} bytes long`);
+		    }
+		    if (!_isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
+		        throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
+		    }
+
+		    // Generate transaction object
+		    const nonce = nonceUtils.generate();
+		    const amountBuf = b4a.from(amount, 'hex');
+		    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
+		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
+		        amountBuf;
+		    const message = _createMessage(
+		        addressUtils.toBuffer(from),
+		        b4a.from(validity, 'hex'),
+		        nonce,
+		        addressUtils.toBuffer(to),
+		        amountPadded,
+		        OP_TYPE_TRANSFER
+		    );
+		    const hash = await hashUtils.blake3(message);
+		    const txData = {
+		        from,
+		        to,
+		        amount: amountPadded.toString('hex'),
+		        validity,
+		        nonce,
+		        hash,
+		    };
+
+		    return txData;
+		}
+
+		/**
+		 * Builds a signed transaction message. This function does NOT perform any validation on the transaction data.
+		 * It is assumed that the transaction data has been properly generated with the preBuild function.
+		 * @param {Object} transactionData - The transaction data object returned by preBuild function.
+		 * @param {Buffer} secretKey - The private key to sign the transaction with.
+		 * @returns {string} The signed transaction as a Base64 string.
+		 */
+		function build(transactionData, secretKey) {
+		    // sign the hash with the private key
+		    const sig = signatureUtils.sign(transactionData.hash, secretKey);
+
+		    const data = {
+		        type: OP_TYPE_TRANSFER,
+		        address: transactionData.from,
+		        tro: {
+		            tx: transactionData.hash.toString('hex'),
+		            txv: transactionData.validity,
+		            in: transactionData.nonce.toString('hex'),
+		            to: transactionData.to,
+		            am: transactionData.amount,
+		            is: sig.toString('hex')
+		        }
+		    };
+
+		    const txStr = JSON.stringify(data);
+		    const txStrBytes = b4a.from(txStr, 'utf-8');
+		    const txBase64 = txStrBytes.toString('base64');
+
+		    return txBase64;
+		}
+
+		transaction = {
+		    preBuild,
+		    build,
+		    OP_TYPE_TRANSFER
+		};
+		return transaction;
+	}
+
 	var tracCryptoApi;
 	var hasRequiredTracCryptoApi;
 
@@ -156243,6 +156433,7 @@ zoo`.split('\n');
 		const signature = requireSignature();
 		const data = requireData();
 		const utils = requireUtils();
+		const transaction = requireTransaction();
 
 		const sign = signature.sign;
 
@@ -156254,6 +156445,7 @@ zoo`.split('\n');
 		    signature,
 		    data,
 		    utils,
+		    transaction,
 		    sign
 		};
 		return tracCryptoApi;

@@ -90,13 +90,13 @@ async function preBuild(from, to, amount, validity) {
  * It is assumed that the transaction data has been properly generated with the preBuild function.
  * @param {Object} transactionData - The transaction data object returned by preBuild function.
  * @param {Buffer} secretKey - The private key to sign the transaction with.
- * @returns {Buffer} The signed transaction message.
+ * @returns {string} The signed transaction as a Base64 string.
  */
 function build(transactionData, secretKey) {
     // sign the hash with the private key
     const sig = signatureUtils.sign(transactionData.hash, secretKey);
 
-    const payload = {
+    const data = {
         type: OP_TYPE_TRANSFER,
         address: transactionData.from,
         tro: {
@@ -109,7 +109,11 @@ function build(transactionData, secretKey) {
         }
     }
 
-    return payload;
+    const txStr = JSON.stringify(data);
+    const txStrBytes = b4a.from(txStr, 'utf-8');
+    const txBase64 = txStrBytes.toString('base64');
+
+    return txBase64;
 }
 
 module.exports = {

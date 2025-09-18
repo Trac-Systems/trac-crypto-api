@@ -49,22 +49,32 @@ test("transaction: should build a valid transaction", async (t) => {
     t.is(amount, unpaddHex(txData.amount), "Amount should match");
 
     // Check Build
-    const signedPayload = api.transaction.build(txData, fromKeyPair.secretKey);
+    const payload = api.transaction.build(txData, fromKeyPair.secretKey);
 
-    t.ok(signedPayload, "Signed transaction should be created");
-    t.is(signedPayload.type, OP_TYPE_TRANSFER, "Transaction type should be correct");
-    t.is(signedPayload.address, fromKeyPair.address, "Signed transaction 'from' address should match");
-    t.ok(signedPayload.tro, "Signed transaction should have 'tro' field");
-    t.is(signedPayload.tro.tx, txData.hash.toString("hex"), "Signed transaction hash should match");
-    t.is(signedPayload.tro.to, toKeyPair.address, "Signed transaction 'to' address should match");
-    t.is(signedPayload.tro.am, txData.amount, "Signed transaction amount should match");
-    t.is(signedPayload.tro.txv, txData.validity, "Signed transaction validity should match");
-    t.is(signedPayload.tro.in, txData.nonce.toString("hex"), "Signed transaction nonce should match");
-    t.ok(signedPayload.tro.is, "Signed transaction should have signature");
-    t.is(signedPayload.tro.is.length, 128, "Signature should be 64 bytes hex string (128 chars)");
+    t.ok(payload, "Payload should be created");
+    t.is(typeof payload, "string", "Payload should be a string");
+
+    let data;
+    try {
+        data = JSON.parse(b4a.from(payload, "base64").toString("utf-8"));
+        t.ok(data, "Payload should be a base64 encoded JSON");
+    } catch (error) {
+        t.fail("Payload is not a base64 encoded JSON");
+    }
+
+    t.is(data.type, OP_TYPE_TRANSFER, "Transaction type should be correct");
+    t.is(data.address, fromKeyPair.address, "Signed transaction 'from' address should match");
+    t.ok(data.tro, "Signed transaction should have 'tro' field");
+    t.is(data.tro.tx, txData.hash.toString("hex"), "Signed transaction hash should match");
+    t.is(data.tro.to, toKeyPair.address, "Signed transaction 'to' address should match");
+    t.is(data.tro.am, txData.amount, "Signed transaction amount should match");
+    t.is(data.tro.txv, txData.validity, "Signed transaction validity should match");
+    t.is(data.tro.in, txData.nonce.toString("hex"), "Signed transaction nonce should match");
+    t.ok(data.tro.is, "Signed transaction should have signature");
+    t.is(data.tro.is.length, 128, "Signature should be 64 bytes hex string (128 chars)");
     t.ok(api.signature.verify(
-        b4a.from(signedPayload.tro.is, "hex"),
-        b4a.from(signedPayload.tro.tx, "hex"),
+        b4a.from(data.tro.is, "hex"),
+        b4a.from(data.tro.tx, "hex"),
         fromKeyPair.publicKey
     ), "Signature should be valid");
 });
