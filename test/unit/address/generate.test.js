@@ -77,6 +77,7 @@ test("address.generate: should accept valid derivation paths", async (t) => {
   const mnemonic = api.mnemonic.generate();
   const paths = [
     undefined, // No path provided, should use default
+    null, // No path provided, should use default
     "m/0'",
     "m/0'/1'",
     "m/0'   /1'", // spaces are trimmed
@@ -94,7 +95,7 @@ test("address.generate: should accept valid derivation paths", async (t) => {
     t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE, `Valid path: ${path}`);
     t.is(typeof result.mnemonic, "string", `Valid path: ${path}`);
     t.is(typeof result.derivationPath, "string", `Valid path: ${path}`);
-    if (path === undefined) {
+    if (typeof path !== "string") {
       t.is(result.derivationPath, "m/0'/0'/0'", `Valid path: ${path}`); // Default path
     } else {
       t.is(result.derivationPath, path.replace(/\s+/g, ''), `Valid path: ${path}`); // Path with spaces trimmed
@@ -113,7 +114,6 @@ test("address.generate: should accept valid derivation paths", async (t) => {
 
 test("address.generate: should throw an error for invalid derivation paths", async (t) => {
   const paths = [
-    null, // Missing path
     1234, // Not a string
     { valid: false }, // Not a string
     "invalid_path",

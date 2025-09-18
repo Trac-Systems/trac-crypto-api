@@ -85,16 +85,20 @@ function _sanitizeDerivationPath(path) {
 /**
  * Generates an Ed25519 key pair from a mnemonic phrase.
  * @async
- * @param {string|null} mnemonic - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
- * @param {string} [path="m/0'/0'/0'"] - Optional derivation path. Defaults to "m/0'/0'/0'".
+ * @param {string|null} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
+ * @param {string} [path] - Optional derivation path. Defaults to "m/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
-async function _generateKeyPair(masterPathSegments, mnemonic = null, path = "m/0'/0'/0'") {
+async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
   let safeMnemonic;
   if (mnemonic === null) {
     safeMnemonic = mnemonicUtils.generate();
   } else {
     safeMnemonic = mnemonicUtils.sanitize(mnemonic); // Will throw if the mnemonic is invalid
+  }
+
+  if (path === null) {
+    path = "m/0'/0'/0'";
   }
 
   // TODO: Refactor this part of the code to use a BIP32-style path. Then, use _sanitizeDerivationPath to validate it.
@@ -220,8 +224,7 @@ function decode(address) {
  * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
  * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
  */
-// TODO: Currently, _generateKeyPair crashes if it receives null as defivation path. Is should use default path. Fix it and change default value to null
-async function generate(hrp, mnemonic = undefined, derivationPath = undefined) {
+async function generate(hrp, mnemonic = null, derivationPath = null) {
   _validateHrp(hrp);
   const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
   const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
