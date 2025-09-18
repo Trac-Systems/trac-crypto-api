@@ -24,10 +24,11 @@ function _isValidHrp(hrp) {
   if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
     return false;
   }
-  // HRP must consist of printable ASCII characters (33-126)
+  // HRP must consist of printable lower-case ASCII characters (33-126)
   for (let i = 0; i < hrp.length; i++) {
     const charCode = hrp.charCodeAt(i);
-    if (charCode < 33 || charCode > 126) {
+    // Only allow lower-case letters a-z
+    if (charCode < 97 || charCode > 122) {
       return false;
     }
   }
@@ -238,12 +239,35 @@ async function generate(hrp, mnemonic = null, derivationPath = null) {
   };
 }
 
+/**
+ * Generates an address and keypair from a given secret key.
+ * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
+ * @param {Buffer} secretKey - The 64-byte secret key Buffer.
+ * @returns {{address: string, publicKey: Buffer, secretKey: Buffer}} An object containing the address, public key, and secret key.
+ * @throws {Error} If the secretKey is not a Buffer or has incorrect length.
+ */
+function fromSecretKey(hrp, secretKey) {
+  if (!b4a.isBuffer(secretKey) || secretKey.length !== TRAC_PRIV_KEY_SIZE) {
+    throw new Error(
+      `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`
+    );
+  }
+  const publicKey = secretKey.subarray(32); // The public key is the last 32 bytes of the 64-byte secret key
+  const address = encode(hrp, publicKey);
+  return {
+    address,
+    publicKey,
+    secretKey,
+  };
+}
+
 module.exports = {
   generate,
   encode,
   decode,
   isValid,
   toBuffer,
+  fromSecretKey,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 };

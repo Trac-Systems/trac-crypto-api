@@ -64,12 +64,23 @@ test("address.generate: should return an error for invalid mnemonic", async (t) 
   }
 });
 
-test("address.generate: should return an error for missing hrp", async (t) => {
-  try {
-    const result = await api.address.generate(null);
-    t.fail();
-  } catch (error) {
-    t.pass(`Has thrown error for missing hrp: ${error.message}`); // TODO: In the future, assert the error message
+test("address.generate: should return an error for invalid hrp", async (t) => {
+  const invalidHrps = [
+    "", // Empty string
+    "   ", // Spaces only
+    "a".repeat(84), // Too long
+    "Trac", // Uppercase letters
+    "tr@c", // Special characters
+    "тест", // Non-ASCII characters
+  ];
+
+  for (const hrp of invalidHrps) {
+    try {
+      const result = await api.address.generate(hrp);
+      t.fail();
+    } catch (error) {
+      t.pass(`Has thrown error for invalid hrp: ${error.message}`); // TODO: In the future, assert the error message
+    }
   }
 });
 
@@ -134,6 +145,34 @@ test("address.generate: should throw an error for invalid derivation paths", asy
       t.fail(`Should have thrown error for invalid path: ${path}`);
     } catch (error) {
       t.pass(`Has thrown error for invalid path ${path}: ${error.message}`); // TODO: In the future, assert the error message
+    }
+  }
+});
+
+test("address.fromSecretKey: should derive the correct address and public key from a given secret key", async (t) => {
+  const original = await api.address.generate(HRP);
+  const derived = api.address.fromSecretKey(HRP, original.secretKey);
+  t.is(derived.address, original.address);
+  t.ok(b4a.equals(derived.publicKey, original.publicKey));
+  t.ok(b4a.equals(derived.secretKey, original.secretKey));
+});
+
+test("address.fromSecretKey: should throw on invalid secret key", async (t) => {
+  const invalidKeys = [
+    Buffer.alloc(10), // Too short
+    Buffer.alloc(100), // Too long
+    "not a buffer", // Not a buffer
+    12345, // Not a buffer
+    null, // Not a buffer
+    undefined, // Not a buffer
+  ];
+
+  for (const key of invalidKeys) {
+    try {
+      const result = await api.address.fromSecretKey(key, HRP);
+      t.fail("Should have thrown error for invalid secret key");
+    } catch (error) {
+      t.pass(`Has thrown error for invalid secret key: ${error.message}`); // TODO: In the future, assert the error message
     }
   }
 });

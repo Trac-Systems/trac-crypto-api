@@ -13,19 +13,56 @@ test("address.encode/decode: should encode and decode public key correctly", asy
 });
 
 test("address.encode: should throw on invalid public key", (t) => {
-  try {
-    api.address.encode(HRP, Buffer.alloc(10));
-    t.fail();
-  } catch {
-    t.pass();
+  const invalidKeys = [
+    null,
+    undefined,
+    "not a buffer",
+    b4a.alloc(10), // Too short
+    b4a.alloc(50)  // Too long
+  ];
+  for (const key of invalidKeys) {
+    try {
+      api.address.encode(HRP, key);
+      t.fail(`Did not throw for key: ${key}`);
+    } catch (e) {
+      t.pass();
+    }
+  }
+});
+
+test("address.encode: should throw on invalid hrp", async (t) => {
+  const invalidHrps = [
+    null,
+    undefined,
+    "",
+    "ThisHRPIsWayTooLongToBeValid",
+    "invalid*char"
+  ];
+  for (const hrp of invalidHrps) {
+    try {
+      const { publicKey } = await api.address.generate("trac");
+      api.address.encode(hrp, publicKey);
+      t.fail(`Did not throw for HRP: ${hrp}`);
+    } catch (e) {
+      t.pass();
+    }
   }
 });
 
 test("address.decode: should throw on invalid address", (t) => {
-  try {
-    api.address.decode("invalidaddress");
-    t.fail();
-  } catch {
-    t.pass();
+  const invalidAddresses = [
+    null,
+    undefined,
+    "not a buffer",
+    b4a.alloc(10), // Too short
+    b4a.alloc(50)  // Too long
+  ];
+  for (const address of invalidAddresses) {
+    try {
+      api.address.decode(address);
+      t.fail(`Did not throw for address: ${address}`);
+    } catch (e) {
+      t.pass();
+    }
   }
 });
