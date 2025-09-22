@@ -164,11 +164,13 @@ function isValid(address) {
 
   const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
   const { prefix, suffix } = _separateHrp(address);
+  const suffixLength = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5) + 6; // Data part + checksum
 
   return typeof prefix === 'string' &&
     typeof suffix === 'string' &&
     _isValidHrp(prefix) &&
-    bech32Chars.test(suffix);
+    bech32Chars.test(suffix) &&
+    suffix.length === suffixLength;
 }
 
 /**
@@ -269,6 +271,9 @@ function fromSecretKey(hrp, secretKey) {
 }
 
 function size(hrp) {
+  if (!_isValidHrp(hrp)) {
+    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+  }
   const hrpSize = hrp.length;
   const separatorSize = 1; // The '1' character separating HRP and data part
   // Each byte is represented by 8 bits, and bech32m encodes 5 bits per character

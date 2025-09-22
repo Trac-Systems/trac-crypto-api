@@ -82,8 +82,8 @@ test("address.toBuffer: should throw on invalid address", (t) => {
     undefined,
     "",
     "not a valid address",
-    "trac1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", // Too short
-    "trac1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"  // Invalid chars
+    "trac1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", // Too short
+    "trac1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzo"  // Invalid char
   ];
   for (const address of invalidAddresses) {
     try {
@@ -113,11 +113,8 @@ test("address.fromBuffer: should throw on invalid buffer", (t) => {
   }
 });
 
-test("address.size: should return correct address size", (t) => {
-  const address = api.address.generate(HRP);
-  const hrpSize = HRP.length;
-  const size = api.address.size(address);
-  // Address size is HRP + '1' + 6-char checksum + 32-byte pubkey (encoded in 5-bit chars)
-  // For HRP 'trac', size should be 4 + 1 + 6 + ceil((32*8)/5) = 4 + 1 + 6 + 52 = 63
-  t.is(size, 63);
+test("address.size: should return correct address size", async (t) => {
+  const { address } = await api.address.generate(HRP);
+  const size = api.address.size(HRP);
+  t.is(size, address.length);
 });
