@@ -1,4 +1,5 @@
 const b4a = require("b4a");
+const utils = require("./utils.js");
 const nonceUtils = require("./nonce.js");
 const hashUtils = require("./hash.js");
 const signatureUtils = require("./signature.js");
@@ -7,41 +8,15 @@ const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = require("../c
 
 const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
-function _isHexString(str) {
-    return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
-}
-
-function _isUInt32(n) { return Number.isInteger(n) && n >= 1 && n <= 0xFFFFFFFF; }
-
-function _writeUInt32BE(value, offset) {
-    const buf = b4a.alloc(4);
-    buf.writeUInt32BE(value, offset);
-    return buf;
-}
-
-function _createMessage(...args) {
-
-    if (args.length === 0) return b4a.alloc(0);
-
-    const buffers = args.map(arg => {
-        if (b4a.isBuffer(arg)) {
-            return arg;
-        } else if (typeof arg === 'number' && _isUInt32(arg)) {
-            // Convert number to 4-byte big-endian buffer
-            return _writeUInt32BE(arg, 0);
-        }
-    }).filter(buf => b4a.isBuffer(buf));
-
-    if (buffers.length === 0) return b4a.alloc(0);
-    return b4a.concat(buffers);
-}
-
 /**
  * Builds an unsigned transaction message.
+ * @async
  * @param {string} from - The sender's address.
  * @param {string} to - The recipient's address.
  * @param {string} amount - The amount to transfer as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
+ * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
+ * @throws Will throw an error if any of the inputs are invalid.
  */
 async function preBuild(from, to, amount, validity) {
     // validate inputs
@@ -51,10 +26,10 @@ async function preBuild(from, to, amount, validity) {
     if (!addressUtils.isValid(to)) {
         throw new Error('Invalid "to" address format');
     }
-    if (!_isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
+    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
         throw new Error(`Invalid "amount" format. Should be a hex string up to ${TRAC_TOKEN_AMOUNT_SIZE_BYTES} bytes long`);
     }
-    if (!_isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
+    if (!utils.isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
         throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
     }
 
@@ -64,7 +39,7 @@ async function preBuild(from, to, amount, validity) {
     const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
         b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
         amountBuf;
-    const message = _createMessage(
+    const message = utils.serialize(
         addressUtils.toBuffer(from),
         b4a.from(validity, 'hex'),
         nonce,
@@ -73,16 +48,14 @@ async function preBuild(from, to, amount, validity) {
         OP_TYPE_TRANSFER
     );
     const hash = await hashUtils.blake3(message);
-    const txData = {
+    return {
         from,
-        to,
-        amount: amountPadded.toString('hex'),
+        hash,
         validity,
         nonce,
-        hash,
+        amount: amountPadded.toString('hex'),
+        to,
     };
-
-    return txData;
 }
 
 /**
@@ -109,11 +82,7 @@ function build(transactionData, secretKey) {
         }
     }
 
-    const txStr = JSON.stringify(data);
-    const txStrBytes = b4a.from(txStr, 'utf-8');
-    const txBase64 = txStrBytes.toString('base64');
-
-    return txBase64;
+    return utils.toBase64(data);
 }
 
 module.exports = {
