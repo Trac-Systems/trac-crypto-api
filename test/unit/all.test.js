@@ -11,6 +11,7 @@ function runTests() {
   require('./data/data.test.js');
   require('./utils/utils.test.js');
   require('./transaction/transaction.test.js');
+  require('./operation/operation.test.js');
 
   test.resume();
 }

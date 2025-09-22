@@ -14,6 +14,7 @@ const signature = require('./modules/signature.js');
 const data = require('./modules/data.js');
 const utils = require('./modules/utils.js');
 const transaction = require('./modules/transaction.js');
+const operation = require('./modules/operation.js');
 
 const sign = signature.sign;
 
@@ -26,5 +27,6 @@ module.exports = {
     data,
     utils,
     transaction,
+    operation,
     sign
 };
