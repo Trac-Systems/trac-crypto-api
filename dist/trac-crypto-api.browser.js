@@ -155720,10 +155720,11 @@ zoo`.split('\n');
 		  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
 		    return false;
 		  }
-		  // HRP must consist of printable ASCII characters (33-126)
+		  // HRP must consist of printable lower-case ASCII characters (33-126)
 		  for (let i = 0; i < hrp.length; i++) {
 		    const charCode = hrp.charCodeAt(i);
-		    if (charCode < 33 || charCode > 126) {
+		    // Only allow lower-case letters a-z
+		    if (charCode < 97 || charCode > 122) {
 		      return false;
 		    }
 		  }
@@ -155859,11 +155860,13 @@ zoo`.split('\n');
 
 		  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
 		  const { prefix, suffix } = _separateHrp(address);
+		  const suffixLength = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5) + 6; // Data part + checksum
 
 		  return typeof prefix === 'string' &&
 		    typeof suffix === 'string' &&
 		    _isValidHrp(prefix) &&
-		    bech32Chars.test(suffix);
+		    bech32Chars.test(suffix) &&
+		    suffix.length === suffixLength;
 		}
 
 		/**
@@ -155876,6 +155879,13 @@ zoo`.split('\n');
 		    throw new Error('Invalid address');
 		  }
 		  return b4a.from(address, 'ascii');
+		}
+
+		function fromBuffer(buffer) {
+		  if (!b4a.isBuffer(buffer)) {
+		    throw new Error('Invalid input: buffer must be a Buffer');
+		  }
+		  return buffer.toString('ascii');
 		}
 
 		/**
@@ -155934,12 +155944,50 @@ zoo`.split('\n');
 		  };
 		}
 
+		/**
+		 * Generates an address and keypair from a given secret key.
+		 * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
+		 * @param {Buffer} secretKey - The 64-byte secret key Buffer.
+		 * @returns {{address: string, publicKey: Buffer, secretKey: Buffer}} An object containing the address, public key, and secret key.
+		 * @throws {Error} If the secretKey is not a Buffer or has incorrect length.
+		 */
+		function fromSecretKey(hrp, secretKey) {
+		  if (!b4a.isBuffer(secretKey) || secretKey.length !== TRAC_PRIV_KEY_SIZE) {
+		    throw new Error(
+		      `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`
+		    );
+		  }
+		  const publicKey = secretKey.subarray(32); // The public key is the last 32 bytes of the 64-byte secret key
+		  const address = encode(hrp, publicKey);
+		  return {
+		    address,
+		    publicKey,
+		    secretKey,
+		  };
+		}
+
+		function size(hrp) {
+		  if (!_isValidHrp(hrp)) {
+		    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+		  }
+		  const hrpSize = hrp.length;
+		  const separatorSize = 1; // The '1' character separating HRP and data part
+		  // Each byte is represented by 8 bits, and bech32m encodes 5 bits per character
+		  const dataPartSize = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5);
+		  const checksumSize = 6; // Bech32m checksum is always 6 characters
+
+		  return hrpSize + separatorSize + dataPartSize + checksumSize;
+		}
+
 		address = {
 		  generate,
 		  encode,
 		  decode,
+		  size,
 		  isValid,
 		  toBuffer,
+		  fromBuffer,
+		  fromSecretKey,
 		  PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
 		  PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 		};
@@ -156274,8 +156322,53 @@ zoo`.split('\n');
 		    sodium.sodium_memzero(buffer);
 		}
 
+		function toBase64(payload) {
+		    if (typeof payload !== 'object') {
+		        throw new Error('Payload must be an object');
+		    }
+		    const jsonString = JSON.stringify(payload);
+		    const buffer = b4a.from(jsonString, 'utf-8');
+		    return buffer.toString('base64');
+		}
+
+		function isUInt32(n) {
+		    return Number.isInteger(n) && n >= 1 && n <= 0xFFFFFFFF;
+		}
+
+		function toUInt32(value, offset) {
+		    const buf = b4a.alloc(4);
+		    buf.writeUInt32BE(value, offset);
+		    return buf;
+		}
+
+		function isHexString(str) {
+		    return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
+		}
+
+		function serialize(...args) {
+		    const buffers = args.map(arg => {
+		        // TODO: Should we support other types?
+		        if (b4a.isBuffer(arg)) {
+		            return arg;
+		        } else if (typeof arg === 'number' && isUInt32(arg)) {
+		            // Convert number to 4-byte big-endian buffer
+		            return toUInt32(arg, 0);
+		        }
+		        else {
+		            throw new Error('Invalid argument type. Only Buffer and uint32 are supported for now');
+		        }
+		    }).filter(buf => b4a.isBuffer(buf));
+
+		    return b4a.concat(buffers);
+		}
+
 		utils = {
-		    memzero
+		    memzero,
+		    toBase64,
+		    isUInt32,
+		    toUInt32,
+		    isHexString,
+		    serialize,
 		};
 		return utils;
 	}
@@ -156287,6 +156380,7 @@ zoo`.split('\n');
 		if (hasRequiredTransaction) return transaction;
 		hasRequiredTransaction = 1;
 		const b4a = requireBrowser$1();
+		const utils = requireUtils();
 		const nonceUtils = requireNonce();
 		const hashUtils = requireHash();
 		const signatureUtils = requireSignature();
@@ -156295,41 +156389,15 @@ zoo`.split('\n');
 
 		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
-		function _isHexString(str) {
-		    return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
-		}
-
-		function _isUInt32(n) { return Number.isInteger(n) && n >= 1 && n <= 0xFFFFFFFF; }
-
-		function _writeUInt32BE(value, offset) {
-		    const buf = b4a.alloc(4);
-		    buf.writeUInt32BE(value, offset);
-		    return buf;
-		}
-
-		function _createMessage(...args) {
-
-		    if (args.length === 0) return b4a.alloc(0);
-
-		    const buffers = args.map(arg => {
-		        if (b4a.isBuffer(arg)) {
-		            return arg;
-		        } else if (typeof arg === 'number' && _isUInt32(arg)) {
-		            // Convert number to 4-byte big-endian buffer
-		            return _writeUInt32BE(arg, 0);
-		        }
-		    }).filter(buf => b4a.isBuffer(buf));
-
-		    if (buffers.length === 0) return b4a.alloc(0);
-		    return b4a.concat(buffers);
-		}
-
 		/**
 		 * Builds an unsigned transaction message.
+		 * @async
 		 * @param {string} from - The sender's address.
 		 * @param {string} to - The recipient's address.
 		 * @param {string} amount - The amount to transfer as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
+		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
 		async function preBuild(from, to, amount, validity) {
 		    // validate inputs
@@ -156339,10 +156407,10 @@ zoo`.split('\n');
 		    if (!addressUtils.isValid(to)) {
 		        throw new Error('Invalid "to" address format');
 		    }
-		    if (!_isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
+		    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
 		        throw new Error(`Invalid "amount" format. Should be a hex string up to ${TRAC_TOKEN_AMOUNT_SIZE_BYTES} bytes long`);
 		    }
-		    if (!_isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
+		    if (!utils.isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
 		        throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
 		    }
 
@@ -156352,7 +156420,7 @@ zoo`.split('\n');
 		    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
 		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
 		        amountBuf;
-		    const message = _createMessage(
+		    const message = utils.serialize(
 		        addressUtils.toBuffer(from),
 		        b4a.from(validity, 'hex'),
 		        nonce,
@@ -156361,16 +156429,14 @@ zoo`.split('\n');
 		        OP_TYPE_TRANSFER
 		    );
 		    const hash = await hashUtils.blake3(message);
-		    const txData = {
+		    return {
 		        from,
-		        to,
-		        amount: amountPadded.toString('hex'),
+		        hash,
 		        validity,
 		        nonce,
-		        hash,
+		        amount: amountPadded.toString('hex'),
+		        to,
 		    };
-
-		    return txData;
 		}
 
 		/**
@@ -156397,11 +156463,7 @@ zoo`.split('\n');
 		        }
 		    };
 
-		    const txStr = JSON.stringify(data);
-		    const txStrBytes = b4a.from(txStr, 'utf-8');
-		    const txBase64 = txStrBytes.toString('base64');
-
-		    return txBase64;
+		    return utils.toBase64(data);
 		}
 
 		transaction = {
@@ -156410,6 +156472,131 @@ zoo`.split('\n');
 		    OP_TYPE_TRANSFER
 		};
 		return transaction;
+	}
+
+	var operation;
+	var hasRequiredOperation;
+
+	function requireOperation () {
+		if (hasRequiredOperation) return operation;
+		hasRequiredOperation = 1;
+		const b4a = requireBrowser$1();
+		const utils = requireUtils();
+		const nonceUtils = requireNonce();
+		const hashUtils = requireHash();
+		const signatureUtils = requireSignature();
+		const addressUtils = requireAddress();
+		const { TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
+
+		const OP_TYPE_TX = 12; // Operation type for a transaction in Trac Network
+
+		function _isValidInput(input, expectedLength) {
+		    return utils.isHexString(input) && input.length === expectedLength;
+		}
+
+		/**
+		 * Builds an unsigned transaction message.
+		 * @async
+		 * @param {string} from - The sender's address.
+		 * @param {string} validator - The subnetwork validator key as a hex string.
+		 * @param {string} contentHash - The content hash as a hex string.
+		 * @param {string} originBootstrap - The origin bootstrap node as a hex string.
+		 * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
+		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 * @returns {Object} The transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
+		 * @throws Will throw an error if any of the inputs are invalid.
+		 */
+		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity) {
+		    // validate inputs
+		    if (!addressUtils.isValid(from)) {
+		        throw new Error('Invalid "from" address format');
+		    }
+		    if (!_isValidInput(validator, 64)) {
+		        throw new Error('Invalid "writerKey" format. Should be a 32-byte hex string');
+		    }
+		    if (!_isValidInput(contentHash, 64)) {
+		        throw new Error('Invalid "contentHash" format. Should be a 32-byte hex string');
+		    }
+		    if (!_isValidInput(originBootstrap, 64)) {
+		        throw new Error('Invalid "originBootstrap" format. Should be a 32-byte hex string');
+		    }
+		    if (!_isValidInput(destinationBootstrap, 64)) {
+		        throw new Error('Invalid "destinationBootstrap" format. Should be a 32-byte hex string');
+		    }
+		    if (!_isValidInput(validity, 64) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
+		        throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
+		    }
+
+		    // Generate serialized operation
+		    // TODO: In the future, return a serialized transaction and implement a "descerialize" function
+		    // that can be used to extract the fields from the serialized transaction
+		    // This will ensure that the transaction is properly formatted and can be used for signing
+		    // and sending to the network
+		    // For now, we just return an object with the fields
+		    const nonce = nonceUtils.generate();
+		    const serialized = utils.serialize(
+		        addressUtils.toBuffer(from),
+		        b4a.from(validity, 'hex'),
+		        b4a.from(validator, 'hex'),
+		        b4a.from(contentHash, 'hex'),
+		        nonce,
+		        b4a.from(originBootstrap, 'hex'),
+		        b4a.from(destinationBootstrap, 'hex'),
+		        OP_TYPE_TX
+		    );
+
+		    const hash = await hashUtils.blake3(serialized);
+
+		    const txData = {
+		        from,
+		        hash,
+		        validity,
+		        validator,
+		        contentHash,
+		        nonce,
+		        originBootstrap,
+		        destinationBootstrap,
+		    };
+
+		    return txData;
+		}
+
+		/**
+		 * Builds a signed operation message. This function does NOT perform any validation on the received data.
+		 * It is assumed that the operation data has been properly generated with the preBuild function.
+		 * @param {Object} operationData - The operation data object returned by preBuild function.
+		 * @param {Buffer} secretKey - The private key to sign the operation with.
+		 * @returns {string} The signed operation as a Base64 string.
+		 */
+		function build(operationData, secretKey) {
+		    // sign the hash with the private key
+		    const sig = signatureUtils.sign(operationData.hash, secretKey);
+
+		    // assemble the final transaction object
+		    const data = {
+		        type: OP_TYPE_TX,
+		        address: operationData.from,
+		        txo: {
+		            tx: operationData.hash.toString('hex'),
+		            txv: operationData.validity,
+		            iw: operationData.validator.toString('hex'),
+		            in: operationData.nonce.toString('hex'),
+		            ch: operationData.contentHash.toString('hex'),
+		            is: sig.toString('hex'),
+		            bs: operationData.originBootstrap,
+		            mbs: operationData.destinationBootstrap,
+		        }
+		    };
+
+		    return utils.toBase64(data);
+		}
+
+		operation = {
+		    preBuild,
+		    build,
+		    OP_TYPE_TX
+		};
+		return operation;
 	}
 
 	var tracCryptoApi;
@@ -156434,6 +156621,7 @@ zoo`.split('\n');
 		const data = requireData();
 		const utils = requireUtils();
 		const transaction = requireTransaction();
+		const operation = requireOperation();
 
 		const sign = signature.sign;
 
@@ -156446,6 +156634,7 @@ zoo`.split('\n');
 		    data,
 		    utils,
 		    transaction,
+		    operation,
 		    sign
 		};
 		return tracCryptoApi;
