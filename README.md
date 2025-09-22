@@ -14,13 +14,21 @@ A lightweight cryptography API for TRAC Network
 ## Usage
 
 ```js
-import tracCrypto from 'trac-crypto-api';
+import tracCrypto from "trac-crypto-api";
 
-// Generate a keypair and address from a mnemonic
-const { address, publicKey, secretKey, mnemonic } = await tracCrypto.address.generate('trac', null);
+// Generate a keypair and address from a mnemonic and derivation path.
+// When no mnemonic is provided, the function will generate a random one
+// When no derivation path is provided, the function will use the default one 
+const { address, publicKey, secretKey, mnemonic, derivationPath } = await tracCrypto.address.generate("trac", null, null);
+
+// Derive a different address
+const derived = await tracCrypto.address.generate("trac", mnemonic, "m/0'/1'/2'/3'");
+
+console.log(derived.mnemonic === mnemonic) // will print 'true'
+console.log(derived.address === address) // will print 'false'
 
 // Encode a public key to address
-const encoded = tracCrypto.address.encode('trac', publicKey);
+const encoded = tracCrypto.address.encode("trac", publicKey);
 
 // Decode an address to public key
 const decodedPubKey = tracCrypto.address.decode(address);
@@ -40,7 +48,7 @@ const to = "trac1xwggfmeffw08n49qfk9w4hu9u32wnxu9mn04dvprk70mv3larpvsade4d5"
 const validity = rundomeBuffer(32) // In a real case scenario, the current validity should be fetched through RPC call
 const amount = "1234abcd" // Amount in hex format
 
-// This function assembles a transaction object that can me signed by transaction.build
+// This function generates a nonce internally and assembles a transaction object that can me signed by transaction.build
 const txData = await tracCrypto.transaction.preBuild(
     fromKeyPair.address,
     toKeyPair.address,
