@@ -2,11 +2,15 @@ const test = require("brittle");
 const mnemonic = require("../../../modules/mnemonic.js");
 const { TRAC_MNEMONIC_WORD_COUNT } = require("../../../constants.js");
 
+const mnemonic12Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+const mnemonic11Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon";
+const mnemonic24Words = mnemonic.generate();
+
 test("mnemonic.generate: should generate a valid mnemonic", (t) => {
   const phrase = mnemonic.generate();
   t.is(typeof phrase, "string");
   t.not(phrase, "");
-  t.is(phrase.split(" ").length, TRAC_MNEMONIC_WORD_COUNT);
+  t.ok(TRAC_MNEMONIC_WORD_COUNT.includes(phrase.split(" ").length));
 });
 
 test("mnemonic.generate: should generate different mnemonics", (t) => {
@@ -15,24 +19,22 @@ test("mnemonic.generate: should generate different mnemonics", (t) => {
   t.not(phrase1, phrase2);
 });
 
-test("mnemonic.validate: should return true for a valid mnemonic", (t) => {
-  const phrase = mnemonic.generate();
-  t.is(mnemonic.validate(phrase), true);
+test("mnemonic.isValid: should return true for a valid mnemonic", (t) => {
+  t.is(mnemonic.isValid(mnemonic24Words), true);
+  t.is(mnemonic.isValid(mnemonic12Words), true);
 });
 
-test("mnemonic.validate: should return false for an invalid mnemonic", (t) => {
-  t.is(mnemonic.validate("invalid mnemonic phrase"), false);
+test("mnemonic.isValid: should return false for an invalid mnemonic", (t) => {
+  t.is(mnemonic.isValid("invalid mnemonic phrase"), false);
 });
 
-test("mnemonic.validate: should return false for empty input", (t) => {
-  t.is(mnemonic.validate(""), false);
-  t.is(mnemonic.validate(null), false);
+test("mnemonic.isValid: should return false for empty input", (t) => {
+  t.is(mnemonic.isValid(""), false);
+  t.is(mnemonic.isValid(null), false);
 });
 
-test("mnemonic.validate: should return false for wrong word count", (t) => {
-  const phrase =
-    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; // 12 words
-  t.is(mnemonic.validate(phrase), false);
+test("mnemonic.isValid: should return false for wrong word count", (t) => {
+  t.is(mnemonic.isValid(mnemonic11Words), false);
 });
 
 test("mnemonic.sanitize: should sanitize and validate mnemonic", (t) => {
@@ -50,9 +52,7 @@ test("mnemonic.sanitize: should return null for invalid input", (t) => {
 });
 
 test("mnemonic.sanitize: should return null for wrong word count", (t) => {
-  const phrase =
-    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; // 12 words
-  t.is(mnemonic.sanitize(phrase), null);
+  t.is(mnemonic.sanitize(mnemonic11Words), null);
 });
 
 test("mnemonic.sanitize: should return null on invalid mnemonic", (t) => {

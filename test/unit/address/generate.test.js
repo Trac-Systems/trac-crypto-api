@@ -7,6 +7,9 @@ const HRP = "trac";
 const PATH1 = "m/0'/1'/2'";
 const PATH2 = "m/0'/1'/10000000'";
 
+const mnemonic12Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; // 12 words
+const mnemonic24Words = api.mnemonic.generate();
+
 test("address.generate: should generate a valid address and keypair with no mnemonic input", async (t) => {
   const result = await api.address.generate(HRP);
   t.is(typeof result.address, "string");
@@ -17,6 +20,30 @@ test("address.generate: should generate a valid address and keypair with no mnem
   t.is(typeof result.mnemonic, "string");
   t.is(typeof result.derivationPath, "string");
   t.is(result.derivationPath, "m/0'/0'/0'");
+});
+
+test("address.generate: should generate keypair for 12 words mnemonic", async (t) => {
+  const mnemonic = mnemonic12Words;
+  const result = await api.address.generate(HRP, mnemonic, PATH1);
+  t.ok(b4a.isBuffer(result.publicKey));
+  t.ok(b4a.isBuffer(result.secretKey));
+  t.is(result.publicKey.length, TRAC_PUB_KEY_SIZE);
+  t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE);
+  t.is(result.mnemonic, mnemonic);
+  t.ok(api.address.isValid(result.address));
+  t.is(result.derivationPath, PATH1);
+});
+
+test("address.generate: should generate keypair for 24 words mnemonic", async (t) => {
+  const mnemonic = mnemonic24Words;
+  const result = await api.address.generate(HRP, mnemonic, PATH1);
+  t.ok(b4a.isBuffer(result.publicKey));
+  t.ok(b4a.isBuffer(result.secretKey));
+  t.is(result.publicKey.length, TRAC_PUB_KEY_SIZE);
+  t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE);
+  t.is(result.mnemonic, mnemonic);
+  t.ok(api.address.isValid(result.address));
+  t.is(result.derivationPath, PATH1);
 });
 
 test("address.generate: should generate the same keypair for the same mnemonic and derivation path", async (t) => {
@@ -55,12 +82,22 @@ test("address.generate: should generate different keypairs for the same mnemonic
 });
 
 test("address.generate: should return an error for invalid mnemonic", async (t) => {
-  try {
-    const mnemonic = "invalid mnemonic";
-    const result = await api.address.generate(HRP, mnemonic);
-    t.fail();
-  } catch (error) {
-    t.pass(`Has thrown error for invalid mnemonic: ${error.message}`); // TODO: In the future, assert the error message
+  const invalidMnemonics = [
+    "", // Empty string
+    "   ", // Spaces only
+    "invalid mnemonic", // Invalid words
+    "abandon abandon abandon", // Too few words
+    "abandon ".repeat(25).trim(), // Too many words (25)
+    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about extra", // 13 words
+  ];
+
+  for (const mnemonic of invalidMnemonics) {
+    try {
+      const result = await api.address.generate(HRP, mnemonic);
+      t.fail(`Should have thrown error for invalid mnemonic: "${mnemonic}"`);
+    } catch (error) {
+      t.pass(`Has thrown error for invalid mnemonic "${mnemonic}": ${error.message}`); // TODO: In the future, assert the error message
+    }
   }
 });
 

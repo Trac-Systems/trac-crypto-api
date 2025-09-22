@@ -8,7 +8,7 @@ function _isString(input) {
 
 function _isMnemonicFormat(mnemonic) {
     const words = mnemonic.split(' ');
-    return words.length === TRAC_MNEMONIC_WORD_COUNT;
+    return TRAC_MNEMONIC_WORD_COUNT.includes(words.length);
 }
 
 /**
@@ -16,7 +16,7 @@ function _isMnemonicFormat(mnemonic) {
  * @param {string} mnemonic - The mnemonic phrase to validate.
  * @returns {boolean} True if the mnemonic is valid and has the correct number of words, false otherwise.
  */
-function validate(mnemonic) {
+function isValid(mnemonic) {
     if (!_isString(mnemonic) || !_isMnemonicFormat(mnemonic)) {
         return false;
     }
@@ -27,7 +27,6 @@ function validate(mnemonic) {
  * Sanitizes and validates a mnemonic phrase.
  * @param {string} mnemonic - The mnemonic phrase to sanitize.
  * @returns {string|null} The sanitized mnemonic or null if the input is invalid.
- * @throws Will throw an error if the mnemonic is invalid.
  */
 function sanitize(mnemonic) {
     if (!_isString(mnemonic)) {
@@ -42,7 +41,7 @@ function sanitize(mnemonic) {
 }
 
 /**
- * Generates a new mnemonic phrase.
+ * Generates a new 24 word mnemonic phrase.
  * @param {Buffer|string|null} [seed] - Optional seed to use as entropy. If null, a random seed will be generated.
  * @returns {string} The generated mnemonic phrase.
  * @throws Will throw an error if the seed is invalid.
@@ -73,9 +72,9 @@ async function toSeed(mnemonic, passphrase = '') {
 }
 
 module.exports = {
-    validate,
+    validate: isValid,
+    isValid,
     sanitize,
     generate,
     toSeed,
-    WORD_COUNT: TRAC_MNEMONIC_WORD_COUNT
 };

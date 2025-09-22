@@ -115231,7 +115231,7 @@
 		const TRAC_PUB_KEY_SIZE = sodium.crypto_sign_PUBLICKEYBYTES;
 		const TRAC_PRIV_KEY_SIZE = sodium.crypto_sign_SECRETKEYBYTES;
 		const TRAC_SIGNATURE_SIZE = sodium.crypto_sign_BYTES;
-		const TRAC_MNEMONIC_WORD_COUNT = 24;
+		const TRAC_MNEMONIC_WORD_COUNT = [24, 12]; // Supported word counts for mnemonics
 
 		const TRAC_NONCE_SIZE = 32;
 		const TRAC_HASH_SIZE = 32;
@@ -115268,7 +115268,7 @@
 
 		function _isMnemonicFormat(mnemonic) {
 		    const words = mnemonic.split(' ');
-		    return words.length === TRAC_MNEMONIC_WORD_COUNT;
+		    return TRAC_MNEMONIC_WORD_COUNT.includes(words.length);
 		}
 
 		/**
@@ -115276,7 +115276,7 @@
 		 * @param {string} mnemonic - The mnemonic phrase to validate.
 		 * @returns {boolean} True if the mnemonic is valid and has the correct number of words, false otherwise.
 		 */
-		function validate(mnemonic) {
+		function isValid(mnemonic) {
 		    if (!_isString(mnemonic) || !_isMnemonicFormat(mnemonic)) {
 		        return false;
 		    }
@@ -115287,7 +115287,6 @@
 		 * Sanitizes and validates a mnemonic phrase.
 		 * @param {string} mnemonic - The mnemonic phrase to sanitize.
 		 * @returns {string|null} The sanitized mnemonic or null if the input is invalid.
-		 * @throws Will throw an error if the mnemonic is invalid.
 		 */
 		function sanitize(mnemonic) {
 		    if (!_isString(mnemonic)) {
@@ -115302,7 +115301,7 @@
 		}
 
 		/**
-		 * Generates a new mnemonic phrase.
+		 * Generates a new 24 word mnemonic phrase.
 		 * @param {Buffer|string|null} [seed] - Optional seed to use as entropy. If null, a random seed will be generated.
 		 * @returns {string} The generated mnemonic phrase.
 		 * @throws Will throw an error if the seed is invalid.
@@ -115333,11 +115332,11 @@
 		}
 
 		mnemonic = {
-		    validate,
+		    validate: isValid,
+		    isValid,
 		    sanitize,
 		    generate,
 		    toSeed,
-		    WORD_COUNT: TRAC_MNEMONIC_WORD_COUNT
 		};
 		return mnemonic;
 	}
