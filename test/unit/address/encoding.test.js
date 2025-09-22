@@ -66,3 +66,58 @@ test("address.decode: should throw on invalid address", (t) => {
     }
   }
 });
+
+test("address.toBuffer/fromBuffer: should convert address to and from buffer correctly", async (t) => {
+  const { address } = await api.address.generate(HRP);
+  const buf = api.address.toBuffer(address);
+  const addrFromBuf = api.address.fromBuffer(buf);
+  t.ok(b4a.isBuffer(buf));
+  t.is(addrFromBuf, address);
+  t.ok(api.address.isValid(addrFromBuf));
+});
+
+test("address.toBuffer: should throw on invalid address", (t) => {
+  const invalidAddresses = [
+    null,
+    undefined,
+    "",
+    "not a valid address",
+    "trac1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", // Too short
+    "trac1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"  // Invalid chars
+  ];
+  for (const address of invalidAddresses) {
+    try {
+      api.address.toBuffer(address);
+      t.fail(`Did not throw for address: ${address}`);
+    } catch (e) {
+      t.pass();
+    }
+  }
+});
+
+test("address.fromBuffer: should throw on invalid buffer", (t) => {
+  const invalidBuffers = [
+    null,
+    undefined,
+    "not a buffer",
+    b4a.alloc(10), // Too short
+    b4a.alloc(50)  // Too long
+  ];
+  for (const buf of invalidBuffers) {
+    try {
+      api.address.fromBuffer(HRP, buf);
+      t.fail(`Did not throw for buffer: ${buf}`);
+    } catch (e) {
+      t.pass();
+    }
+  }
+});
+
+test("address.size: should return correct address size", (t) => {
+  const address = api.address.generate(HRP);
+  const hrpSize = HRP.length;
+  const size = api.address.size(address);
+  // Address size is HRP + '1' + 6-char checksum + 32-byte pubkey (encoded in 5-bit chars)
+  // For HRP 'trac', size should be 4 + 1 + 6 + ceil((32*8)/5) = 4 + 1 + 6 + 52 = 63
+  t.is(size, 63);
+});

@@ -183,6 +183,13 @@ function toBuffer(address) {
   return b4a.from(address, 'ascii');
 }
 
+function fromBuffer(buffer) {
+  if (!b4a.isBuffer(buffer)) {
+    throw new Error('Invalid input: buffer must be a Buffer');
+  }
+  return buffer.toString('ascii');
+}
+
 /**
  * Encodes a public key Buffer into a bech32m address string.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
@@ -261,12 +268,24 @@ function fromSecretKey(hrp, secretKey) {
   };
 }
 
+function size(hrp) {
+  const hrpSize = hrp.length;
+  const separatorSize = 1; // The '1' character separating HRP and data part
+  // Each byte is represented by 8 bits, and bech32m encodes 5 bits per character
+  const dataPartSize = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5);
+  const checksumSize = 6; // Bech32m checksum is always 6 characters
+
+  return hrpSize + separatorSize + dataPartSize + checksumSize;
+}
+
 module.exports = {
   generate,
   encode,
   decode,
+  size,
   isValid,
   toBuffer,
+  fromBuffer,
   fromSecretKey,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
