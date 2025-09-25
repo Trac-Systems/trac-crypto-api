@@ -115,10 +115,26 @@
         <button id="sanitizeInvalid">Sanitize Invalid Phrase</button>
         <div id="sanitizeInvalidResult" class="result-box"></div>
     </div>
+
+    <div class="test-section">
+        <h2>Pre-Build Transaction Test</h2>
+        <button id="preBuildTx">Pre-Build Transaction</button>
+        <div id="preBuildTxResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Build Transaction Test</h2>
+        <button id="buildTx">Build Transaction</button>
+        <div id="buildTxResult" class="result-box"></div>
+    </div>
 </div>
 
 <script>
     const mnemonic = window.TracCryptoApi?.mnemonic;
+    const transaction = window.TracCryptoApi?.transaction;
+    const address = window.TracCryptoApi?.address;
+    const sign = window.TracCryptoApi?.sign;
+
 
     function displayResult(elementId, result, expected, message) {
         const resultDiv = document.getElementById(elementId);
@@ -166,6 +182,66 @@
         const sabotagedPhrase = "wrong mnemonic phrase";
         const sanitizedMnemonic = await mnemonic.sanitize(sabotagedPhrase);
         displayResult('sanitizeInvalidResult', sanitizedMnemonic, null, 'The expected result is null.');
+    });
+
+    // Pre-Build Transaction Test
+    document.getElementById('preBuildTx').addEventListener('click', async () => {
+        if (!transaction || !address) {
+            document.getElementById('preBuildTxResult').textContent = "Error: 'transaction' or 'address' module not found.";
+            return;
+        }
+        // Generate two keypairs for from/to addresses
+        const fromKeyPair = await address.generate("trac");
+        const toKeyPair = await address.generate("trac");
+        const amount = "1234abcd";
+        const validity = "112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00"; // Example validity in hex
+        try {
+            console.log("prebuilding tx...");
+            const txData = await transaction.preBuild(
+                fromKeyPair.address,
+                toKeyPair.address,
+                amount,
+                validity
+            );
+            console.log("tx prebuilt:", txData);
+            document.getElementById('preBuildTxResult').className = 'result-box result-success';
+            document.getElementById('preBuildTxResult').textContent =
+                "Pre-built transaction data:\n" + JSON.stringify(txData, null, 2);
+        } catch (err) {
+            document.getElementById('preBuildTxResult').className = 'result-box result-fail';
+            document.getElementById('preBuildTxResult').textContent = "Error: " + err.message;
+        }
+    });
+
+    // Build Transaction Test
+    document.getElementById('buildTx').addEventListener('click', async () => {
+        if (!transaction || !address || !sign) {
+            document.getElementById('buildTxResult').textContent = "Error: Required modules not found.";
+            return;
+        }
+        // Generate two keypairs for from/to addresses
+        const fromKeyPair = await address.generate("trac");
+        const toKeyPair = await address.generate("trac");
+        const amount = "1234abcd";
+        const validity = "112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00";
+        try {
+            const txData = await transaction.preBuild(
+                fromKeyPair.address,
+                toKeyPair.address,
+                amount,
+                validity
+            );
+            // Build and sign the transaction
+            const txPayload = await transaction.build(txData, fromKeyPair.secretKey);
+            document.getElementById('buildTxResult').className = 'result-box result-success';
+            document.getElementById('buildTxResult').textContent =
+                "Signed transaction (Base64):\n" + txPayload;
+            console.log(txPayload);
+            console.log(typeof txPayload);
+        } catch (err) {
+            document.getElementById('buildTxResult').className = 'result-box result-fail';
+            document.getElementById('buildTxResult').textContent = "Error: " + err.message;
+        }
     });
 
     // Checks if the library was loaded on page load

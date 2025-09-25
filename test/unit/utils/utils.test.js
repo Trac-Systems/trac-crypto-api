@@ -19,7 +19,7 @@ test("toUInt32: should convert a number to a 4-byte big-endian buffer", (t) => {
 test("isUInt32: should validate if a number is a valid uint32", (t) => {
   t.ok(api.utils.isUInt32(1));
   t.ok(api.utils.isUInt32(4294967295)); // Max uint32
-  t.not(api.utils.isUInt32(0)); // Below range
+  t.ok(api.utils.isUInt32(0)); // Min uint32
   t.not(api.utils.isUInt32(4294967296)); // Above range
   t.not(api.utils.isUInt32(-1)); // Negative number
   t.not(api.utils.isUInt32(3.14)); // Not an integer
@@ -83,7 +83,7 @@ test("toBase64: should throw error if input is not an object", (t) => {
     undefined,
   ];
 
-  for (const input of invalidInputs) { 
+  for (const input of invalidInputs) {
     try {
       api.utils.toBase64(input);
       t.fail(`Expected error for input: ${input}`);

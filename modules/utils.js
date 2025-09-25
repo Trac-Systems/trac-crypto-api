@@ -1,4 +1,5 @@
 const sodium = require('sodium-universal');
+const runtime = require('which-runtime');
 const b4a = require('b4a');
 
 function memzero(buffer) {
@@ -7,21 +8,37 @@ function memzero(buffer) {
 }
 
 function toBase64(payload) {
-    if (typeof payload !== 'object') {
+    if (!payload || typeof payload !== 'object') {
         throw new Error('Payload must be an object');
     }
     const jsonString = JSON.stringify(payload);
-    const buffer = b4a.from(jsonString, 'utf-8');
-    return buffer.toString('base64');
+    let encoded;
+    if (runtime.isNode || runtime.isBare) {
+        encoded = b4a.from(jsonString, 'utf-8').toString('base64');
+    } else {
+        // Node.js Buffers support direct base64 conversion, 
+        // but browsers require you to convert the byte array to a string and then
+        // calling btoa to get a base64 encoding:
+
+        // Convert string to Uint8Array
+        const utf8Bytes = new TextEncoder().encode(jsonString);
+        // Convert Uint8Array to binary string
+        let binary = '';
+        for (let i = 0; i < utf8Bytes.length; i++) {
+            binary += String.fromCharCode(utf8Bytes[i]);
+        }
+        encoded = btoa(binary);
+    }
+    return encoded;
 }
 
 function isUInt32(n) {
-    return Number.isInteger(n) && n >= 1 && n <= 0xFFFFFFFF;
+    return Number.isInteger(n) && n >= 0 && n <= 0xFFFFFFFF;
 }
 
 function toUInt32(value, offset) {
     const buf = b4a.alloc(4);
-    buf.writeUInt32BE(value, offset);
+    b4a.writeUInt32BE(buf, value, offset);
     return buf;
 }
 
