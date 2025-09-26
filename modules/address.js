@@ -2,10 +2,10 @@ const mnemonicUtils = require("./mnemonic.js");
 const { bech32m } = require("bech32");
 const b4a = require("b4a");
 const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
-const runtime = require('which-runtime');
+const runtime = require('./runtime.js');
 
 let SLIP10Node;
-if (runtime.isBare) {
+if (runtime.isBare()) {
   SLIP10Node = require('@metamask/key-tree', { with: { imports: '../package.json' } }).SLIP10Node;
   const util = require('util');
   globalThis.TextEncoder = util.TextEncoder;

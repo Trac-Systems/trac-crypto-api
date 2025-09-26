@@ -1,6 +1,6 @@
 const sodium = require('sodium-universal');
-const runtime = require('which-runtime');
 const b4a = require('b4a');
+const runtime = require('./runtime.js');
 
 function memzero(buffer) {
     if (!b4a.isBuffer(buffer)) return; // do nothing
@@ -13,20 +13,24 @@ function toBase64(payload) {
     }
     const jsonString = JSON.stringify(payload);
     let encoded;
-    if (runtime.isNode || runtime.isBare) {
+    if (runtime.isNode() || runtime.isBare()) {
+        // Node.js and Bare environment (like Pear) support direct base64 conversion
+        // the function btoa (used for browser environment) is deprecated in Node.js
         encoded = b4a.from(jsonString, 'utf-8').toString('base64');
     } else {
-        // Node.js Buffers support direct base64 conversion, 
-        // but browsers require you to convert the byte array to a string and then
-        // calling btoa to get a base64 encoding:
+        // Convert the byte array to a string and then
+        // calling btoa to get a base64 encoding
 
         // Convert string to Uint8Array
         const utf8Bytes = new TextEncoder().encode(jsonString);
+
         // Convert Uint8Array to binary string
         let binary = '';
         for (let i = 0; i < utf8Bytes.length; i++) {
             binary += String.fromCharCode(utf8Bytes[i]);
         }
+
+        // Finally, encode the binary string to base64
         encoded = btoa(binary);
     }
     return encoded;

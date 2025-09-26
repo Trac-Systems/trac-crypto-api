@@ -1,7 +1,7 @@
-const runtime = require('which-runtime');
+const runtime = require('./modules/runtime.js');
 const util = require('util');
 
-if (runtime.isBare) {
+if (runtime.isBare()) {
     global.TextEncoder = util.TextEncoder;
     global.TextDecoder = util.TextDecoder;
 }
