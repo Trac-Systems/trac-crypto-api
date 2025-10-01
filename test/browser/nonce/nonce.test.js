@@ -1,5 +1,5 @@
 // nonce.test.js
-const { nonce } = require("trac-crypto-api")
+const { nonce } = require("../../../dist/trac-crypto-api.browser")
 
 test("nonce is on window", () => {
   expect(window.TracCryptoApi.nonce).toBe(nonce)

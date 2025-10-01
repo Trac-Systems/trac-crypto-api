@@ -13,7 +13,7 @@
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",
-    "test:all": "npm run test:node && npm run test:browser"
+    "test:all": "npm run test:node && npm run test:bare && npm run test:browser"
   },
   "keywords": [],
   "author": "",
@@ -44,7 +44,8 @@
     "bare-fs": "^4.0.2",
     "bech32": "^2.0.0",
     "bip39-mnemonic": "^2.2.0",
-    "sodium-universal": "^5.0.1"
+    "sodium-universal": "^5.0.1",
+    "sodium-javascript": "^0.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",

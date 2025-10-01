@@ -1,5 +1,5 @@
 // setupTests.js
-const TracCryptoApi = require("trac-crypto-api")
+const TracCryptoApi = require("../../dist/trac-crypto-api.browser")
 const b4a = require("b4a")
 const sodium = require("sodium-universal")
 const { TextEncoder, TextDecoder } = require('util')

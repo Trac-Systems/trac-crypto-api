@@ -14,19 +14,19 @@ export default {
   plugins: [
     json(),
     resolve({
-      browser: true, // pega as versões "browser" se disponíveis
+      browser: true,
       preferBuiltins: false,
     }),
     commonjs(),
     replace({
       preventAssignment: true,
       values: {
-        '__filename': JSON.stringify(''), // neutraliza no browser
+        '__filename': JSON.stringify(''),
         '__dirname': JSON.stringify(''),
       },
     }),
   ],
-  // evita puxar sodium-native
+
   onwarn(warning, warn) {
     if (warning.code === 'THIS_IS_UNDEFINED') return
     warn(warning)

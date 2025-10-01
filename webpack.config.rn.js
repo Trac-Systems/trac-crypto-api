@@ -6,25 +6,24 @@ module.exports = {
   entry: './index.react-native.js',
   output: {
     filename: 'trac-crypto-api.rn.js',
-    path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs2',
+    path: path.resolve(__dirname, 'dist'), 
+    libraryTarget: 'commonjs2', 
     publicPath: '',
   },
   optimization: {
-    minimize: true,
+    minimize: true, 
     splitChunks: {
       cacheGroups: {
         default: false
       }
     },
     runtimeChunk: false,
-  },
+  }, 
   resolve: {
     alias: {
       'sodium-universal': 'sodium-javascript'
     },
-    // Adicionando .ts e .tsx para garantir que o Webpack resolva as dependências
-    // corretamente, mesmo que sua biblioteca seja JS.
+
     extensions: ['.js', '.ts', '.tsx'],
     fallback: {
       "crypto": require.resolve("crypto-browserify"),
@@ -39,11 +38,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        // Loader para ignorar o código nativo do react-native-b4a
+        test: /\.js$/, 
         include: /node_modules\/react-native-b4a/,
-        use: {
-          loader: 'ignore-loader',
+        use: { 
+          loader: 'ignore-loader', 
         },
       },
       {
@@ -55,12 +53,9 @@ module.exports = {
             presets: ['@babel/preset-env'],
           },
         },
-      },
-    ],
+      },],
   },
-  plugins: [
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-    }),
-  ],
+  plugins: [new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+  })]
 }

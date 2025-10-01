@@ -136975,8 +136975,7 @@
 		(function (exports) {
 			Object.defineProperty(exports, "__esModule", { value: true });
 			exports.toCaipAssetId = exports.toCaipAssetType = exports.toCaipAccountId = exports.toCaipChainId = exports.parseCaipAssetId = exports.parseCaipAssetType = exports.parseCaipAccountId = exports.parseCaipChainId = exports.isCaipAssetId = exports.isCaipAssetType = exports.isCaipTokenId = exports.isCaipAssetReference = exports.isCaipAssetNamespace = exports.isCaipAccountAddress = exports.isCaipAccountId = exports.isCaipReference = exports.isCaipNamespace = exports.isCaipChainId = exports.KnownCaipNamespace = exports.CaipAssetTypeOrIdStruct = exports.CaipAssetIdStruct = exports.CaipAssetTypeStruct = exports.CaipTokenIdStruct = exports.CaipAssetReferenceStruct = exports.CaipAssetNamespaceStruct = exports.CaipAccountAddressStruct = exports.CaipAccountIdStruct = exports.CaipReferenceStruct = exports.CaipNamespaceStruct = exports.CaipChainIdStruct = exports.CAIP_ASSET_ID_REGEX = exports.CAIP_ASSET_TYPE_REGEX = exports.CAIP_TOKEN_ID_REGEX = exports.CAIP_ASSET_REFERENCE_REGEX = exports.CAIP_ASSET_NAMESPACE_REGEX = exports.CAIP_ACCOUNT_ADDRESS_REGEX = exports.CAIP_ACCOUNT_ID_REGEX = exports.CAIP_REFERENCE_REGEX = exports.CAIP_NAMESPACE_REGEX = exports.CAIP_CHAIN_ID_REGEX = void 0;
-			const superstruct_1 = /*@__PURE__*/ requireDist$3();
-			const superstruct_2 = /*@__PURE__*/ requireSuperstruct();
+			const superstruct_1 = /*@__PURE__*/ requireSuperstruct();
 			exports.CAIP_CHAIN_ID_REGEX = /^(?<namespace>[-a-z0-9]{3,8}):(?<reference>[-_a-zA-Z0-9]{1,32})$/u;
 			exports.CAIP_NAMESPACE_REGEX = /^[-a-z0-9]{3,8}$/u;
 			exports.CAIP_REFERENCE_REGEX = /^[-_a-zA-Z0-9]{1,32}$/u;
@@ -136991,47 +136990,47 @@
 			/**
 			 * A CAIP-2 chain ID, i.e., a human-readable namespace and reference.
 			 */
-			exports.CaipChainIdStruct = (0, superstruct_2.definePattern)('CaipChainId', exports.CAIP_CHAIN_ID_REGEX);
+			exports.CaipChainIdStruct = (0, superstruct_1.definePattern)('CaipChainId', exports.CAIP_CHAIN_ID_REGEX);
 			/**
 			 * A CAIP-2 namespace, i.e., the first part of a CAIP chain ID.
 			 */
-			exports.CaipNamespaceStruct = (0, superstruct_2.definePattern)('CaipNamespace', exports.CAIP_NAMESPACE_REGEX);
+			exports.CaipNamespaceStruct = (0, superstruct_1.definePattern)('CaipNamespace', exports.CAIP_NAMESPACE_REGEX);
 			/**
 			 * A CAIP-2 reference, i.e., the second part of a CAIP chain ID.
 			 */
-			exports.CaipReferenceStruct = (0, superstruct_2.definePattern)('CaipReference', exports.CAIP_REFERENCE_REGEX);
+			exports.CaipReferenceStruct = (0, superstruct_1.definePattern)('CaipReference', exports.CAIP_REFERENCE_REGEX);
 			/**
 			 * A CAIP-10 account ID, i.e., a human-readable namespace, reference, and account address.
 			 */
-			exports.CaipAccountIdStruct = (0, superstruct_2.definePattern)('CaipAccountId', exports.CAIP_ACCOUNT_ID_REGEX);
+			exports.CaipAccountIdStruct = (0, superstruct_1.definePattern)('CaipAccountId', exports.CAIP_ACCOUNT_ID_REGEX);
 			/**
 			 * A CAIP-10 account address, i.e., the third part of the CAIP account ID.
 			 */
-			exports.CaipAccountAddressStruct = (0, superstruct_2.definePattern)('CaipAccountAddress', exports.CAIP_ACCOUNT_ADDRESS_REGEX);
+			exports.CaipAccountAddressStruct = (0, superstruct_1.definePattern)('CaipAccountAddress', exports.CAIP_ACCOUNT_ADDRESS_REGEX);
 			/**
 			 * A CAIP-19 asset namespace, i.e., a namespace domain of an asset.
 			 */
-			exports.CaipAssetNamespaceStruct = (0, superstruct_2.definePattern)('CaipAssetNamespace', exports.CAIP_ASSET_NAMESPACE_REGEX);
+			exports.CaipAssetNamespaceStruct = (0, superstruct_1.definePattern)('CaipAssetNamespace', exports.CAIP_ASSET_NAMESPACE_REGEX);
 			/**
 			 * A CAIP-19 asset reference, i.e., an identifier for an asset within a given namespace.
 			 */
-			exports.CaipAssetReferenceStruct = (0, superstruct_2.definePattern)('CaipAssetReference', exports.CAIP_ASSET_REFERENCE_REGEX);
+			exports.CaipAssetReferenceStruct = (0, superstruct_1.definePattern)('CaipAssetReference', exports.CAIP_ASSET_REFERENCE_REGEX);
 			/**
 			 * A CAIP-19 asset token ID, i.e., a unique identifier for an addressable asset of a given type
 			 */
-			exports.CaipTokenIdStruct = (0, superstruct_2.definePattern)('CaipTokenId', exports.CAIP_TOKEN_ID_REGEX);
+			exports.CaipTokenIdStruct = (0, superstruct_1.definePattern)('CaipTokenId', exports.CAIP_TOKEN_ID_REGEX);
 			/**
 			 * A CAIP-19 asset type identifier, i.e., a human-readable type of asset identifier.
 			 */
-			exports.CaipAssetTypeStruct = (0, superstruct_2.definePattern)('CaipAssetType', exports.CAIP_ASSET_TYPE_REGEX);
+			exports.CaipAssetTypeStruct = (0, superstruct_1.definePattern)('CaipAssetType', exports.CAIP_ASSET_TYPE_REGEX);
 			/**
 			 * A CAIP-19 asset ID identifier, i.e., a human-readable type of asset ID.
 			 */
-			exports.CaipAssetIdStruct = (0, superstruct_2.definePattern)('CaipAssetId', exports.CAIP_ASSET_ID_REGEX);
+			exports.CaipAssetIdStruct = (0, superstruct_1.definePattern)('CaipAssetId', exports.CAIP_ASSET_ID_REGEX);
 			/**
 			 * A CAIP-19 asset type or asset ID identifier, i.e., a human-readable type of asset identifier.
 			 */
-			exports.CaipAssetTypeOrIdStruct = (0, superstruct_2.definePattern)('CaipAssetTypeOrId', CAIP_ASSET_TYPE_OR_ID_REGEX);
+			exports.CaipAssetTypeOrIdStruct = (0, superstruct_1.definePattern)('CaipAssetTypeOrId', CAIP_ASSET_TYPE_OR_ID_REGEX);
 			(function (KnownCaipNamespace) {
 			    /** BIP-122 (Bitcoin) compatible chains. */
 			    KnownCaipNamespace["Bip122"] = "bip122";
@@ -137050,7 +137049,7 @@
 			 * @returns Whether the value is a {@link CaipChainId}.
 			 */
 			function isCaipChainId(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipChainIdStruct);
+			    return typeof value === 'string' && exports.CAIP_CHAIN_ID_REGEX.test(value);
 			}
 			exports.isCaipChainId = isCaipChainId;
 			/**
@@ -137060,7 +137059,7 @@
 			 * @returns Whether the value is a {@link CaipNamespace}.
 			 */
 			function isCaipNamespace(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipNamespaceStruct);
+			    return typeof value === 'string' && exports.CAIP_NAMESPACE_REGEX.test(value);
 			}
 			exports.isCaipNamespace = isCaipNamespace;
 			/**
@@ -137070,7 +137069,7 @@
 			 * @returns Whether the value is a {@link CaipReference}.
 			 */
 			function isCaipReference(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipReferenceStruct);
+			    return typeof value === 'string' && exports.CAIP_REFERENCE_REGEX.test(value);
 			}
 			exports.isCaipReference = isCaipReference;
 			/**
@@ -137080,7 +137079,7 @@
 			 * @returns Whether the value is a {@link CaipAccountId}.
 			 */
 			function isCaipAccountId(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAccountIdStruct);
+			    return typeof value === 'string' && exports.CAIP_ACCOUNT_ID_REGEX.test(value);
 			}
 			exports.isCaipAccountId = isCaipAccountId;
 			/**
@@ -137090,7 +137089,7 @@
 			 * @returns True if the value is a valid {@link CaipAccountAddress}.
 			 */
 			function isCaipAccountAddress(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAccountAddressStruct);
+			    return typeof value === 'string' && exports.CAIP_ACCOUNT_ADDRESS_REGEX.test(value);
 			}
 			exports.isCaipAccountAddress = isCaipAccountAddress;
 			/**
@@ -137100,7 +137099,7 @@
 			 * @returns Whether the value is a {@link CaipAssetNamespace}.
 			 */
 			function isCaipAssetNamespace(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAssetNamespaceStruct);
+			    return typeof value === 'string' && exports.CAIP_ASSET_NAMESPACE_REGEX.test(value);
 			}
 			exports.isCaipAssetNamespace = isCaipAssetNamespace;
 			/**
@@ -137110,7 +137109,7 @@
 			 * @returns Whether the value is a {@link CaipAssetReference}.
 			 */
 			function isCaipAssetReference(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAssetReferenceStruct);
+			    return typeof value === 'string' && exports.CAIP_ASSET_REFERENCE_REGEX.test(value);
 			}
 			exports.isCaipAssetReference = isCaipAssetReference;
 			/**
@@ -137120,7 +137119,7 @@
 			 * @returns Whether the value is a {@link CaipTokenId}.
 			 */
 			function isCaipTokenId(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipTokenIdStruct);
+			    return typeof value === 'string' && exports.CAIP_TOKEN_ID_REGEX.test(value);
 			}
 			exports.isCaipTokenId = isCaipTokenId;
 			/**
@@ -137130,7 +137129,7 @@
 			 * @returns Whether the value is a {@link CaipAssetType}.
 			 */
 			function isCaipAssetType(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAssetTypeStruct);
+			    return typeof value === 'string' && exports.CAIP_ASSET_TYPE_REGEX.test(value);
 			}
 			exports.isCaipAssetType = isCaipAssetType;
 			/**
@@ -137140,7 +137139,7 @@
 			 * @returns Whether the value is a {@link CaipAssetId}.
 			 */
 			function isCaipAssetId(value) {
-			    return (0, superstruct_1.is)(value, exports.CaipAssetIdStruct);
+			    return typeof value === 'string' && exports.CAIP_ASSET_ID_REGEX.test(value);
 			}
 			exports.isCaipAssetId = isCaipAssetId;
 			/**
@@ -155700,6 +155699,7 @@ zoo`.split('\n');
 
 		  // The bare environment's module loader will execute this specific require call successfully.
 		  const modulePath = '@metamask/key-tree';
+		  // SLIP10Node = require(modulePath).SLIP10Node
 		  const keyTreeModule = eval(`require('${modulePath}', ${options})`);
 		  SLIP10Node = keyTreeModule.SLIP10Node;
 
@@ -155719,22 +155719,22 @@ zoo`.split('\n');
 		function _isValidHrp(hrp) {
 		  // HRP must be a non-empty string with length between 1 and 83 characters
 		  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
-		    return false;
+		    return false
 		  }
 		  // HRP must consist of printable lower-case ASCII characters (33-126)
 		  for (let i = 0; i < hrp.length; i++) {
 		    const charCode = hrp.charCodeAt(i);
 		    // Only allow lower-case letters a-z
 		    if (charCode < 97 || charCode > 122) {
-		      return false;
+		      return false
 		    }
 		  }
-		  return true;
+		  return true
 		}
 
 		function _validateHrp(hrp) {
 		  if (!_isValidHrp(hrp)) {
-		    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+		    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.')
 		  }
 		}
 
@@ -155748,7 +155748,7 @@ zoo`.split('\n');
 		function _sanitizeDerivationPath(path) {
 		  // Validate input type
 		  if (typeof path !== 'string') {
-		    throw new TypeError('Derivation path must be a string');
+		    throw new TypeError('Derivation path must be a string')
 		  }
 		  // Remove all spaces from the input path
 		  path = path.replace(/\s+/g, '');
@@ -155757,7 +155757,7 @@ zoo`.split('\n');
 		  // Observation: Although 'm' is not necessary for SLIP-10, 
 		  // we enforce it for clarity and consistency with BIP32
 		  if (!path.startsWith('m/')) {
-		    throw new Error("Derivation path must start with 'm/'");
+		    throw new Error("Derivation path must start with 'm/'")
 		  }
 
 		  // Disallow empty and invalid segments
@@ -155765,19 +155765,19 @@ zoo`.split('\n');
 		  segments.shift(); // Remove initial 'm' and process segments separately
 
 		  if (segments.length < 1) {
-		    throw new Error('Derivation path must have at least one child segment');
+		    throw new Error('Derivation path must have at least one child segment')
 		  }
 
 		  const segmentRegex = /^\d+'$/;
 		  let slip10Segments = [];
 		  for (const seg of segments) {
 		    if (!segmentRegex.test(seg)) {
-		      throw new Error(`Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`);
+		      throw new Error(`Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`)
 		    }
 		    slip10Segments.push(`slip10:${seg}`);
 		  }
 
-		  return { safePath: path, slip10Segments };
+		  return { safePath: path, slip10Segments }
 		}
 
 		/**
@@ -155824,10 +155824,10 @@ zoo`.split('\n');
 
 		  // Sanity checks. Maybe not necessary, but better safe than sorry.
 		  if (publicKey.length !== TRAC_PUB_KEY_SIZE) {
-		    throw new Error(`Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`);
+		    throw new Error(`Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`)
 		  }
 		  if (secretKey.length !== TRAC_PRIV_KEY_SIZE) {
-		    throw new Error(`Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`);
+		    throw new Error(`Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`)
 		  }
 
 		  return {
@@ -155835,7 +155835,7 @@ zoo`.split('\n');
 		    secretKey,
 		    mnemonic: safeMnemonic,
 		    derivationPath: safePath,
-		  };
+		  }
 		}
 
 		/**
@@ -155856,7 +155856,7 @@ zoo`.split('\n');
 		        ret.suffix = address.slice(separatorIndex + 1);
 		      }
 		    }
-		    return ret;
+		    return ret
 		  };
 
 		  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
@@ -155867,7 +155867,7 @@ zoo`.split('\n');
 		    typeof suffix === 'string' &&
 		    _isValidHrp(prefix) &&
 		    bech32Chars.test(suffix) &&
-		    suffix.length === suffixLength;
+		    suffix.length === suffixLength
 		}
 
 		/**
@@ -155877,16 +155877,16 @@ zoo`.split('\n');
 		 */
 		function toBuffer(address) {
 		  if (!isValid(address)) {
-		    throw new Error('Invalid address');
+		    throw new Error('Invalid address')
 		  }
-		  return b4a.from(address, 'ascii');
+		  return b4a.from(address, 'ascii')
 		}
 
 		function fromBuffer(buffer) {
 		  if (!b4a.isBuffer(buffer)) {
-		    throw new Error('Invalid input: buffer must be a Buffer');
+		    throw new Error('Invalid input: buffer must be a Buffer')
 		  }
-		  return buffer.toString('ascii');
+		  return buffer.toString('ascii')
 		}
 
 		/**
@@ -155901,10 +155901,10 @@ zoo`.split('\n');
 		  if (!b4a.isBuffer(publicKey) || publicKey.length !== TRAC_PUB_KEY_SIZE) {
 		    throw new Error(
 		      `Invalid public key. Expected a Buffer of length ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`
-		    );
+		    )
 		  }
 		  const words = bech32m.toWords(publicKey);
-		  return bech32m.encode(hrp, words);
+		  return bech32m.encode(hrp, words)
 		}
 
 		/**
@@ -155919,9 +155919,9 @@ zoo`.split('\n');
 		  if (buffer.length !== TRAC_PUB_KEY_SIZE) {
 		    throw new Error(
 		      `Decoded buffer is invalid. Expected ${TRAC_PUB_KEY_SIZE} bytes, got ${buffer.length} bytes`
-		    );
+		    )
 		  }
-		  return buffer;
+		  return buffer
 		}
 
 
@@ -155942,7 +155942,7 @@ zoo`.split('\n');
 		    secretKey: keypair.secretKey,
 		    mnemonic: keypair.mnemonic,
 		    derivationPath: keypair.derivationPath,
-		  };
+		  }
 		}
 
 		/**
@@ -155956,7 +155956,7 @@ zoo`.split('\n');
 		  if (!b4a.isBuffer(secretKey) || secretKey.length !== TRAC_PRIV_KEY_SIZE) {
 		    throw new Error(
 		      `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`
-		    );
+		    )
 		  }
 		  const publicKey = secretKey.subarray(32); // The public key is the last 32 bytes of the 64-byte secret key
 		  const address = encode(hrp, publicKey);
@@ -155964,12 +155964,12 @@ zoo`.split('\n');
 		    address,
 		    publicKey,
 		    secretKey,
-		  };
+		  }
 		}
 
 		function size(hrp) {
 		  if (!_isValidHrp(hrp)) {
-		    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+		    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.')
 		  }
 		  const hrpSize = hrp.length;
 		  const separatorSize = 1; // The '1' character separating HRP and data part
@@ -155977,7 +155977,7 @@ zoo`.split('\n');
 		  const dataPartSize = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5);
 		  const checksumSize = 6; // Bech32m checksum is always 6 characters
 
-		  return hrpSize + separatorSize + dataPartSize + checksumSize;
+		  return hrpSize + separatorSize + dataPartSize + checksumSize
 		}
 
 		address = {
@@ -155993,170 +155993,6 @@ zoo`.split('\n');
 		  PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
 		};
 		return address;
-	}
-
-	var hash;
-	var hasRequiredHash;
-
-	function requireHash () {
-		if (hasRequiredHash) return hash;
-		hasRequiredHash = 1;
-		const tracBlake3 = eval(`require("@tracsystems/blake3")`);
-		const blake3External = tracBlake3.blake3;
-		const sodium = requireSodiumUniversal();
-		const b4a = requireBrowser$1();
-
-		/**
-		 * Computes the Blake3 hash of the given message.
-		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The Blake3 hash as a Buffer.
-		 * @throws Will throw an error if the input is not of a supported type.
-		 */
-		async function blake3(message) {
-		    const isBuffer = b4a.isBuffer(message);
-		    if (!isBuffer && !(message instanceof Uint8Array)) {
-		        throw new Error('Invalid input: must be a Buffer or Uint8Array');
-		    }
-		    const messageBytes = isBuffer ? message : b4a.from(message);
-		    const hashBytes = await blake3External(messageBytes);
-		    return b4a.from(hashBytes)
-		}
-
-		/**
-		 * Computes the Blake3 hash of the given message.
-		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
-		 */
-		async function blake3Safe(message) {
-		    try {
-		        return await blake3(message);
-		    } catch (err) {
-		        console.error(err);
-		    }
-		    return b4a.alloc(0); // Return an empty buffer on error
-		}
-
-		/**
-		 * Computes the SHA-256 hash of the given message.
-		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The SHA-256 hash as a Buffer.
-		 * @throws Will throw an error if the input is not of a supported type.
-		 */
-		function sha256(message) {
-		    const isBuffer = b4a.isBuffer(message);
-		    if (!isBuffer && !(message instanceof Uint8Array)) {
-		        throw new Error('Invalid input: must be a Buffer or Uint8Array');
-		    }
-		    const messageBytes = isBuffer ? message : b4a.from(message);
-		    const out = b4a.alloc(sodium.crypto_hash_sha256_BYTES);
-		    sodium.crypto_hash_sha256(out, messageBytes);
-		    return out;
-		}
-
-		/**
-		 * Computes the SHA-256 hash of the given message.
-		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The SHA-256 hash as a Buffer or an empty buffer in case of error
-		 */
-		function sha256Safe(message) {
-		    try {
-		        return sha256(message);
-		    } catch (err) {
-		        console.error(err);
-		    }
-		    return b4a.alloc(0); // Return an empty buffer on error
-		}
-
-		hash = {
-		    blake3,
-		    blake3Safe,
-		    sha256,
-		    sha256Safe
-		};
-		return hash;
-	}
-
-	var nonce;
-	var hasRequiredNonce;
-
-	function requireNonce () {
-		if (hasRequiredNonce) return nonce;
-		hasRequiredNonce = 1;
-		const sodium = requireSodiumUniversal();
-		const b4a = requireBrowser$1();
-		const { TRAC_NONCE_SIZE } = requireConstants$2();
-
-		/**
-		 * Generates a random nonce with high entrophy.
-		 * 
-		 * @returns {Buffer} A securely generated 32-byte nonce as a Buffer.
-		 */
-		function generate() {
-		    const nonce = b4a.alloc(TRAC_NONCE_SIZE);
-		    sodium.randombytes_buf(nonce);
-		    return nonce;
-		}
-
-		nonce = {
-		    generate,
-		    SIZE: TRAC_NONCE_SIZE
-		};
-		return nonce;
-	}
-
-	var signature;
-	var hasRequiredSignature;
-
-	function requireSignature () {
-		if (hasRequiredSignature) return signature;
-		hasRequiredSignature = 1;
-		const sodium = requireSodiumUniversal();
-		const b4a = requireBrowser$1();
-		const { TRAC_PRIV_KEY_SIZE, TRAC_SIGNATURE_SIZE } = requireConstants$2();
-
-		/**
-		 * Signs a message with the stored secret key.
-		 * @param {Buffer} message - The message to sign.
-		 * @param {Buffer} privateKey - The private key to use for signing.
-		 * @returns {Buffer} The signature in Buffer format.
-		 * @throws Will throw an error if the secret key is not set.
-		 */
-		function sign(message, privateKey) {
-		    // TODO: Should we check this or is it out of scope?
-		    if (!b4a.isBuffer(privateKey) || !b4a.isBuffer(message)) {
-		        throw new Error('Invalid message or private key format. Expected Buffers.');
-		    }
-
-		    // TODO: Should we also check length or is it out of scope?
-		    if (privateKey.length !== TRAC_PRIV_KEY_SIZE) {
-		        throw new Error('Invalid private key length');
-		    }
-
-		    const signature = b4a.alloc(TRAC_SIGNATURE_SIZE);
-		    sodium.crypto_sign_detached(signature, message, privateKey);
-		    return signature;
-		}
-
-		/**
-		* Verifies a message signature.
-		* @param {Buffer} signature - The signature in hex or Buffer format.
-		* @param {Buffer} message - The message to verify in string or Buffer.
-		* @param {Buffer} publicKey - The public key in hex or Buffer format.
-		* @returns {boolean} True if the signature is valid, false otherwise.
-		*/
-		function verify(signature, message, publicKey) {
-		    try {
-		        return sodium.crypto_sign_verify_detached(signature, message, publicKey);
-		    } catch (e) { console.error(e); }
-		    return false;
-		}
-
-		signature = {
-		    sign,
-		    verify,
-		    SIZE: TRAC_SIGNATURE_SIZE
-		};
-		return signature;
 	}
 
 	var data;
@@ -156259,6 +156095,238 @@ zoo`.split('\n');
 		return data;
 	}
 
+	var hash;
+	var hasRequiredHash;
+
+	function requireHash () {
+		if (hasRequiredHash) return hash;
+		hasRequiredHash = 1;
+		// hash.js
+
+		const b4a = requireBrowser$1();
+		const sodium = requireSodiumUniversal();
+		const runtime = requireRuntime(); // Used to check for environment
+
+		let blake3External;
+
+		/**
+		 * Fallback function used when the external BLAKE3 dependency fails to load (e.g., in a React Native build 
+		 * where the package is native, or in a browser build without proper aliasing).
+		 */
+		const blake3ExternalFallback = () => {
+		    throw new Error('BLAKE3 module is unavailable. Check build configuration (Rollup aliases, Metro resolver) or confirm environment compatibility.')
+		};
+
+		// --- Conditional BLAKE3 Loading Logic ---
+
+		if (runtime.isBare()) {
+		    // 1. BARE ENVIRONMENT: Uses the specific eval syntax required by the bare module loader.
+		    const modulePath = '@tracsystems/blake3';
+		    // Use minimal options; adjust if your bare environment requires specific settings.
+		    const options = '{}';
+		    try {
+		        blake3External = eval(`require('${modulePath}', ${options}).blake3`);
+		    } catch (e) {
+		        console.error("Failed to load BLAKE3 in Bare environment:", e);
+		        blake3External = blake3ExternalFallback;
+		    }
+		} else {
+		    // 2. NODE/BROWSER/REACT NATIVE: Isolate the standard require that causes build failures.
+		    try {
+		        // Use eval(require) to bypass static analysis in bundlers (Metro, Webpack)
+		        // while allowing the code to function in a standard Node/Browser environment.
+		        blake3External = eval('require("@tracsystems/blake3").blake3');
+		    } catch (e) {
+		        // This catch block executes if the synchronous require fails (e.g., in a
+		        // React Native environment where the package is native and can't be resolved,
+		        // or during browser bundling without a proper alias).
+		        console.error("BLAKE3 native require failed (likely RN/Browser):", e.message);
+		        blake3External = blake3ExternalFallback;
+		    }
+		}
+
+
+		/**
+		 * Computes the Blake3 hash of the given message.
+		 * @param {Buffer | Uint8Array} message - The input message to hash.
+		 * @returns {Buffer} The Blake3 hash as a Buffer.
+		 * @throws Will throw an error if the input is not of a supported type or if BLAKE3 is unavailable.
+		 */
+		async function blake3(message) {
+		    if (blake3External === blake3ExternalFallback) {
+		        // Explicitly throw the fallback error if the dependency failed to load
+		        blake3External();
+		    }
+
+		    const isBuffer = b4a.isBuffer(message);
+		    if (!isBuffer && !(message instanceof Uint8Array)) {
+		        throw new Error('Invalid input: must be a Buffer or Uint8Array')
+		    }
+
+		    const messageBytes = isBuffer ? message : b4a.from(message);
+
+		    // Call the resolved BLAKE3 function
+		    const hashBytes = await blake3External(messageBytes);
+
+		    return b4a.from(hashBytes)
+		}
+
+		/**
+		 * Computes the Blake3 hash of the given message.
+		 * @param {Buffer | Uint8Array} message - The input message to hash.
+		 * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
+		 */
+		async function blake3Safe(message) {
+		    try {
+		        return await blake3(message)
+		    } catch (err) {
+		        console.error(err);
+		    }
+		    return b4a.alloc(0) // Return an empty buffer on error
+		}
+
+		/**
+		 * Computes the SHA-256 hash of the given message.
+		 * @param {Buffer | Uint8Array} message - The input message to hash.
+		 * @returns {Buffer} The SHA-256 hash as a Buffer.
+		 * @throws Will throw an error if the input is not of a supported type.
+		 */
+		function sha256(message) {
+		    const isBuffer = b4a.isBuffer(message);
+		    if (!isBuffer && !(message instanceof Uint8Array)) {
+		        throw new Error('Invalid input: must be a Buffer or Uint8Array')
+		    }
+		    const messageBytes = isBuffer ? message : b4a.from(message);
+		    const out = b4a.alloc(sodium.crypto_hash_sha256_BYTES);
+		    sodium.crypto_hash_sha256(out, messageBytes);
+		    return out
+		}
+
+		/**
+		 * Computes the SHA-256 hash of the given message.
+		 * @param {Buffer | Uint8Array} message - The input message to hash.
+		 * @returns {Buffer} The SHA-256 hash as a Buffer or an empty buffer in case of error
+		 */
+		function sha256Safe(message) {
+		    try {
+		        return sha256(message)
+		    } catch (err) {
+		        console.error(err);
+		    }
+		    return b4a.alloc(0) // Return an empty buffer on error
+		}
+
+		hash = {
+		    blake3,
+		    blake3Safe,
+		    sha256,
+		    sha256Safe
+		};
+
+		// // const tracBlake3 = eval(`require("@tracsystems/blake3")`)
+		// // const blake3External = tracBlake3.blake3
+		// const { blake3: blake3External } = require("@tracsystems/blake3")
+		// const sodium = require('sodium-universal')
+		// const b4a = require('b4a')
+
+		// /**
+		//  * Computes the Blake3 hash of the given message.
+		//  * @param {Buffer | Uint8Array} message - The input message to hash.
+		//  * @returns {Buffer} The Blake3 hash as a Buffer.
+		//  * @throws Will throw an error if the input is not of a supported type.
+		//  */
+		// async function blake3(message) {
+		//     const isBuffer = b4a.isBuffer(message)
+		//     if (!isBuffer && !(message instanceof Uint8Array)) {
+		//         throw new Error('Invalid input: must be a Buffer or Uint8Array')
+		//     }
+		//     const messageBytes = isBuffer ? message : b4a.from(message)
+		//     const hashBytes = await blake3External(messageBytes)
+		//     return b4a.from(hashBytes)
+		// }
+
+		// /**
+		//  * Computes the Blake3 hash of the given message.
+		//  * @param {Buffer | Uint8Array} message - The input message to hash.
+		//  * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
+		//  */
+		// async function blake3Safe(message) {
+		//     try {
+		//         return await blake3(message)
+		//     } catch (err) {
+		//         console.error(err)
+		//     }
+		//     return b4a.alloc(0) // Return an empty buffer on error
+		// }
+
+		// /**
+		//  * Computes the SHA-256 hash of the given message.
+		//  * @param {Buffer | Uint8Array} message - The input message to hash.
+		//  * @returns {Buffer} The SHA-256 hash as a Buffer.
+		//  * @throws Will throw an error if the input is not of a supported type.
+		//  */
+		// function sha256(message) {
+		//     const isBuffer = b4a.isBuffer(message)
+		//     if (!isBuffer && !(message instanceof Uint8Array)) {
+		//         throw new Error('Invalid input: must be a Buffer or Uint8Array')
+		//     }
+		//     const messageBytes = isBuffer ? message : b4a.from(message)
+		//     const out = b4a.alloc(sodium.crypto_hash_sha256_BYTES)
+		//     sodium.crypto_hash_sha256(out, messageBytes)
+		//     return out
+		// }
+
+		// /**
+		//  * Computes the SHA-256 hash of the given message.
+		//  * @param {Buffer | Uint8Array} message - The input message to hash.
+		//  * @returns {Buffer} The SHA-256 hash as a Buffer or an empty buffer in case of error
+		//  */
+		// function sha256Safe(message) {
+		//     try {
+		//         return sha256(message)
+		//     } catch (err) {
+		//         console.error(err)
+		//     }
+		//     return b4a.alloc(0) // Return an empty buffer on error
+		// }
+
+		// module.exports = {
+		//     blake3,
+		//     blake3Safe,
+		//     sha256,
+		//     sha256Safe
+		// }
+		return hash;
+	}
+
+	var nonce;
+	var hasRequiredNonce;
+
+	function requireNonce () {
+		if (hasRequiredNonce) return nonce;
+		hasRequiredNonce = 1;
+		const sodium = requireSodiumUniversal();
+		const b4a = requireBrowser$1();
+		const { TRAC_NONCE_SIZE } = requireConstants$2();
+
+		/**
+		 * Generates a random nonce with high entrophy.
+		 * 
+		 * @returns {Buffer} A securely generated 32-byte nonce as a Buffer.
+		 */
+		function generate() {
+		    const nonce = b4a.alloc(TRAC_NONCE_SIZE);
+		    sodium.randombytes_buf(nonce);
+		    return nonce;
+		}
+
+		nonce = {
+		    generate,
+		    SIZE: TRAC_NONCE_SIZE
+		};
+		return nonce;
+	}
+
 	var utils;
 	var hasRequiredUtils;
 
@@ -156345,105 +156413,59 @@ zoo`.split('\n');
 		return utils;
 	}
 
-	var transaction;
-	var hasRequiredTransaction;
+	var signature;
+	var hasRequiredSignature;
 
-	function requireTransaction () {
-		if (hasRequiredTransaction) return transaction;
-		hasRequiredTransaction = 1;
+	function requireSignature () {
+		if (hasRequiredSignature) return signature;
+		hasRequiredSignature = 1;
+		const sodium = requireSodiumUniversal();
 		const b4a = requireBrowser$1();
-		const utils = requireUtils();
-		const nonceUtils = requireNonce();
-		const hashUtils = requireHash();
-		const signatureUtils = requireSignature();
-		const addressUtils = requireAddress();
-		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
-
-		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
+		const { TRAC_PRIV_KEY_SIZE, TRAC_SIGNATURE_SIZE } = requireConstants$2();
 
 		/**
-		 * Builds an unsigned transaction message.
-		 * @async
-		 * @param {string} from - The sender's address.
-		 * @param {string} to - The recipient's address.
-		 * @param {string} amount - The amount to transfer as a hex string.
-		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
-		 * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
-		 * @throws Will throw an error if any of the inputs are invalid.
+		 * Signs a message with the stored secret key.
+		 * @param {Buffer} message - The message to sign.
+		 * @param {Buffer} privateKey - The private key to use for signing.
+		 * @returns {Buffer} The signature in Buffer format.
+		 * @throws Will throw an error if the secret key is not set.
 		 */
-		async function preBuild(from, to, amount, validity) {
-		    // validate inputs
-		    if (!addressUtils.isValid(from)) {
-		        throw new Error('Invalid "from" address format');
-		    }
-		    if (!addressUtils.isValid(to)) {
-		        throw new Error('Invalid "to" address format');
-		    }
-		    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
-		        throw new Error(`Invalid "amount" format. Should be a hex string up to ${TRAC_TOKEN_AMOUNT_SIZE_BYTES} bytes long`);
-		    }
-		    if (!utils.isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
-		        throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
+		function sign(message, privateKey) {
+		    // TODO: Should we check this or is it out of scope?
+		    if (!b4a.isBuffer(privateKey) || !b4a.isBuffer(message)) {
+		        throw new Error('Invalid message or private key format. Expected Buffers.');
 		    }
 
-		    // Generate transaction object
-		    const nonce = nonceUtils.generate();
-		    const amountBuf = b4a.from(amount, 'hex');
-		    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
-		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
-		        amountBuf;
-		    const message = utils.serialize(
-		        addressUtils.toBuffer(from),
-		        b4a.from(validity, 'hex'),
-		        nonce,
-		        addressUtils.toBuffer(to),
-		        amountPadded,
-		        OP_TYPE_TRANSFER
-		    );
-		    const hash = await hashUtils.blake3(message);
-		    return {
-		        from,
-		        hash,
-		        validity,
-		        nonce,
-		        amount: amountPadded.toString('hex'),
-		        to,
-		    };
+		    // TODO: Should we also check length or is it out of scope?
+		    if (privateKey.length !== TRAC_PRIV_KEY_SIZE) {
+		        throw new Error('Invalid private key length');
+		    }
+
+		    const signature = b4a.alloc(TRAC_SIGNATURE_SIZE);
+		    sodium.crypto_sign_detached(signature, message, privateKey);
+		    return signature;
 		}
 
 		/**
-		 * Builds a signed transaction message. This function does NOT perform any validation on the transaction data.
-		 * It is assumed that the transaction data has been properly generated with the preBuild function.
-		 * @param {Object} transactionData - The transaction data object returned by preBuild function.
-		 * @param {Buffer} secretKey - The private key to sign the transaction with.
-		 * @returns {string} The signed transaction as a Base64 string.
-		 */
-		function build(transactionData, secretKey) {
-		    // sign the hash with the private key
-		    const sig = signatureUtils.sign(transactionData.hash, secretKey);
-
-		    const data = {
-		        type: OP_TYPE_TRANSFER,
-		        address: transactionData.from,
-		        tro: {
-		            tx: transactionData.hash.toString('hex'),
-		            txv: transactionData.validity,
-		            in: transactionData.nonce.toString('hex'),
-		            to: transactionData.to,
-		            am: transactionData.amount,
-		            is: sig.toString('hex')
-		        }
-		    };
-
-		    return utils.toBase64(data);
+		* Verifies a message signature.
+		* @param {Buffer} signature - The signature in hex or Buffer format.
+		* @param {Buffer} message - The message to verify in string or Buffer.
+		* @param {Buffer} publicKey - The public key in hex or Buffer format.
+		* @returns {boolean} True if the signature is valid, false otherwise.
+		*/
+		function verify(signature, message, publicKey) {
+		    try {
+		        return sodium.crypto_sign_verify_detached(signature, message, publicKey);
+		    } catch (e) { console.error(e); }
+		    return false;
 		}
 
-		transaction = {
-		    preBuild,
-		    build,
-		    OP_TYPE_TRANSFER
+		signature = {
+		    sign,
+		    verify,
+		    SIZE: TRAC_SIGNATURE_SIZE
 		};
-		return transaction;
+		return signature;
 	}
 
 	var operation;
@@ -156571,6 +156593,107 @@ zoo`.split('\n');
 		return operation;
 	}
 
+	var transaction;
+	var hasRequiredTransaction;
+
+	function requireTransaction () {
+		if (hasRequiredTransaction) return transaction;
+		hasRequiredTransaction = 1;
+		const b4a = requireBrowser$1();
+		const utils = requireUtils();
+		const nonceUtils = requireNonce();
+		const hashUtils = requireHash();
+		const signatureUtils = requireSignature();
+		const addressUtils = requireAddress();
+		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
+
+		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
+
+		/**
+		 * Builds an unsigned transaction message.
+		 * @async
+		 * @param {string} from - The sender's address.
+		 * @param {string} to - The recipient's address.
+		 * @param {string} amount - The amount to transfer as a hex string.
+		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
+		 * @throws Will throw an error if any of the inputs are invalid.
+		 */
+		async function preBuild(from, to, amount, validity) {
+		    // validate inputs
+		    if (!addressUtils.isValid(from)) {
+		        throw new Error('Invalid "from" address format');
+		    }
+		    if (!addressUtils.isValid(to)) {
+		        throw new Error('Invalid "to" address format');
+		    }
+		    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
+		        throw new Error(`Invalid "amount" format. Should be a hex string up to ${TRAC_TOKEN_AMOUNT_SIZE_BYTES} bytes long`);
+		    }
+		    if (!utils.isHexString(validity) || validity.length !== TRAC_VALIDITY_SIZE_BYTES * 2) {
+		        throw new Error(`Invalid "validity" format. Should be a ${TRAC_VALIDITY_SIZE_BYTES}-byte hex string`);
+		    }
+
+		    // Generate transaction object
+		    const nonce = nonceUtils.generate();
+		    const amountBuf = b4a.from(amount, 'hex');
+		    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
+		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
+		        amountBuf;
+		    const message = utils.serialize(
+		        addressUtils.toBuffer(from),
+		        b4a.from(validity, 'hex'),
+		        nonce,
+		        addressUtils.toBuffer(to),
+		        amountPadded,
+		        OP_TYPE_TRANSFER
+		    );
+		    const hash = await hashUtils.blake3(message);
+		    return {
+		        from,
+		        hash,
+		        validity,
+		        nonce,
+		        amount: amountPadded.toString('hex'),
+		        to,
+		    };
+		}
+
+		/**
+		 * Builds a signed transaction message. This function does NOT perform any validation on the transaction data.
+		 * It is assumed that the transaction data has been properly generated with the preBuild function.
+		 * @param {Object} transactionData - The transaction data object returned by preBuild function.
+		 * @param {Buffer} secretKey - The private key to sign the transaction with.
+		 * @returns {string} The signed transaction as a Base64 string.
+		 */
+		function build(transactionData, secretKey) {
+		    // sign the hash with the private key
+		    const sig = signatureUtils.sign(transactionData.hash, secretKey);
+
+		    const data = {
+		        type: OP_TYPE_TRANSFER,
+		        address: transactionData.from,
+		        tro: {
+		            tx: transactionData.hash.toString('hex'),
+		            txv: transactionData.validity,
+		            in: transactionData.nonce.toString('hex'),
+		            to: transactionData.to,
+		            am: transactionData.amount,
+		            is: sig.toString('hex')
+		        }
+		    };
+
+		    return utils.toBase64(data);
+		}
+
+		transaction = {
+		    preBuild,
+		    build,
+		    OP_TYPE_TRANSFER
+		};
+		return transaction;
+	}
+
 	var tracCryptoApi;
 	var hasRequiredTracCryptoApi;
 
@@ -156586,28 +156709,25 @@ zoo`.split('\n');
 		}
 
 		const address = requireAddress();
+		const data = requireData();
 		const hash = requireHash();
 		const mnemonic = requireMnemonic();
 		const nonce = requireNonce();
-		const signature = requireSignature();
-		const data = requireData();
-		const utils = requireUtils();
-		const transaction = requireTransaction();
 		const operation = requireOperation();
-
-		const sign = signature.sign;
+		const signature = requireSignature();
+		const transaction = requireTransaction();
+		const utils = requireUtils();
 
 		tracCryptoApi = {
 		    address,
+		    data,
 		    hash,
 		    mnemonic,
 		    nonce,
-		    signature,
-		    data,
-		    utils,
-		    transaction,
 		    operation,
-		    sign
+		    signature,
+		    transaction,
+		    utils,
 		};
 		return tracCryptoApi;
 	}

@@ -1,5 +1,5 @@
 // signature.test.js
-const { signature } = require("trac-crypto-api")
+const { signature } = require("../../../dist/trac-crypto-api.browser")
 const b4a = require("b4a")
 const sodium = require("sodium-universal")
 

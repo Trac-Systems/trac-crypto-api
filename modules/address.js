@@ -1,10 +1,10 @@
-const mnemonicUtils = require("./mnemonic.js");
-const { bech32m } = require("bech32");
-const b4a = require("b4a");
-const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
-const runtime = require('./runtime.js');
+const mnemonicUtils = require("./mnemonic.js")
+const { bech32m } = require("bech32")
+const b4a = require("b4a")
+const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js")
+const runtime = require('./runtime.js')
 
-let SLIP10Node;
+let SLIP10Node
 if (runtime.isBare()) {
   // Logic executed only in the bare environment.
   // We use eval() to completely bypass Webpack's static analysis on the
@@ -13,6 +13,7 @@ if (runtime.isBare()) {
 
   // The bare environment's module loader will execute this specific require call successfully.
   const modulePath = '@metamask/key-tree'
+  // SLIP10Node = require(modulePath).SLIP10Node
   const keyTreeModule = eval(`require('${modulePath}', ${options})`)
   SLIP10Node = keyTreeModule.SLIP10Node
 
@@ -32,22 +33,22 @@ if (runtime.isBare()) {
 function _isValidHrp(hrp) {
   // HRP must be a non-empty string with length between 1 and 83 characters
   if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
-    return false;
+    return false
   }
   // HRP must consist of printable lower-case ASCII characters (33-126)
   for (let i = 0; i < hrp.length; i++) {
-    const charCode = hrp.charCodeAt(i);
+    const charCode = hrp.charCodeAt(i)
     // Only allow lower-case letters a-z
     if (charCode < 97 || charCode > 122) {
-      return false;
+      return false
     }
   }
-  return true;
+  return true
 }
 
 function _validateHrp(hrp) {
   if (!_isValidHrp(hrp)) {
-    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.')
   }
 }
 
@@ -61,36 +62,36 @@ function _validateHrp(hrp) {
 function _sanitizeDerivationPath(path) {
   // Validate input type
   if (typeof path !== 'string') {
-    throw new TypeError('Derivation path must be a string');
+    throw new TypeError('Derivation path must be a string')
   }
   // Remove all spaces from the input path
-  path = path.replace(/\s+/g, '');
+  path = path.replace(/\s+/g, '')
 
   // Must start with 'm/'
   // Observation: Although 'm' is not necessary for SLIP-10, 
   // we enforce it for clarity and consistency with BIP32
   if (!path.startsWith('m/')) {
-    throw new Error("Derivation path must start with 'm/'");
+    throw new Error("Derivation path must start with 'm/'")
   }
 
   // Disallow empty and invalid segments
-  const segments = path.split('/').map(seg => seg.trim());
-  segments.shift(); // Remove initial 'm' and process segments separately
+  const segments = path.split('/').map(seg => seg.trim())
+  segments.shift() // Remove initial 'm' and process segments separately
 
   if (segments.length < 1) {
-    throw new Error('Derivation path must have at least one child segment');
+    throw new Error('Derivation path must have at least one child segment')
   }
 
-  const segmentRegex = /^\d+'$/;
-  let slip10Segments = [];
+  const segmentRegex = /^\d+'$/
+  let slip10Segments = []
   for (const seg of segments) {
     if (!segmentRegex.test(seg)) {
-      throw new Error(`Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`);
+      throw new Error(`Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`)
     }
-    slip10Segments.push(`slip10:${seg}`);
+    slip10Segments.push(`slip10:${seg}`)
   }
 
-  return { safePath: path, slip10Segments };
+  return { safePath: path, slip10Segments }
 }
 
 /**
@@ -101,30 +102,30 @@ function _sanitizeDerivationPath(path) {
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
 async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
-  let safeMnemonic;
+  let safeMnemonic
   if (mnemonic === null) {
-    safeMnemonic = mnemonicUtils.generate();
+    safeMnemonic = mnemonicUtils.generate()
   } else {
-    safeMnemonic = mnemonicUtils.sanitize(mnemonic); // Will throw if the mnemonic is invalid
+    safeMnemonic = mnemonicUtils.sanitize(mnemonic) // Will throw if the mnemonic is invalid
   }
 
   if (path === null) {
-    path = "m/0'/0'/0'";
+    path = "m/0'/0'/0'"
   }
 
   // TODO: Refactor this part of the code to use a BIP32-style path. Then, use _sanitizeDerivationPath to validate it.
-  let masterPath = [`bip39:${safeMnemonic}`];
+  let masterPath = [`bip39:${safeMnemonic}`]
   for (let i = 0; i < masterPathSegments.length; i++) {
-    masterPath.push(`slip10:${masterPathSegments[i]}'`);
+    masterPath.push(`slip10:${masterPathSegments[i]}'`)
   }
 
   const masterNode = await SLIP10Node.fromDerivationPath({
     curve: 'ed25519',
     derivationPath: masterPath,
-  });
+  })
 
-  const { safePath, slip10Segments } = _sanitizeDerivationPath(path);
-  const childNode = await masterNode.derive(slip10Segments);
+  const { safePath, slip10Segments } = _sanitizeDerivationPath(path)
+  const childNode = await masterNode.derive(slip10Segments)
 
   // Observation:
   // libsodium uses a 64-byte secret key (32-byte seed + 32-byte public key)
@@ -132,15 +133,15 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
   // In order to keep consistency between key derivation and signing, we concatenate the private key with the public key here.
   // More info here:
   // https://libsodium.gitbook.io/doc/public-key_cryptography/public-key_signatures#generating-a-new-signing-key-pair
-  const publicKey = b4a.from(childNode.publicKeyBytes.subarray(1)); // Remove compressed public key prefix byte (always 0x00)
-  const secretKey = b4a.concat([b4a.from(childNode.privateKeyBytes), publicKey]);
+  const publicKey = b4a.from(childNode.publicKeyBytes.subarray(1)) // Remove compressed public key prefix byte (always 0x00)
+  const secretKey = b4a.concat([b4a.from(childNode.privateKeyBytes), publicKey])
 
   // Sanity checks. Maybe not necessary, but better safe than sorry.
   if (publicKey.length !== TRAC_PUB_KEY_SIZE) {
-    throw new Error(`Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`);
+    throw new Error(`Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`)
   }
   if (secretKey.length !== TRAC_PRIV_KEY_SIZE) {
-    throw new Error(`Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`);
+    throw new Error(`Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`)
   }
 
   return {
@@ -148,7 +149,7 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
     secretKey,
     mnemonic: safeMnemonic,
     derivationPath: safePath,
-  };
+  }
 }
 
 /**
@@ -161,26 +162,26 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
  */
 function isValid(address) {
   const _separateHrp = (address) => {
-    let ret = { prefix: null, suffix: null };
+    let ret = { prefix: null, suffix: null }
     if (typeof address === 'string') {
-      const separatorIndex = address.indexOf('1');
+      const separatorIndex = address.indexOf('1')
       if (separatorIndex > -1) {
-        ret.prefix = address.slice(0, separatorIndex);
-        ret.suffix = address.slice(separatorIndex + 1);
+        ret.prefix = address.slice(0, separatorIndex)
+        ret.suffix = address.slice(separatorIndex + 1)
       }
     }
-    return ret;
+    return ret
   }
 
-  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
-  const { prefix, suffix } = _separateHrp(address);
-  const suffixLength = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5) + 6; // Data part + checksum
+  const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
+  const { prefix, suffix } = _separateHrp(address)
+  const suffixLength = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5) + 6 // Data part + checksum
 
   return typeof prefix === 'string' &&
     typeof suffix === 'string' &&
     _isValidHrp(prefix) &&
     bech32Chars.test(suffix) &&
-    suffix.length === suffixLength;
+    suffix.length === suffixLength
 }
 
 /**
@@ -190,16 +191,16 @@ function isValid(address) {
  */
 function toBuffer(address) {
   if (!isValid(address)) {
-    throw new Error('Invalid address');
+    throw new Error('Invalid address')
   }
-  return b4a.from(address, 'ascii');
+  return b4a.from(address, 'ascii')
 }
 
 function fromBuffer(buffer) {
   if (!b4a.isBuffer(buffer)) {
-    throw new Error('Invalid input: buffer must be a Buffer');
+    throw new Error('Invalid input: buffer must be a Buffer')
   }
-  return buffer.toString('ascii');
+  return buffer.toString('ascii')
 }
 
 /**
@@ -210,14 +211,14 @@ function fromBuffer(buffer) {
  * @throws {Error} If the publicKey is not a Buffer or has incorrect length.
  */
 function encode(hrp, publicKey) {
-  _validateHrp(hrp);
+  _validateHrp(hrp)
   if (!b4a.isBuffer(publicKey) || publicKey.length !== TRAC_PUB_KEY_SIZE) {
     throw new Error(
       `Invalid public key. Expected a Buffer of length ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`
-    );
+    )
   }
-  const words = bech32m.toWords(publicKey);
-  return bech32m.encode(hrp, words);
+  const words = bech32m.toWords(publicKey)
+  return bech32m.encode(hrp, words)
 }
 
 /**
@@ -227,14 +228,14 @@ function encode(hrp, publicKey) {
  * @throws {Error} If the decoded buffer has incorrect length.
  */
 function decode(address) {
-  const { words } = bech32m.decode(address);
-  const buffer = b4a.from(bech32m.fromWords(words));
+  const { words } = bech32m.decode(address)
+  const buffer = b4a.from(bech32m.fromWords(words))
   if (buffer.length !== TRAC_PUB_KEY_SIZE) {
     throw new Error(
       `Decoded buffer is invalid. Expected ${TRAC_PUB_KEY_SIZE} bytes, got ${buffer.length} bytes`
-    );
+    )
   }
-  return buffer;
+  return buffer
 }
 
 
@@ -245,17 +246,17 @@ function decode(address) {
  * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
  */
 async function generate(hrp, mnemonic = null, derivationPath = null) {
-  _validateHrp(hrp);
-  const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
-  const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
-  const address = encode(hrp, keypair.publicKey);
+  _validateHrp(hrp)
+  const masterPathSegments = b4a.from(hrp, 'utf8') // The master path segments used in address generation are derived from the HRP
+  const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath)
+  const address = encode(hrp, keypair.publicKey)
   return {
     address,
     publicKey: keypair.publicKey,
     secretKey: keypair.secretKey,
     mnemonic: keypair.mnemonic,
     derivationPath: keypair.derivationPath,
-  };
+  }
 }
 
 /**
@@ -269,28 +270,28 @@ function fromSecretKey(hrp, secretKey) {
   if (!b4a.isBuffer(secretKey) || secretKey.length !== TRAC_PRIV_KEY_SIZE) {
     throw new Error(
       `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`
-    );
+    )
   }
-  const publicKey = secretKey.subarray(32); // The public key is the last 32 bytes of the 64-byte secret key
-  const address = encode(hrp, publicKey);
+  const publicKey = secretKey.subarray(32) // The public key is the last 32 bytes of the 64-byte secret key
+  const address = encode(hrp, publicKey)
   return {
     address,
     publicKey,
     secretKey,
-  };
+  }
 }
 
 function size(hrp) {
   if (!_isValidHrp(hrp)) {
-    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.')
   }
-  const hrpSize = hrp.length;
-  const separatorSize = 1; // The '1' character separating HRP and data part
+  const hrpSize = hrp.length
+  const separatorSize = 1 // The '1' character separating HRP and data part
   // Each byte is represented by 8 bits, and bech32m encodes 5 bits per character
-  const dataPartSize = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5);
-  const checksumSize = 6; // Bech32m checksum is always 6 characters
+  const dataPartSize = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5)
+  const checksumSize = 6 // Bech32m checksum is always 6 characters
 
-  return hrpSize + separatorSize + dataPartSize + checksumSize;
+  return hrpSize + separatorSize + dataPartSize + checksumSize
 }
 
 module.exports = {
@@ -304,4 +305,4 @@ module.exports = {
   fromSecretKey,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
-};
+}

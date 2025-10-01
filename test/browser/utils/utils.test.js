@@ -1,5 +1,5 @@
 // utils.test.js
-const { utils } = require("trac-crypto-api")
+const { utils } = require("../../../dist/trac-crypto-api.browser")
 const b4a = require("b4a")
 
 test("utils is on window", () => {

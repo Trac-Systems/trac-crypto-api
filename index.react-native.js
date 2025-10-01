@@ -1,12 +1,11 @@
 const address = require('./modules/address.js')
-const data = require('./modules/data.js')
+// const data = require('./modules/data.js')
 const hash = require('./modules/hash.js')
 const mnemonic = require('./modules/mnemonic.js')
 const nonce = require('./modules/nonce.js')
-const operation = require('./modules/operation.js')
-const runtime = require('./modules/runtime.js')
+// const operation = require('./modules/operation.js')
 const signature = require('./modules/signature.js')
-const transaction = require('./modules/transaction.js')
+// const transaction = require('./modules/transaction.js')
 const utils = require('./modules/utils.js')
 
 
@@ -15,15 +14,16 @@ const sodium = require('sodium-universal')
 
 module.exports = {
     address,
-    data,
+    // data,
     hash,
     mnemonic,
     nonce,
-    operation,
-    runtime,
+    // operation,
     signature,
-    transaction,
+    // transaction,
     utils,
     b4a,
     sodium
 }
+
+// COMMENTED MODULES ARE NOT WORKING YET FOR REACT NATIVE

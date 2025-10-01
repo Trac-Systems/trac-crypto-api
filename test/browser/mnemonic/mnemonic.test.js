@@ -1,5 +1,5 @@
 // mnemonic.test.js
-const { mnemonic } = require("trac-crypto-api")
+const { mnemonic } = require("../../../dist/trac-crypto-api.browser")
 
 test("mnemonic is on window", () => {
   expect(window.TracCryptoApi.mnemonic).toBe(mnemonic)

@@ -15,7 +15,6 @@
     "b4a": "1.6.7",
     "jest": "^30.1.3",
     "jest-environment-jsdom": "^30.1.2",
-    "sodium-universal": "^5.0.1",
-    "trac-crypto-api": "file:../../"
+    "sodium-universal": "^5.0.1"
   }
 }
