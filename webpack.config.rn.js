@@ -21,11 +21,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      // MAPEAMENTO CRÍTICO: Garante que "sodium-universal" use
-      // a versão específica para React Native.
-      // 'sodium-universal': 'react-native-libsodium',
       'sodium-universal': 'sodium-javascript'
-
     },
     // Adicionando .ts e .tsx para garantir que o Webpack resolva as dependências
     // corretamente, mesmo que sua biblioteca seja JS.

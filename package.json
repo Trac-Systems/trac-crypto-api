@@ -9,6 +9,7 @@
   "scripts": {
     "build:browser": "rollup -c",
     "build:rn": "webpack --config webpack.config.rn.js",
+    "build": "rm -rf dist && npm run build:browser && npm run build:rn",
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",

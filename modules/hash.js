@@ -1,6 +1,7 @@
-const { blake3: blake3External } = require("@tracsystems/blake3");
-const sodium = require('sodium-universal');
-const b4a = require('b4a');
+const tracBlake3 = eval(`require("@tracsystems/blake3")`)
+const blake3External = tracBlake3.blake3
+const sodium = require('sodium-universal')
+const b4a = require('b4a')
 
 /**
  * Computes the Blake3 hash of the given message.

@@ -6,12 +6,22 @@ const runtime = require('./runtime.js');
 
 let SLIP10Node;
 if (runtime.isBare()) {
-  SLIP10Node = require('@metamask/key-tree', { with: { imports: '../package.json' } }).SLIP10Node;
-  const util = require('util');
-  globalThis.TextEncoder = util.TextEncoder;
-  globalThis.TextDecoder = util.TextDecoder;
+  // Logic executed only in the bare environment.
+  // We use eval() to completely bypass Webpack's static analysis on the
+  // non-standard `require(..., options)` syntax, which is required by the Bare environment.
+  const options = '{ with: { imports: \'../package.json\' } }'
+
+  // The bare environment's module loader will execute this specific require call successfully.
+  const modulePath = '@metamask/key-tree'
+  const keyTreeModule = eval(`require('${modulePath}', ${options})`)
+  SLIP10Node = keyTreeModule.SLIP10Node
+
+  // Polyfill TextEncoder/TextDecoder using Node's 'util' for bare environments
+  const util = require('util')
+  globalThis.TextEncoder = util.TextEncoder
+  globalThis.TextDecoder = util.TextDecoder
 } else {
-  SLIP10Node = require('@metamask/key-tree').SLIP10Node;
+  SLIP10Node = require('@metamask/key-tree').SLIP10Node
 }
 
 /**
