@@ -7,7 +7,7 @@
     "type": "terminal"
   },
   "scripts": {
-    "build:browser": "rollup -c",
+    "build:browser": "rollup -c && cd test/browser/ && npm i && cd ../..",
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",
@@ -42,6 +42,7 @@
     "bare-fs": "^4.0.2",
     "bech32": "^2.0.0",
     "bip39-mnemonic": "^2.2.0",
+    "sodium-javascript": "^0.8.0",
     "sodium-universal": "^5.0.1",
     "vite": "^7.1.3"
   },

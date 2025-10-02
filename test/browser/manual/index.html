@@ -99,21 +99,70 @@
     <p>Click the buttons to run the Mnemonic module tests.</p>
 
     <div class="test-section">
+        <h2>Address Generation Test</h2>
+        <button id="generateAddress">Generate TRAC Address</button>
+        <div id="generateAddressResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Data Module Test (Encrypt/Decrypt)</h2>
+        <button id="testData">Run Encrypt & Decrypt</button>
+        <div id="dataResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Hash Test (SHA-256)</h2>
+        <button id="computeHash">Compute Hash of 'Hello World'</button>
+        <div id="hashResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Hash Test (BLAKE3)</h2>
+        <button id="computeHashBlake3">Compute Hash of 'Hello World'</button>
+        <div id="hashResultBlake3" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
         <h2>Mnemonic Generation Test</h2>
         <button id="generateMnemonic">Generate Mnemonic</button>
         <div id="generateResult" class="result-box"></div>
     </div>
 
     <div class="test-section">
-        <h2>Sanitization Test (Valid)</h2>
+        <h2>Mnemonic Sanitization Test (Valid)</h2>
         <button id="sanitizeValid">Sanitize Valid Phrase</button>
         <div id="sanitizeValidResult" class="result-box"></div>
     </div>
 
     <div class="test-section">
-        <h2>Sanitization Test (Invalid)</h2>
+        <h2>Mnemonic Sanitization Test (Invalid)</h2>
         <button id="sanitizeInvalid">Sanitize Invalid Phrase</button>
         <div id="sanitizeInvalidResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Nonce Generation Test</h2>
+        <button id="generateNonce">Generate Random Nonce (32 Bytes)</button>
+        <div id="nonceResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Operation Module Test (Asset/Data)</h2>
+        <button id="preBuildOp">Pre-Build Data Operation</button>
+        <div id="preBuildOpResult" class="result-box"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Full Operation Lifecycle Test</h2>
+        <button id="buildOp">Build Signed Operation</button>
+        <div id="buildOpResult" class="result-box"></div>
+    </div>
+    
+
+    <div class="test-section">
+        <h2>Signature Test (Sign & Verify)</h2>
+        <button id="testSignature">Sign Message and Verify</button>
+        <div id="signatureResult" class="result-box"></div>
     </div>
 
     <div class="test-section">
@@ -127,13 +176,26 @@
         <button id="buildTx">Build Transaction</button>
         <div id="buildTxResult" class="result-box"></div>
     </div>
+
+    <div class="test-section">
+        <h2>Utils Module Test (Base64 & Serialize)</h2>
+        <button id="testUtils">Run Utils Tests</button>
+        <div id="utilsResult" class="result-box"></div>
+    </div>
 </div>
 
 <script>
-    const mnemonic = window.TracCryptoApi?.mnemonic;
-    const transaction = window.TracCryptoApi?.transaction;
     const address = window.TracCryptoApi?.address;
+    const data = window.TracCryptoApi?.data;
+    const hash = window.TracCryptoApi?.hash;
+    const mnemonic = window.TracCryptoApi?.mnemonic;
+    const nonce = window.TracCryptoApi?.nonce;
+    const operation = window.TracCryptoApi.operation;
+    const runtime = window.TracCryptoApi.runtime;
+    const signature = window.TracCryptoApi?.signature;
+    const transaction = window.TracCryptoApi?.transaction;
     const sign = window.TracCryptoApi?.sign;
+    const utils = window.TracCryptoApi?.utils;
 
 
     function displayResult(elementId, result, expected, message) {
@@ -150,6 +212,149 @@
         resultDiv.textContent = finalMessage;
     }
 
+    // Address Generation Test
+    document.getElementById('generateAddress').addEventListener('click', async () => {
+        if (!address) {
+            document.getElementById('generateAddressResult').textContent = "Error: 'address' module not found.";
+            return;
+        }
+        const coin = "trac"; // Specify the coin type
+        try {
+            const keyPair = await address.generate(coin);
+            const resultText = `
+Coin: ${coin.toUpperCase()}
+Address: ${keyPair.address}
+Secret Key: ${keyPair.secretKey}
+            `;
+            document.getElementById('generateAddressResult').className = 'result-box result-success';
+            document.getElementById('generateAddressResult').textContent = resultText;
+        } catch (err) {
+            document.getElementById('generateAddressResult').className = 'result-box result-fail';
+            document.getElementById('generateAddressResult').textContent = "Error: " + err.message;
+        }
+    });
+    
+    // Data Module Test (Encrypt/Decrypt)
+    document.getElementById('testData').addEventListener('click', async () => {
+        if (!data) {
+            document.getElementById('dataResult').textContent = "Error: 'data' module not found.";
+            return;
+        }
+
+        const inputMessage = "This is a secret message to be encrypted.";
+        const passwordString = "strong_password_123";
+        
+        const encoder = new TextEncoder();
+        const inputMessageBytes = encoder.encode(inputMessage);
+        const passwordBytes = encoder.encode(passwordString);
+        
+        let resultText = "Testing PBE encryption/decryption using Web Crypto (PBKDF2/AES-GCM)...\n\n";
+
+        try {
+            // --- 1. ENCRYPT (AWAIT) ---
+            // This is now an async call due to the browser's PBKDF2 implementation
+            const encryptedData = await data.encrypt(inputMessageBytes, passwordBytes);
+            
+            // --- 2. DECRYPT (AWAIT) ---
+            const decryptedMessageBytes = await data.decrypt(encryptedData, passwordBytes);
+            
+            // --- 3. VERIFY ---
+            const decoder = new TextDecoder();
+            const decryptedMessage = decoder.decode(decryptedMessageBytes);
+            
+            const success = decryptedMessage === inputMessage;
+
+            resultText += `Original Message: "${inputMessage}"\n`;
+            resultText += `Decrypted Message: "${decryptedMessage}"\n\n`;
+
+            if (success) {
+                document.getElementById('dataResult').className = 'result-box result-success';
+                document.getElementById('dataResult').textContent = `Passed! Encrypt/Decrypt Cycle Successful.\n\n${resultText}`;
+            } else {
+                document.getElementById('dataResult').className = 'result-box result-fail';
+                document.getElementById('dataResult').textContent = `Failed! Decrypted message does NOT match original.\n\n${resultText}`;
+            }
+
+        } catch (err) {
+            document.getElementById('dataResult').className = 'result-box result-fail';
+            document.getElementById('dataResult').textContent = `Test Failed: ${err.message}\n\n${resultText}`;
+        }
+    });
+
+    // hash    
+    document.getElementById('computeHash').addEventListener('click', async () => {
+        if (!hash) {
+            document.getElementById('hashResult').textContent = "Error: 'hash' module not found.";
+            return;
+        }
+
+        const inputString = "Hello World";
+        // 1. Convert the string to a Uint8Array (the required input format for your module)
+        const encoder = new TextEncoder();
+        const inputBytes = encoder.encode(inputString);
+        
+        // The expected result for SHA-256("Hello World") in hex
+        const expectedHash = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e";
+
+        try {
+            // 2. Pass the Uint8Array to the hash function
+            // Note: Your module returns a Buffer, which needs to be converted to a hex string for comparison/display.
+            const computedHashBuffer = await hash.sha256(inputBytes);
+            
+            // 3. Convert the Buffer result to a hex string
+            // You'll need a way to convert Buffer to Hex in the browser. 
+            // If your library doesn't expose a utility, you can use:
+            const computedHash = Array.from(computedHashBuffer)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            let message = `Input String: "${inputString}" (as Uint8Array)\n\nComputed Hash: ${computedHash}`;
+
+            // Check if the computed hash matches the known SHA-256 value
+            if (computedHash === expectedHash) {
+                document.getElementById('hashResult').className = 'result-box result-success';
+                message = `Passed! SHA-256 hash computed successfully.\n\n${message}`;
+            } else {
+                document.getElementById('hashResult').className = 'result-box result-fail';
+                message = `Failed! Hash does not match expected value.\n\nExpected: ${expectedHash}\n\n${message}`;
+            }
+            
+            document.getElementById('hashResult').textContent = message;
+
+        } catch (err) {
+            // This will now catch the error if the function is not found or fails for other reasons
+            document.getElementById('hashResult').className = 'result-box result-fail';
+            document.getElementById('hashResult').textContent = "Error during hash computation: " + err.message;
+        }
+    });
+
+    // Blake3 test
+    document.getElementById('computeHashBlake3').addEventListener('click', async () => {
+        if (!hash) {
+            document.getElementById('hashResultBlake3').textContent = "Error: 'hash' module not found.";
+            return;
+        }
+
+        const inputString = "Hello World";
+        const encoder = new TextEncoder();
+        const inputBytes = encoder.encode(inputString);
+
+        try {
+            const computedHashBuffer = await hash.blake3(inputBytes);
+            const computedHash = Array.from(computedHashBuffer)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            document.getElementById('hashResultBlake3').className = 'result-box result-success';
+            document.getElementById('hashResultBlake3').textContent =
+                `Blake3 hash computed successfully:\n${computedHash}`;
+        } catch (err) {
+            document.getElementById('hashResultBlake3').className = 'result-box result-fail';
+            document.getElementById('hashResultBlake3').textContent =
+                "Error during Blake3 computation: " + err.message;
+        }
+    });
+
     // Mnemonic Generation Test
     document.getElementById('generateMnemonic').addEventListener('click', async () => {
         if (!mnemonic) {
@@ -161,7 +366,7 @@
         displayResult('generateResult', wordCount, 24, `The generated phrase is:\n${phrase}`);
     });
 
-    // Sanitization Test (Valid)
+    // Mnemonic Sanitization Test (Valid)
     document.getElementById('sanitizeValid').addEventListener('click', async () => {
         if (!mnemonic) {
             document.getElementById('sanitizeValidResult').textContent = "Error: 'mnemonic' module not found.";
@@ -173,7 +378,7 @@
         displayResult('sanitizeValidResult', sanitizedMnemonic, expectedPhrase, `The original phrase is:\n${expectedPhrase}\n\nThe sanitized phrase is:`);
     });
 
-    // Sanitization Test (Invalid)
+    // Mnemonic Sanitization Test (Invalid)
     document.getElementById('sanitizeInvalid').addEventListener('click', async () => {
         if (!mnemonic) {
             document.getElementById('sanitizeInvalidResult').textContent = "Error: 'mnemonic' module not found.";
@@ -182,6 +387,210 @@
         const sabotagedPhrase = "wrong mnemonic phrase";
         const sanitizedMnemonic = await mnemonic.sanitize(sabotagedPhrase);
         displayResult('sanitizeInvalidResult', sanitizedMnemonic, null, 'The expected result is null.');
+    });
+
+    // Nonce Generation Test
+    document.getElementById('generateNonce').addEventListener('click', async () => {
+        // Check for the 'nonce' module and its 'generate' function
+        if (!nonce || typeof nonce.generate !== 'function') {
+            document.getElementById('nonceResult').textContent = "Error: 'nonce' module or 'generate' function not found. (Expected TracCryptoApi.nonce.generate)";
+            return;
+        }
+
+        // Assuming TRAC_NONCE_SIZE is 32 bytes (64 hex chars)
+        const expectedByteLength = 32; 
+        
+        try {
+            // CALL THE FUNCTION: nonce.generate() takes NO arguments and returns the Buffer
+            const nonceBytes = await nonce.generate();
+
+            // Convert the result (Buffer/Uint8Array) to a hex string for display
+            const nonceHex = Array.from(nonceBytes)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            // Basic checks for validation
+            const lengthCheck = nonceBytes.length === expectedByteLength;
+            const typeCheck = (nonceBytes instanceof Uint8Array); // Buffers are Uint8Arrays
+
+            let resultText = `
+    Generated Nonce (Hex): ${nonceHex}
+    Byte Length: ${nonceBytes.length}
+    Hex Length: ${nonceHex.length}
+    Type: ${nonceBytes.constructor.name}
+            `;
+            
+            if (lengthCheck && typeCheck) {
+                document.getElementById('nonceResult').className = 'result-box result-success';
+                document.getElementById('nonceResult').textContent = `Passed! Nonce generated successfully.\n${resultText}`;
+            } else {
+                document.getElementById('nonceResult').className = 'result-box result-fail';
+                document.getElementById('nonceResult').textContent = `Failed! Nonce length or type mismatch.\n${resultText}`;
+            }
+
+        } catch (err) {
+            document.getElementById('nonceResult').className = 'result-box result-fail';
+            document.getElementById('nonceResult').textContent = "Error during nonce generation: " + err.message;
+        }
+    });
+
+    // Pre-Build Operation Test
+    document.getElementById('preBuildOp').addEventListener('click', async () => {
+        if (!operation || !address) {
+            document.getElementById('preBuildOpResult').textContent = "Error: 'operation' or 'address' module not found.";
+            return;
+        }
+        
+        const fromKeyPair = await address.generate("trac");
+        const fromAddress = fromKeyPair.address;
+
+        // Fixed test inputs required by operation.js
+        const MOCK_VALIDATOR = "1111111111111111111111111111111111111111111111111111111111111111"; 
+        const MOCK_CONTENT_HASH = "2222222222222222222222222222222222222222222222222222222222222222"; 
+        const MOCK_ORIGIN_BOOTSTRAP = "3333333333333333333333333333333333333333333333333333333333333333"; 
+        const MOCK_DESTINATION_BOOTSTRAP = "4444444444444444444444444444444444444444444444444444444444444444"; 
+        const MOCK_VALIDITY = "5555555555555555555555555555555555555555555555555555555555555555"; 
+
+        try {
+            const opData = await operation.preBuild(
+                fromAddress,
+                MOCK_VALIDATOR,
+                MOCK_CONTENT_HASH,
+                MOCK_ORIGIN_BOOTSTRAP,
+                MOCK_DESTINATION_BOOTSTRAP,
+                MOCK_VALIDITY
+            );
+            
+            document.getElementById('preBuildOpResult').className = 'result-box result-success';
+            document.getElementById('preBuildOpResult').textContent =
+                "Pre-built operation data (includes nonce and hash):\n" + JSON.stringify(opData, (k, v) => {
+                    // Convert Buffers to Hex strings for cleaner output display
+                    if (k === 'hash' || k === 'nonce') return v.toString('hex');
+                    return v;
+                }, 2);
+        } catch (err) {
+            document.getElementById('preBuildOpResult').className = 'result-box result-fail';
+            document.getElementById('preBuildOpResult').textContent = "Error: " + err.message;
+        }
+    });
+
+    // Full Operation Lifecycle Test
+    document.getElementById('buildOp').addEventListener('click', async () => {
+        // 1. Initial Module Check (Crucial for preventing silent failures)
+        if (!operation || !address || !signature.sign) {
+            document.getElementById('buildOpResult').textContent = "Error: Required modules (operation, address, sign) not found.";
+            document.getElementById('buildOpResult').className = 'result-box result-fail';
+            return;
+        }
+        
+        // --- 2. Setup Keys and Inputs ---
+        // Make sure we get the full key pair synchronously or await for it
+        const fromKeyPair = await address.generate("trac");
+        const fromAddress = fromKeyPair.address;
+        const secretKey = fromKeyPair.secretKey; // This is the required input for build()
+        
+        // Fixed Mocks
+        const MOCK_VALIDATOR = "1111111111111111111111111111111111111111111111111111111111111111"; 
+        const MOCK_CONTENT_HASH = "2222222222222222222222222222222222222222222222222222222222222222"; 
+        const MOCK_ORIGIN_BOOTSTRAP = "3333333333333333333333333333333333333333333333333333333333333333"; 
+        const MOCK_DESTINATION_BOOTSTRAP = "4444444444444444444444444444444444444444444444444444444444444444"; 
+        const MOCK_VALIDITY = "5555555555555555555555555555555555555555555555555555555555555555"; 
+
+        try {
+            // --- 3. Pre-Build (Async call) ---
+            const opData = await operation.preBuild(
+                fromAddress,
+                MOCK_VALIDATOR,
+                MOCK_CONTENT_HASH,
+                MOCK_ORIGIN_BOOTSTRAP,
+                MOCK_DESTINATION_BOOTSTRAP,
+                MOCK_VALIDITY
+            );
+
+            // --- 4. Build and Sign (Synchronous call) ---
+            // NOTE: The 'build' function in your module is NOT async, remove 'await'.
+            const opPayload = operation.build(opData, secretKey);
+            
+            // 5. Validation Check
+            const decodedPayload = JSON.parse(atob(opPayload));
+            const isCorrectType = decodedPayload.type === 12;
+
+            document.getElementById('buildOpResult').className = isCorrectType ? 'result-box result-success' : 'result-box result-fail';
+            document.getElementById('buildOpResult').textContent =
+                `Passed! Full Operation Lifecycle Successful.\n\n` +
+                `Sender: ${fromAddress.substring(0, 10)}...\n` +
+                `Signature Size: ${decodedPayload.tro?.is?.length || decodedPayload.txo?.is?.length || 'N/A'}\n\n` +
+                `Operation Type: ${decodedPayload.type} (Expected 12)\n` +
+                `Signed Operation (Base64):\n${opPayload.substring(0, 100)}...`;
+                
+        } catch (err) {
+            // This catch block is essential for debugging silent failures
+            console.error("Full Operation Test Failed:", err);
+            document.getElementById('buildOpResult').className = 'result-box result-fail';
+            document.getElementById('buildOpResult').textContent = `Runtime Error: ${err.message}\n\nCheck browser console for details.`;
+        }
+    });
+
+    // Signature Test (Sign & Verify)
+    document.getElementById('testSignature').addEventListener('click', async () => {
+        if (!signature || !address) {
+            document.getElementById('signatureResult').textContent = "Error: 'signature' or 'address' module not found.";
+            return;
+        }
+
+        const messageString = "This is the message to be cryptographically signed.";
+        
+        // Preparation
+        const encoder = new TextEncoder();
+        const messageBytes = encoder.encode(messageString);
+        let keyPair;
+
+        try {
+            // 1. Generate Key Pair (address.generate returns { publicKey: Buffer, secretKey: Buffer, address: string })
+            keyPair = await address.generate("trac"); 
+
+            const privateKey = keyPair.secretKey;
+            const publicKey = keyPair.publicKey;
+
+            // --- 2. SIGN ---
+            // sign.sign expects Buffer for message and privateKey
+            const signatureBuffer = await signature.sign(messageBytes, privateKey);
+
+            // Convert signature to hex for display
+            const signatureHex = Array.from(signatureBuffer)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            // --- 3. VERIFY (Successful Case) ---
+            // sign.verify expects Buffer for signature, message, and publicKey
+            const isValid = await signature.verify(signatureBuffer, messageBytes, publicKey);
+
+            // --- 4. VERIFY (Negative Case - Tamper Message) ---
+            const tamperedMessage = encoder.encode(messageString + " (tampered)");
+            const isInvalid = await signature.verify(signatureBuffer, tamperedMessage, publicKey);
+
+            let resultText = `
+    Public Key (Hex): ${Array.from(publicKey).map(b => b.toString(16).padStart(2, '0')).join('')}
+    Message: "${messageString}"
+    Generated Signature (Hex): ${signatureHex}
+
+    Verification 1 (Original Message): ${isValid ? 'TRUE (PASS)' : 'FALSE (FAIL)'}
+    Verification 2 (Tampered Message): ${isInvalid ? 'TRUE (FAIL)' : 'FALSE (PASS)'}
+            `;
+
+            // Final check
+            if (isValid === true && isInvalid === false) {
+                document.getElementById('signatureResult').className = 'result-box result-success';
+                document.getElementById('signatureResult').textContent = `Passed! Sign and Verify Cycle Successful.\n${resultText}`;
+            } else {
+                document.getElementById('signatureResult').className = 'result-box result-fail';
+                document.getElementById('signatureResult').textContent = `Failed! Verification check failed.\n${resultText}`;
+            }
+
+        } catch (err) {
+            document.getElementById('signatureResult').className = 'result-box result-fail';
+            document.getElementById('signatureResult').textContent = "Error during signature test: " + err.message;
+        }
     });
 
     // Pre-Build Transaction Test
@@ -196,14 +605,12 @@
         const amount = "1234abcd";
         const validity = "112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00"; // Example validity in hex
         try {
-            console.log("prebuilding tx...");
             const txData = await transaction.preBuild(
                 fromKeyPair.address,
                 toKeyPair.address,
                 amount,
                 validity
             );
-            console.log("tx prebuilt:", txData);
             document.getElementById('preBuildTxResult').className = 'result-box result-success';
             document.getElementById('preBuildTxResult').textContent =
                 "Pre-built transaction data:\n" + JSON.stringify(txData, null, 2);
@@ -236,11 +643,92 @@
             document.getElementById('buildTxResult').className = 'result-box result-success';
             document.getElementById('buildTxResult').textContent =
                 "Signed transaction (Base64):\n" + txPayload;
-            console.log(txPayload);
-            console.log(typeof txPayload);
         } catch (err) {
             document.getElementById('buildTxResult').className = 'result-box result-fail';
             document.getElementById('buildTxResult').textContent = "Error: " + err.message;
+        }
+    });
+
+    // Utils Module Test (Base64 & Serialize)
+    document.getElementById('testUtils').addEventListener('click', async () => {
+        if (!utils) {
+            document.getElementById('utilsResult').textContent = "Error: 'utils' module not found.";
+            return;
+        }
+
+        let results = [];
+        let allPassed = true;
+        
+        // --- Test 1: toBase64 ---
+        try {
+            const payload = { a: 1, b: "test" };
+            const base64 = utils.toBase64(payload);
+            const expected = btoa(JSON.stringify(payload)); // Since we are in the browser, btoa is the standard
+            
+            if (base64 === expected) {
+                results.push(`✅ toBase64: Passed. Encoded payload correctly.`);
+            } else {
+                results.push(`❌ toBase64: Failed. Expected ${expected}, got ${base64}`);
+                allPassed = false;
+            }
+        } catch (e) {
+            results.push(`❌ toBase64: Failed with error: ${e.message}`);
+            allPassed = false;
+        }
+
+        // --- Test 2: isHexString ---
+        try {
+            const validHex = "0123456789abcdefABCDEF";
+            const invalidHex = "0123456G";
+            
+            if (utils.isHexString(validHex) === true && utils.isHexString(invalidHex) === false) {
+                results.push(`✅ isHexString: Passed. Validated hex strings correctly.`);
+            } else {
+                results.push(`❌ isHexString: Failed. Check failed for '${validHex}' or '${invalidHex}'.`);
+                allPassed = false;
+            }
+        } catch (e) {
+            results.push(`❌ isHexString: Failed with error: ${e.message}`);
+            allPassed = false;
+        }
+
+        // --- Test 3: serialize (Buffer and uint32) ---
+        try {
+            // Mock a b4a.from/Buffer function if the library doesn't expose it globally
+            const b4aFrom = (data) => new Uint8Array(data); // Simple mock for browser testing
+            
+            // Data: 1-byte Buffer, 4-byte uint32 (10), 1-byte Buffer
+            const buf1 = new Uint8Array([0xAA]); // AA
+            const num2 = 10;                     // 0000000A (BE)
+            const buf3 = new Uint8Array([0xBB]); // BB
+            
+            const serialized = utils.serialize(buf1, num2, buf3);
+            
+            // Expected buffer in hex: A A 0 0 0 0 0 A B B
+            const expectedHex = "aa0000000abb";
+            const serializedHex = Array.from(serialized)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            if (serializedHex === expectedHex) {
+                results.push(`✅ serialize: Passed. Buffers and uint32 serialized correctly.`);
+            } else {
+                results.push(`❌ serialize: Failed. Expected ${expectedHex}, got ${serializedHex}`);
+                allPassed = false;
+            }
+        } catch (e) {
+            results.push(`❌ serialize: Failed with error: ${e.message}`);
+            allPassed = false;
+        }
+        
+        // --- Final Display ---
+        const finalResultDiv = document.getElementById('utilsResult');
+        finalResultDiv.textContent = results.join('\n');
+
+        if (allPassed) {
+            finalResultDiv.className = 'result-box result-success';
+        } else {
+            finalResultDiv.className = 'result-box result-fail';
         }
     });
 
