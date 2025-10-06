@@ -50,6 +50,20 @@ function isHexString(str) {
     return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
 }
 
+function toHexString(buf) {
+    let hexStr = '';
+    if (runtime.isNode() || runtime.isBare()) {
+        hexStr = buf.toString('hex');
+    } else {
+        console.log("TYPEOF BUF: ", typeof buf, buf);
+        for (let i = 0; i < buf.length; i++) {
+            const hex = buf[i].toString(16).padStart(2, '0');
+            hexStr += hex;
+        }
+    }
+    return hexStr.toLowerCase();
+}
+
 function serialize(...args) {
     const buffers = args.map(arg => {
         // TODO: Should we support other types?
@@ -73,5 +87,6 @@ module.exports = {
     isUInt32,
     toUInt32,
     isHexString,
+    toHexString,
     serialize,
 };

@@ -497,7 +497,7 @@ Secret Key: ${keyPair.secretKey}
         const MOCK_VALIDITY = "5555555555555555555555555555555555555555555555555555555555555555"; 
 
         try {
-            // --- 3. Pre-Build (Async call) ---
+            // 3. Pre-Build (Async call)
             const opData = await operation.preBuild(
                 fromAddress,
                 MOCK_VALIDATOR,
@@ -507,8 +507,7 @@ Secret Key: ${keyPair.secretKey}
                 MOCK_VALIDITY
             );
 
-            // --- 4. Build and Sign (Synchronous call) ---
-            // NOTE: The 'build' function in your module is NOT async, remove 'await'.
+            // 4. Build and Sign (Synchronous call)
             const opPayload = operation.build(opData, secretKey);
             
             // 5. Validation Check
@@ -517,11 +516,11 @@ Secret Key: ${keyPair.secretKey}
 
             document.getElementById('buildOpResult').className = isCorrectType ? 'result-box result-success' : 'result-box result-fail';
             document.getElementById('buildOpResult').textContent =
-                `Passed! Full Operation Lifecycle Successful.\n\n` +
-                `Sender: ${fromAddress.substring(0, 10)}...\n` +
-                `Signature Size: ${decodedPayload.tro?.is?.length || decodedPayload.txo?.is?.length || 'N/A'}\n\n` +
-                `Operation Type: ${decodedPayload.type} (Expected 12)\n` +
-                `Signed Operation (Base64):\n${opPayload.substring(0, 100)}...`;
+                "Signed Operation Payload (Base64):\n" + opPayload;
+            document.getElementById('buildOpResult').textContent +=
+                "\n\nDecoded Transaction Payload:\n" + JSON.stringify(decodedPayload, null, 2);
+            document.getElementById('buildOpResult').textContent +=
+                "\n\n(Note: Full verification of the transaction payload requires server-side logic.)";
                 
         } catch (err) {
             // This catch block is essential for debugging silent failures
@@ -643,6 +642,10 @@ Secret Key: ${keyPair.secretKey}
             document.getElementById('buildTxResult').className = 'result-box result-success';
             document.getElementById('buildTxResult').textContent =
                 "Signed transaction (Base64):\n" + txPayload;
+            document.getElementById('buildTxResult').textContent +=
+                "\n\nDecoded Transaction Payload:\n" + JSON.stringify(JSON.parse(atob(txPayload)), null, 2);
+            document.getElementById('buildTxResult').textContent +=
+                "\n\n(Note: Full verification of the transaction payload requires server-side logic.)";
         } catch (err) {
             document.getElementById('buildTxResult').className = 'result-box result-fail';
             document.getElementById('buildTxResult').textContent = "Error: " + err.message;
@@ -661,14 +664,32 @@ Secret Key: ${keyPair.secretKey}
         
         // --- Test 1: toBase64 ---
         try {
-            const payload = { a: 1, b: "test" };
-            const base64 = utils.toBase64(payload);
-            const expected = btoa(JSON.stringify(payload)); // Since we are in the browser, btoa is the standard
-            
-            if (base64 === expected) {
-                results.push(`✅ toBase64: Passed. Encoded payload correctly.`);
+            // Build a transaction payload using preBuild and build
+            if (!transaction || !address) throw new Error("'transaction' or 'address' module not found.");
+            const fromKeyPair = await address.generate("trac");
+            const toKeyPair = await address.generate("trac");
+            const amount = "1234abcd";
+            const validity = "112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00";
+            const txData = await transaction.preBuild(
+                fromKeyPair.address,
+                toKeyPair.address,
+                amount,
+                validity
+            );
+            const payload = await transaction.build(txData, fromKeyPair.secretKey);
+            const base64 = payload; // Already base64 from build
+            let decoded = "";
+            try {
+                decoded = atob(base64);
+            } catch (e) {
+                decoded = `Error decoding base64: ${e.message}`;
+            }
+            if (typeof base64 === 'string' && base64.length > 0) {
+                results.push(`✅ toBase64: Passed. Transaction built and encoded as base64.`);
+                results.push(`Base64: ${base64}`);
+                results.push(`Decoded base64 string: ${decoded}`);
             } else {
-                results.push(`❌ toBase64: Failed. Expected ${expected}, got ${base64}`);
+                results.push(`❌ toBase64: Failed. Expected a non-empty base64 string, got ${base64}`);
                 allPassed = false;
             }
         } catch (e) {

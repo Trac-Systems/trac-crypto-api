@@ -12,6 +12,10 @@ function _isValidInput(input, expectedLength) {
     return utils.isHexString(input) && input.length === expectedLength;
 }
 
+const _bufferToHexString = (buf) => {
+    return utils.toHexString(buf);
+}
+
 /**
  * Builds an unsigned transaction message.
  * @async
@@ -95,12 +99,12 @@ function build(operationData, secretKey) {
         type: OP_TYPE_TX,
         address: operationData.from,
         txo: {
-            tx: operationData.hash.toString('hex'),
+            tx: _bufferToHexString(operationData.hash),
             txv: operationData.validity,
-            iw: operationData.validator.toString('hex'),
-            in: operationData.nonce.toString('hex'),
-            ch: operationData.contentHash.toString('hex'),
-            is: sig.toString('hex'),
+            iw: _bufferToHexString(operationData.validator),
+            in: _bufferToHexString(operationData.nonce),
+            ch: _bufferToHexString(operationData.contentHash),
+            is: _bufferToHexString(sig),
             bs: operationData.originBootstrap,
             mbs: operationData.destinationBootstrap,
         }

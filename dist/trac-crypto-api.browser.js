@@ -156357,6 +156357,20 @@ zoo`.split('\n');
 		    return typeof str === 'string' && /^[0-9a-fA-F]+$/.test(str);
 		}
 
+		function toHexString(buf) {
+		    let hexStr = '';
+		    if (runtime.isNode() || runtime.isBare()) {
+		        hexStr = buf.toString('hex');
+		    } else {
+		        console.log("TYPEOF BUF: ", typeof buf, buf);
+		        for (let i = 0; i < buf.length; i++) {
+		            const hex = buf[i].toString(16).padStart(2, '0');
+		            hexStr += hex;
+		        }
+		    }
+		    return hexStr.toLowerCase();
+		}
+
 		function serialize(...args) {
 		    const buffers = args.map(arg => {
 		        // TODO: Should we support other types?
@@ -156380,6 +156394,7 @@ zoo`.split('\n');
 		    isUInt32,
 		    toUInt32,
 		    isHexString,
+		    toHexString,
 		    serialize,
 		};
 		return utils;
@@ -156400,6 +156415,10 @@ zoo`.split('\n');
 		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
 
 		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
+
+		const _bufferToHexString = (buf) => {
+		    return utils.toHexString(buf);
+		};
 
 		/**
 		 * Builds an unsigned transaction message.
@@ -156446,7 +156465,7 @@ zoo`.split('\n');
 		        hash,
 		        validity,
 		        nonce,
-		        amount: amountPadded.toString('hex'),
+		        amount: _bufferToHexString(amountPadded),
 		        to,
 		    };
 		}
@@ -156466,12 +156485,12 @@ zoo`.split('\n');
 		        type: OP_TYPE_TRANSFER,
 		        address: transactionData.from,
 		        tro: {
-		            tx: transactionData.hash.toString('hex'),
+		            tx: _bufferToHexString(transactionData.hash),
 		            txv: transactionData.validity,
-		            in: transactionData.nonce.toString('hex'),
+		            in: _bufferToHexString(transactionData.nonce),
 		            to: transactionData.to,
-		            am: transactionData.amount,
-		            is: sig.toString('hex')
+		            am: _bufferToHexString(transactionData.amount),
+		            is: _bufferToHexString(sig)
 		        }
 		    };
 
@@ -156505,6 +156524,10 @@ zoo`.split('\n');
 		function _isValidInput(input, expectedLength) {
 		    return utils.isHexString(input) && input.length === expectedLength;
 		}
+
+		const _bufferToHexString = (buf) => {
+		    return utils.toHexString(buf);
+		};
 
 		/**
 		 * Builds an unsigned transaction message.
@@ -156589,12 +156612,12 @@ zoo`.split('\n');
 		        type: OP_TYPE_TX,
 		        address: operationData.from,
 		        txo: {
-		            tx: operationData.hash.toString('hex'),
+		            tx: _bufferToHexString(operationData.hash),
 		            txv: operationData.validity,
-		            iw: operationData.validator.toString('hex'),
-		            in: operationData.nonce.toString('hex'),
-		            ch: operationData.contentHash.toString('hex'),
-		            is: sig.toString('hex'),
+		            iw: _bufferToHexString(operationData.validator),
+		            in: _bufferToHexString(operationData.nonce),
+		            ch: _bufferToHexString(operationData.contentHash),
+		            is: _bufferToHexString(sig),
 		            bs: operationData.originBootstrap,
 		            mbs: operationData.destinationBootstrap,
 		        }

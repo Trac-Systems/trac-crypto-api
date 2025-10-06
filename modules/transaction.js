@@ -8,6 +8,10 @@ const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = require("../c
 
 const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
+const _bufferToHexString = (buf) => {
+    return utils.toHexString(buf);
+}
+
 /**
  * Builds an unsigned transaction message.
  * @async
@@ -53,7 +57,7 @@ async function preBuild(from, to, amount, validity) {
         hash,
         validity,
         nonce,
-        amount: amountPadded.toString('hex'),
+        amount: _bufferToHexString(amountPadded),
         to,
     };
 }
@@ -73,12 +77,12 @@ function build(transactionData, secretKey) {
         type: OP_TYPE_TRANSFER,
         address: transactionData.from,
         tro: {
-            tx: transactionData.hash.toString('hex'),
+            tx: _bufferToHexString(transactionData.hash),
             txv: transactionData.validity,
-            in: transactionData.nonce.toString('hex'),
+            in: _bufferToHexString(transactionData.nonce),
             to: transactionData.to,
-            am: transactionData.amount,
-            is: sig.toString('hex')
+            am: _bufferToHexString(transactionData.amount),
+            is: _bufferToHexString(sig)
         }
     }
 
