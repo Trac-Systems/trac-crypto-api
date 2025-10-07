@@ -19,7 +19,7 @@ const _bufferToHexString = (buf) => {
  * @param {string} to - The recipient's address.
  * @param {string} amount - The amount to transfer as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
- * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
+ * @returns {Promise<Object>} The transaction data object containing from, to, amount, validity, nonce, and hash.
  * @throws Will throw an error if any of the inputs are invalid.
  */
 async function preBuild(from, to, amount, validity) {
@@ -53,12 +53,12 @@ async function preBuild(from, to, amount, validity) {
     );
     const hash = await hashUtils.blake3(message);
     return {
-        from,
-        hash,
-        validity,
-        nonce,
-        amount: _bufferToHexString(amountPadded),
-        to,
+        from, // string
+        hash, // Buffer
+        validity, // string
+        nonce, // Buffer
+        amount: _bufferToHexString(amountPadded), // string
+        to, // string
     };
 }
 
@@ -81,7 +81,7 @@ function build(transactionData, secretKey) {
             txv: transactionData.validity,
             in: _bufferToHexString(transactionData.nonce),
             to: transactionData.to,
-            am: _bufferToHexString(transactionData.amount),
+            am: transactionData.amount,
             is: _bufferToHexString(sig)
         }
     }

@@ -70,14 +70,14 @@ async function preBuild(from, validator, contentHash, originBootstrap, destinati
     const hash = await hashUtils.blake3(serialized);
 
     const txData = {
-        from,
-        hash,
-        validity,
-        validator,
-        contentHash,
-        nonce,
-        originBootstrap,
-        destinationBootstrap,
+        from, // string
+        hash, // Buffer
+        validity, // string
+        validator, // string
+        contentHash, // string
+        nonce, // Buffer
+        originBootstrap, // string
+        destinationBootstrap, // string
     };
 
     return txData;
@@ -101,9 +101,9 @@ function build(operationData, secretKey) {
         txo: {
             tx: _bufferToHexString(operationData.hash),
             txv: operationData.validity,
-            iw: _bufferToHexString(operationData.validator),
+            iw: operationData.validator,
             in: _bufferToHexString(operationData.nonce),
-            ch: _bufferToHexString(operationData.contentHash),
+            ch: operationData.contentHash,
             is: _bufferToHexString(sig),
             bs: operationData.originBootstrap,
             mbs: operationData.destinationBootstrap,

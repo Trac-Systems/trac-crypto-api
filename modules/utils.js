@@ -53,9 +53,8 @@ function isHexString(str) {
 function toHexString(buf) {
     let hexStr = '';
     if (runtime.isNode() || runtime.isBare()) {
-        hexStr = buf.toString('hex');
+        hexStr = b4a.toString(buf, 'hex');
     } else {
-        console.log("TYPEOF BUF: ", typeof buf, buf);
         for (let i = 0; i < buf.length; i++) {
             const hex = buf[i].toString(16).padStart(2, '0');
             hexStr += hex;

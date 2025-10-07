@@ -156360,9 +156360,8 @@ zoo`.split('\n');
 		function toHexString(buf) {
 		    let hexStr = '';
 		    if (runtime.isNode() || runtime.isBare()) {
-		        hexStr = buf.toString('hex');
+		        hexStr = b4a.toString(buf, 'hex');
 		    } else {
-		        console.log("TYPEOF BUF: ", typeof buf, buf);
 		        for (let i = 0; i < buf.length; i++) {
 		            const hex = buf[i].toString(16).padStart(2, '0');
 		            hexStr += hex;
@@ -156427,7 +156426,7 @@ zoo`.split('\n');
 		 * @param {string} to - The recipient's address.
 		 * @param {string} amount - The amount to transfer as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
-		 * @returns {Object} The transaction data object containing from, to, amount, validity, nonce, and hash.
+		 * @returns {Promise<Object>} The transaction data object containing from, to, amount, validity, nonce, and hash.
 		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
 		async function preBuild(from, to, amount, validity) {
@@ -156461,12 +156460,12 @@ zoo`.split('\n');
 		    );
 		    const hash = await hashUtils.blake3(message);
 		    return {
-		        from,
-		        hash,
-		        validity,
-		        nonce,
-		        amount: _bufferToHexString(amountPadded),
-		        to,
+		        from, // string
+		        hash, // Buffer
+		        validity, // string
+		        nonce, // Buffer
+		        amount: _bufferToHexString(amountPadded), // string
+		        to, // string
 		    };
 		}
 
@@ -156489,7 +156488,7 @@ zoo`.split('\n');
 		            txv: transactionData.validity,
 		            in: _bufferToHexString(transactionData.nonce),
 		            to: transactionData.to,
-		            am: _bufferToHexString(transactionData.amount),
+		            am: transactionData.amount,
 		            is: _bufferToHexString(sig)
 		        }
 		    };
@@ -156583,14 +156582,14 @@ zoo`.split('\n');
 		    const hash = await hashUtils.blake3(serialized);
 
 		    const txData = {
-		        from,
-		        hash,
-		        validity,
-		        validator,
-		        contentHash,
-		        nonce,
-		        originBootstrap,
-		        destinationBootstrap,
+		        from, // string
+		        hash, // Buffer
+		        validity, // string
+		        validator, // string
+		        contentHash, // string
+		        nonce, // Buffer
+		        originBootstrap, // string
+		        destinationBootstrap, // string
 		    };
 
 		    return txData;
@@ -156614,9 +156613,9 @@ zoo`.split('\n');
 		        txo: {
 		            tx: _bufferToHexString(operationData.hash),
 		            txv: operationData.validity,
-		            iw: _bufferToHexString(operationData.validator),
+		            iw: operationData.validator,
 		            in: _bufferToHexString(operationData.nonce),
-		            ch: _bufferToHexString(operationData.contentHash),
+		            ch: operationData.contentHash,
 		            is: _bufferToHexString(sig),
 		            bs: operationData.originBootstrap,
 		            mbs: operationData.destinationBootstrap,
