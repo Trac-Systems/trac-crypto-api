@@ -25,7 +25,7 @@ const _bufferToHexString = (buf) => {
  * @param {string} originBootstrap - The origin bootstrap node as a hex string.
  * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
- * @returns {Object} The transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
+ * @returns {Promise<Object>} Resolves to the transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
  * @throws Will throw an error if any of the inputs are invalid.
  */
 async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity) {

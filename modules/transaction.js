@@ -19,7 +19,7 @@ const _bufferToHexString = (buf) => {
  * @param {string} to - The recipient's address.
  * @param {string} amount - The amount to transfer as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
- * @returns {Promise<Object>} The transaction data object containing from, to, amount, validity, nonce, and hash.
+ * @returns {Promise<Object>} Resolves to the transaction data object containing from, to, amount, validity, nonce, and hash.
  * @throws Will throw an error if any of the inputs are invalid.
  */
 async function preBuild(from, to, amount, validity) {

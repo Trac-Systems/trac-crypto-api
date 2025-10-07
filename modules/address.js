@@ -86,6 +86,7 @@ function _sanitizeDerivationPath(path) {
 /**
  * Generates an Ed25519 key pair from a mnemonic phrase.
  * @async
+ * @param {Buffer} masterPathSegments - The master path segments as a Buffer (e.g. derived from HRP).
  * @param {string|null} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
  * @param {string} [path] - Optional derivation path. Defaults to "m/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
@@ -229,6 +230,7 @@ function decode(address) {
 
 
 /**
+ * @async
  * Generates a new keypair and address.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
  * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.

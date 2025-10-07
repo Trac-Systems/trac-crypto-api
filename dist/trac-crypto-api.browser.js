@@ -115313,9 +115313,10 @@
 
 		/**
 		 * Converts a mnemonic phrase to a seed buffer.
+		 * @async
 		 * @param {string} mnemonic - The mnemonic phrase to convert.
 		 * @param {string} [passphrase=''] - Optional passphrase to add extra security.
-		 * @returns {Buffer} The derived seed buffer.
+		 * @returns {Promise<Buffer>} Resolves to the derived seed buffer.
 		 */
 		// TODO: Implement a sync version of this function
 		async function toSeed(mnemonic, passphrase = '') {
@@ -155773,6 +155774,7 @@ zoo`.split('\n');
 		/**
 		 * Generates an Ed25519 key pair from a mnemonic phrase.
 		 * @async
+		 * @param {Buffer} masterPathSegments - The master path segments as a Buffer (e.g. derived from HRP).
 		 * @param {string|null} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
 		 * @param {string} [path] - Optional derivation path. Defaults to "m/0'/0'/0'".
 		 * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
@@ -155916,6 +155918,7 @@ zoo`.split('\n');
 
 
 		/**
+		 * @async
 		 * Generates a new keypair and address.
 		 * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
 		 * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
@@ -156048,8 +156051,9 @@ zoo`.split('\n');
 
 		/**
 		 * Computes the Blake3 hash of the given message.
+		 * @async
 		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The Blake3 hash as a Buffer.
+		 * @returns {Promise<Buffer>} Resolves to the Blake3 hash as a Buffer.
 		 * @throws Will throw an error if the input is not of a supported type.
 		 */
 		async function blake3(message) {
@@ -156064,8 +156068,9 @@ zoo`.split('\n');
 
 		/**
 		 * Computes the Blake3 hash of the given message.
+		 * @async
 		 * @param {Buffer | Uint8Array} message - The input message to hash.
-		 * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
+		 * @returns {Promise<Buffer>} Resolves to the Blake3 hash as a Buffer or an empty buffer in case of error
 		 */
 		async function blake3Safe(message) {
 		    try {
@@ -156426,7 +156431,7 @@ zoo`.split('\n');
 		 * @param {string} to - The recipient's address.
 		 * @param {string} amount - The amount to transfer as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
-		 * @returns {Promise<Object>} The transaction data object containing from, to, amount, validity, nonce, and hash.
+		 * @returns {Promise<Object>} Resolves to the transaction data object containing from, to, amount, validity, nonce, and hash.
 		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
 		async function preBuild(from, to, amount, validity) {
@@ -156537,7 +156542,7 @@ zoo`.split('\n');
 		 * @param {string} originBootstrap - The origin bootstrap node as a hex string.
 		 * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
-		 * @returns {Object} The transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
+		 * @returns {Promise<Object>} Resolves to the transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
 		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
 		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity) {

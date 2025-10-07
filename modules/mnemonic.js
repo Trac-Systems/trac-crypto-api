@@ -60,9 +60,10 @@ function generate(seed = null) {
 
 /**
  * Converts a mnemonic phrase to a seed buffer.
+ * @async
  * @param {string} mnemonic - The mnemonic phrase to convert.
  * @param {string} [passphrase=''] - Optional passphrase to add extra security.
- * @returns {Buffer} The derived seed buffer.
+ * @returns {Promise<Buffer>} Resolves to the derived seed buffer.
  */
 // TODO: Implement a sync version of this function
 async function toSeed(mnemonic, passphrase = '') {

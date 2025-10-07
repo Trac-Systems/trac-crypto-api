@@ -4,8 +4,9 @@ const b4a = require('b4a');
 
 /**
  * Computes the Blake3 hash of the given message.
+ * @async
  * @param {Buffer | Uint8Array} message - The input message to hash.
- * @returns {Buffer} The Blake3 hash as a Buffer.
+ * @returns {Promise<Buffer>} Resolves to the Blake3 hash as a Buffer.
  * @throws Will throw an error if the input is not of a supported type.
  */
 async function blake3(message) {
@@ -20,8 +21,9 @@ async function blake3(message) {
 
 /**
  * Computes the Blake3 hash of the given message.
+ * @async
  * @param {Buffer | Uint8Array} message - The input message to hash.
- * @returns {Buffer} The Blake3 hash as a Buffer or an empty buffer in case of error
+ * @returns {Promise<Buffer>} Resolves to the Blake3 hash as a Buffer or an empty buffer in case of error
  */
 async function blake3Safe(message) {
     try {
