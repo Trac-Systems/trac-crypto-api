@@ -2,6 +2,7 @@ const test = require("brittle");
 const api = require("../../../index.js");
 const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../../../constants.js");
 const b4a = require("b4a");
+const { bech32m } = require("bech32");
 
 const HRP = "trac";
 const PATH1 = "m/0'/1'/2'";
@@ -101,14 +102,43 @@ test("address.generate: should return an error for invalid mnemonic", async (t) 
   }
 });
 
+test("should accept valid hrp", async (t) => {
+  const validHrps = [
+    "t", // Min length
+    "trac",
+    "a".repeat(31), // Max length
+  ];
+
+  for (const hrp of validHrps) {
+    try {
+      const result = await api.address.generate(hrp);
+      t.is(typeof result.address, "string", `Address is string for HRP: ${hrp}`);
+      t.ok(b4a.isBuffer(result.publicKey), `Public key is buffer for HRP: ${hrp}`);
+      t.is(result.publicKey.length, TRAC_PUB_KEY_SIZE, `Public key length is valid for HRP: ${hrp}`);
+      t.ok(b4a.isBuffer(result.secretKey), `Secret key is buffer for HRP: ${hrp}`);
+      t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE, `Secret key length is valid for HRP: ${hrp}`);
+      t.is(typeof result.mnemonic, "string", `Mnemonic is string for HRP: ${hrp}`);
+      t.is(typeof result.derivationPath, "string", `Derivation path is string for HRP: ${hrp}`);
+    }
+    catch (error) {
+      t.fail(`Should not have thrown error for valid HRP ${hrp}: ${error.message}`);
+    }
+  }
+});
+
 test("address.generate: should return an error for invalid hrp", async (t) => {
   const invalidHrps = [
+    {}, // Not a string
     "", // Empty string
     "   ", // Spaces only
-    "a".repeat(84), // Too long
+    "a".repeat(32), // Too long
     "Trac", // Uppercase letters
     "tr@c", // Special characters
+    "trac-hrp", // Contains hyphen
+    "trac_hrp", // Contains underscore
     "тест", // Non-ASCII characters
+    "hrp1", // Contains special separator '1'
+    "hrp2", // Contains number
   ];
 
   for (const hrp of invalidHrps) {
@@ -129,28 +159,34 @@ test("address.generate: should accept valid derivation paths", async (t) => {
     "m/0'",
     "m/0'/1'",
     "m/0'   /1'", // spaces are trimmed
-    "m/44'/60'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'/0'", // Accepts big paths
+    "m/44'/60'" + "/0'".repeat(256), // Accepts big paths
     "m/2147483647'/2147483646'/2147483645'", // Max hardened index values
   ];
 
   // Paths are accepted as valid
   for (const path of paths) {
     const result = await api.address.generate(HRP, mnemonic, path);
-    t.is(typeof result.address, "string", `Valid path: ${path}`);
-    t.ok(b4a.isBuffer(result.publicKey), `Valid path: ${path}`);
-    t.is(result.publicKey.length, TRAC_PUB_KEY_SIZE, `Valid path: ${path}`);
-    t.ok(b4a.isBuffer(result.secretKey), `Valid path: ${path}`);
-    t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE, `Valid path: ${path}`);
-    t.is(typeof result.mnemonic, "string", `Valid path: ${path}`);
-    t.is(typeof result.derivationPath, "string", `Valid path: ${path}`);
+    console.log("Testing valid path:", path);
+    t.is(typeof result.address, "string", "Address is string");
+    t.ok(b4a.isBuffer(result.publicKey), "Public key is buffer");
+    t.is(result.publicKey.length, TRAC_PUB_KEY_SIZE, "Public key length is valid");
+    t.ok(b4a.isBuffer(result.secretKey), "Secret key is buffer");
+    t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE, "Secret key length is valid");
+    t.is(typeof result.mnemonic, "string", "Mnemonic is string");
+    t.is(typeof result.derivationPath, "string", "Derivation path is string");
     if (typeof path !== "string") {
-      t.is(result.derivationPath, "m/0'/0'/0'", `Valid path: ${path}`); // Default path
+      t.is(result.derivationPath, "m/0'/0'/0'", "Derivation path is default");
     } else {
-      t.is(result.derivationPath, path.replace(/\s+/g, ''), `Valid path: ${path}`); // Path with spaces trimmed
+      t.is(result.derivationPath, path.replace(/\s+/g, ''), "Spaces were trimmed"); // Path with spaces trimmed
     }
+    // Verify address checksum
+    t.ok(api.address.isValid(result.address), "Address is valid");
+    t.ok(bech32m.decode(result.address).prefix === HRP, "Address could be decoded and has correct HRP");
   }
+});
 
-  // Equivalent paths produce the same result
+test("address.generate: equivalent paths should produce the same result", async (t) => {
+  const mnemonic = api.mnemonic.generate();
   const result1 = await api.address.generate(HRP, mnemonic, "m/0'/1'");
   const result2 = await api.address.generate(HRP, mnemonic, "m/0'   /1'");
   t.ok(b4a.equals(result1.publicKey, result2.publicKey));

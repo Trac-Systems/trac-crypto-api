@@ -4,6 +4,15 @@ const b4a = require("b4a");
 const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
 const runtime = require('./runtime.js');
 
+// Note: The HRP size limit is 83 characters according to BIP-173,
+// but we enforce a more restrictive limit of 31 characters here
+// to ensure the total address length does not exceed 90 characters,
+// which is a common maximum length for bech32 addresses.
+// After this limit of 90 characters per address, the checksum
+// effectiveness starts to decrease
+// See: https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#checksum-design
+const HRP_SIZE_LIMIT = 31
+
 let SLIP10Node;
 if (runtime.isBare()) {
   SLIP10Node = require('@metamask/key-tree', { with: { imports: '../package.json' } }).SLIP10Node;
@@ -20,8 +29,8 @@ if (runtime.isBare()) {
  * @returns {boolean} True if the HRP is valid, false otherwise.
  */
 function _isValidHrp(hrp) {
-  // HRP must be a non-empty string with length between 1 and 83 characters
-  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > 83) {
+  // HRP must be a non-empty string with length between 1 and HRP_SIZE_LIMIT characters
+  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > HRP_SIZE_LIMIT) {
     return false;
   }
   // HRP must consist of printable lower-case ASCII characters (33-126)
@@ -37,7 +46,7 @@ function _isValidHrp(hrp) {
 
 function _validateHrp(hrp) {
   if (!_isValidHrp(hrp)) {
-    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
+    throw new Error(`Invalid HRP. It must be a non-empty string with length between 1 and ${HRP_SIZE_LIMIT} characters, consisting of lowercase characters a-z.`);
   }
 }
 
