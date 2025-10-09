@@ -1,19 +1,27 @@
 // signature.test.js
-const { signature } = require("trac-crypto-api")
+const apiReq = require("trac-crypto-api")
+const api = window.TracCryptoApi;
+const address = api.address;
+const signature = api.signature;
 const b4a = require("b4a")
-const sodium = require("sodium-universal")
+const sodium = require("sodium-universal");
+const hrp = "trac";
 
 test("signature is on window", () => {
-  expect(window.TracCryptoApi.signature).toBe(signature)
-})
+  expect(window.TracCryptoApi.signature).toBe(apiReq.signature);
+});
+
+test("address is on window", () => {
+  expect(window.TracCryptoApi.address).toBe(apiReq.address);
+});
 
 test("b4a is on window", () => {
-  expect(window.b4a).toBe(b4a)
-})
+  expect(window.b4a).toBe(b4a);
+});
 
 test("sodium is on window", () => {
-  expect(window.sodium).toBe(sodium)
-})
+  expect(window.sodium).toBe(sodium);
+});
 
 test("should sign and verify a message correctly", async () => {
   const { sign, verify } = window.TracCryptoApi.signature
@@ -39,6 +47,18 @@ test("should sign and verify a message correctly", async () => {
   expect(signatureResult.isValid).toBe(true)
   expect(signatureResult.signatureLength).toBe(signatureResult.expectedSignatureLength)
 })
+
+test("signature.verify: should fail verification for wrong message", async () => {
+  const { publicKey, secretKey } = await address.generate(hrp);
+  const message = Buffer.from("hello world");
+  const sig = signature.sign(message, secretKey);
+  const valid = signature.verify(sig, Buffer.from("other message"), publicKey);
+  expect(valid).toBe(false);
+});
+
+test("signature.sign: should throw on invalid private key", () => {
+  expect(() => signature.sign(Buffer.from("msg"), Buffer.alloc(10))).toThrow();
+});
 
 test("should fail verification for a tampered message", async () => {
   const { sign, verify } = window.TracCryptoApi.signature
