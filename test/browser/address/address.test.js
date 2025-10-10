@@ -9,6 +9,7 @@ const PATH2 = "m/0'/1'/10000000'";
 const mnemonic12Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
 
 // Address encode/decode
+const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
 
 test("address is on window", () => {
     expect(window.TracCryptoApi.address).toBe(address)
@@ -94,7 +95,7 @@ test("address.generate: should generate a valid address and keypair with no mnem
     expect(result.secretKey.length).toBe(api.address.PRIV_KEY_SIZE);
     expect(typeof result.mnemonic).toBe("string");
     expect(typeof result.derivationPath).toBe("string");
-    expect(result.derivationPath).toBe("m/0'/0'/0'");
+    expect(result.derivationPath).toBe(DEFAULT_DERIVATION_PATH);
 });
 
 test("address.generate: should generate keypair for 12 words mnemonic", async () => {
@@ -228,7 +229,7 @@ test("address.generate: should accept valid derivation paths", async () => {
         expect(typeof result.mnemonic).toBe("string");
         expect(typeof result.derivationPath).toBe("string");
         if (typeof path !== "string") {
-            expect(result.derivationPath).toBe("m/0'/0'/0'");
+            expect(result.derivationPath).toBe(DEFAULT_DERIVATION_PATH);
         } else {
             expect(result.derivationPath).toBe(path.replace(/\s+/g, ''));
         }

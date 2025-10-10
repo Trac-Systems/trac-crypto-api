@@ -7,6 +7,7 @@ const { bech32m } = require("bech32");
 const HRP = "trac";
 const PATH1 = "m/0'/1'/2'";
 const PATH2 = "m/0'/1'/10000000'";
+const DEFAULT_PATH = "m/918'/0'/0'/0'";
 
 const mnemonic12Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; // 12 words
 const mnemonic24Words = api.mnemonic.generate();
@@ -20,7 +21,7 @@ test("address.generate: should generate a valid address and keypair with no mnem
   t.is(result.secretKey.length, TRAC_PRIV_KEY_SIZE);
   t.is(typeof result.mnemonic, "string");
   t.is(typeof result.derivationPath, "string");
-  t.is(result.derivationPath, "m/0'/0'/0'");
+  t.is(result.derivationPath, DEFAULT_PATH);
 });
 
 test("address.generate: should generate keypair for 12 words mnemonic", async (t) => {
@@ -175,7 +176,7 @@ test("address.generate: should accept valid derivation paths", async (t) => {
     t.is(typeof result.mnemonic, "string", "Mnemonic is string");
     t.is(typeof result.derivationPath, "string", "Derivation path is string");
     if (typeof path !== "string") {
-      t.is(result.derivationPath, "m/0'/0'/0'", "Derivation path is default");
+      t.is(result.derivationPath, DEFAULT_PATH, "Derivation path is default");
     } else {
       t.is(result.derivationPath, path.replace(/\s+/g, ''), "Spaces were trimmed"); // Path with spaces trimmed
     }

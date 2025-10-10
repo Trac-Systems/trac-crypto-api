@@ -11,7 +11,8 @@ const runtime = require('./runtime.js');
 // After this limit of 90 characters per address, the checksum
 // effectiveness starts to decrease
 // See: https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#checksum-design
-const HRP_SIZE_LIMIT = 31
+const HRP_SIZE_LIMIT = 31;
+const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
 
 let SLIP10Node;
 if (runtime.isBare()) {
@@ -97,7 +98,7 @@ function _sanitizeDerivationPath(path) {
  * @async
  * @param {Buffer} masterPathSegments - The master path segments as a Buffer (e.g. derived from HRP).
  * @param {string|null} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
- * @param {string} [path] - Optional derivation path. Defaults to "m/0'/0'/0'".
+ * @param {string} [path] - Optional derivation path. Defaults to "m/918'/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
 async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
@@ -109,10 +110,9 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
   }
 
   if (path === null) {
-    path = "m/0'/0'/0'";
+    path = DEFAULT_DERIVATION_PATH;
   }
 
-  // TODO: Refactor this part of the code to use a BIP32-style path. Then, use _sanitizeDerivationPath to validate it.
   let masterPath = [`bip39:${safeMnemonic}`];
   for (let i = 0; i < masterPathSegments.length; i++) {
     masterPath.push(`slip10:${masterPathSegments[i]}'`);
