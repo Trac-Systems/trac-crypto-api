@@ -15,13 +15,32 @@ const HRP_SIZE_LIMIT = 31;
 const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
 
 let SLIP10Node;
-if (runtime.isBare()) {
-  SLIP10Node = require('@metamask/key-tree', { with: { imports: '../package.json' } }).SLIP10Node;
-  const util = require('util');
-  globalThis.TextEncoder = util.TextEncoder;
-  globalThis.TextDecoder = util.TextDecoder;
-} else {
-  SLIP10Node = require('@metamask/key-tree').SLIP10Node;
+
+function loadSLIP10Node() {
+  if (SLIP10Node) return SLIP10Node;
+
+  try {
+    if (runtime.isBare && runtime.isBare()) {
+      // Use eval to hide from bundler (webpack react-native)
+      const req = eval("require");
+      const keyTree = req("@metamask/key-tree", {
+        with: { imports: "../package.json" },
+      });
+      SLIP10Node = keyTree.SLIP10Node;
+
+      // Polyfill
+      const util = req("util");
+      globalThis.TextEncoder = util.TextEncoder;
+      globalThis.TextDecoder = util.TextDecoder;
+      return SLIP10Node;
+    }
+
+    // Browser / RN / Node
+    SLIP10Node = require("@metamask/key-tree").SLIP10Node;
+    return SLIP10Node;
+  } catch (err) {
+    throw new Error(`[trac-crypto-api] Failed to load @metamask/key-tree: ${err.message}`);
+  }
 }
 
 /**
@@ -102,6 +121,8 @@ function _sanitizeDerivationPath(path) {
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
 async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
+  const node = loadSLIP10Node();
+
   let safeMnemonic;
   if (mnemonic === null) {
     safeMnemonic = mnemonicUtils.generate();
@@ -118,7 +139,7 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
     masterPath.push(`slip10:${masterPathSegments[i]}'`);
   }
 
-  const masterNode = await SLIP10Node.fromDerivationPath({
+  const masterNode = await node.fromDerivationPath({
     curve: 'ed25519',
     derivationPath: masterPath,
   });
@@ -170,7 +191,7 @@ function isValid(address) {
       }
     }
     return ret;
-  }
+  };
 
   const bech32Chars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/;
   const { prefix, suffix } = _separateHrp(address);

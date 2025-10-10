@@ -9,6 +9,14 @@ const MESSAGE_ARRAY = new Uint8Array(MESSAGE_BUFFER);
 const BLAKE3_DIGEST = "d74981efa70a0c880b8d8c1985d075dbcbf679b99a5f9914e5aaf96b831a9e24";
 const SHA256_DIGEST = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9";
 
+beforeAll(() => {
+    jest.spyOn(console, "error").mockImplementation(() => { });
+});
+
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 test("hash module is on window", () => {
     expect(window.TracCryptoApi.hash).toBe(apiReq.hash);
 });
@@ -29,7 +37,7 @@ test("hash.blake3: should compute Blake3 hash of a Uint8Array", async () => {
 
 test("hash.blake3: should throw for invalid input", async () => {
     try {
-        const digest = await hash.blake3(MESSAGE);
+        await hash.blake3(MESSAGE);
         fail("Expected error was not thrown");
     } catch (error) {
         expect(error.message).toBe("Invalid input: must be a Buffer or Uint8Array");
@@ -64,7 +72,7 @@ test("hash.sha256: should compute SHA-256 hash of a Uint8Array", () => {
 
 test("hash.sha256: should throw for invalid input", async () => {
     try {
-        digest = await hash.sha256(MESSAGE);
+        await hash.sha256(MESSAGE);
         fail("Expected error was not thrown");
     } catch (error) {
         expect(error.message).toBe("Invalid input: must be a Buffer or Uint8Array");
@@ -76,8 +84,7 @@ test("hash.sha256Safe: should not throw for invalid input", async () => {
         const digest = await hash.sha256Safe(MESSAGE);
         expect(b4a.isBuffer(digest)).toBe(true);
         expect(digest.length).toBe(0);
-    }
-    catch (error) {
+    } catch (error) {
         fail("Unexpected error was thrown: " + error.message);
     }
 });
