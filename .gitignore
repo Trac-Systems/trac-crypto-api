@@ -2,3 +2,5 @@ node_modules/
 test-results/
 .DS_Store
 coverage/
+.vscode/
+dist/trac-crypto-api.rn.js.LICENSE.txt

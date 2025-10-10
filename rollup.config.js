@@ -1,7 +1,7 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import json from '@rollup/plugin-json'
-import replace from '@rollup/plugin-replace'
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import replace from '@rollup/plugin-replace';
 
 export default {
   input: 'index.js', // seu entrypoint
@@ -28,7 +28,7 @@ export default {
   ],
   // evita puxar sodium-native
   onwarn(warning, warn) {
-    if (warning.code === 'THIS_IS_UNDEFINED') return
-    warn(warning)
+    if (warning.code === 'THIS_IS_UNDEFINED') return;
+    warn(warning);
   },
-}
+};

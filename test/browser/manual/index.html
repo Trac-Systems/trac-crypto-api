@@ -105,12 +105,6 @@
     </div>
 
     <div class="test-section">
-        <h2>Data Module Test (Encrypt/Decrypt)</h2>
-        <button id="testData">Run Encrypt & Decrypt</button>
-        <div id="dataResult" class="result-box"></div>
-    </div>
-
-    <div class="test-section">
         <h2>Hash Test (SHA-256)</h2>
         <button id="computeHash">Compute Hash of 'Hello World'</button>
         <div id="hashResult" class="result-box"></div>
@@ -186,7 +180,6 @@
 
 <script>
     const address = window.TracCryptoApi?.address;
-    const data = window.TracCryptoApi?.data;
     const hash = window.TracCryptoApi?.hash;
     const mnemonic = window.TracCryptoApi?.mnemonic;
     const nonce = window.TracCryptoApi?.nonce;
@@ -238,53 +231,6 @@ Derivation Path: ${keyPair.derivationPath}
         }
     });
     
-    // Data Module Test (Encrypt/Decrypt)
-    document.getElementById('testData').addEventListener('click', async () => {
-        if (!data) {
-            document.getElementById('dataResult').textContent = "Error: 'data' module not found.";
-            return;
-        }
-
-        const inputMessage = "This is a secret message to be encrypted.";
-        const passwordString = "strong_password_123";
-        
-        const encoder = new TextEncoder();
-        const inputMessageBytes = encoder.encode(inputMessage);
-        const passwordBytes = encoder.encode(passwordString);
-        
-        let resultText = "Testing PBE encryption/decryption using Web Crypto (PBKDF2/AES-GCM)...\n\n";
-
-        try {
-            // --- 1. ENCRYPT (AWAIT) ---
-            // This is now an async call due to the browser's PBKDF2 implementation
-            const encryptedData = await data.encrypt(inputMessageBytes, passwordBytes);
-            
-            // --- 2. DECRYPT (AWAIT) ---
-            const decryptedMessageBytes = await data.decrypt(encryptedData, passwordBytes);
-            
-            // --- 3. VERIFY ---
-            const decoder = new TextDecoder();
-            const decryptedMessage = decoder.decode(decryptedMessageBytes);
-            
-            const success = decryptedMessage === inputMessage;
-
-            resultText += `Original Message: "${inputMessage}"\n`;
-            resultText += `Decrypted Message: "${decryptedMessage}"\n\n`;
-
-            if (success) {
-                document.getElementById('dataResult').className = 'result-box result-success';
-                document.getElementById('dataResult').textContent = `Passed! Encrypt/Decrypt Cycle Successful.\n\n${resultText}`;
-            } else {
-                document.getElementById('dataResult').className = 'result-box result-fail';
-                document.getElementById('dataResult').textContent = `Failed! Decrypted message does NOT match original.\n\n${resultText}`;
-            }
-
-        } catch (err) {
-            document.getElementById('dataResult').className = 'result-box result-fail';
-            document.getElementById('dataResult').textContent = `Test Failed: ${err.message}\n\n${resultText}`;
-        }
-    });
-
     // hash    
     document.getElementById('computeHash').addEventListener('click', async () => {
         if (!hash) {
