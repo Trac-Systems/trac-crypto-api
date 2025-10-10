@@ -224,7 +224,11 @@
             const resultText = `
 Coin: ${coin.toUpperCase()}
 Address: ${keyPair.address}
+Public Key: ${keyPair.publicKey}
 Secret Key: ${keyPair.secretKey}
+Mnemonic: ${keyPair.mnemonic}
+Derivation Path: ${keyPair.derivationPath}
+
             `;
             document.getElementById('generateAddressResult').className = 'result-box result-success';
             document.getElementById('generateAddressResult').textContent = resultText;
