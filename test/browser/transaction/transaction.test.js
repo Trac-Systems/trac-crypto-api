@@ -8,6 +8,7 @@ const TRAC_VALIDITY_SIZE_BYTES = 32;
 const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16;
 const TRAC_HASH_SIZE = 32;
 const TRAC_NONCE_SIZE = 32;
+const TRAC_NETWORK_MAINNET_ID = apiReq.MAINNET_ID;
 
 function randomBuf(size) {
     const buf = b4a.alloc(size);
@@ -57,6 +58,7 @@ test("transaction: should build a valid transaction", async () => {
     expect(txData.amount.length).toBe(TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2);
     expect(api.utils.isHexString(txData.amount)).toBe(true);
     expect(amount).toBe(unpaddHex(txData.amount));
+    expect(txData.networkId).toBe(TRAC_NETWORK_MAINNET_ID);
 
     // Check Build
     const payload = api.transaction.build(txData, fromKeyPair.secretKey);

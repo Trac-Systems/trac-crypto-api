@@ -4,7 +4,7 @@ const nonceUtils = require("./nonce.js");
 const hashUtils = require("./hash.js");
 const signatureUtils = require("./signature.js");
 const addressUtils = require("./address.js");
-const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = require("../constants.js");
+const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = require("../constants.js");
 
 const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
@@ -19,10 +19,11 @@ const _bufferToHexString = (buf) => {
  * @param {string} to - The recipient's address.
  * @param {string} amount - The amount to transfer as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
+ * @param {number} [networkId=TRAC_NETWORK_MAINNET_ID] - The network ID (defaults to mainnet).
  * @returns {Promise<Object>} Resolves to the transaction data object containing from, to, amount, validity, nonce, and hash.
  * @throws Will throw an error if any of the inputs are invalid.
  */
-async function preBuild(from, to, amount, validity) {
+async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
     // validate inputs
     if (!addressUtils.isValid(from)) {
         throw new Error('Invalid "from" address format');
@@ -44,21 +45,22 @@ async function preBuild(from, to, amount, validity) {
         b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
         amountBuf;
     const message = utils.serialize(
-        addressUtils.toBuffer(from),
+        networkId,
         b4a.from(validity, 'hex'),
-        nonce,
         addressUtils.toBuffer(to),
         amountPadded,
+        nonce,
         OP_TYPE_TRANSFER
     );
     const hash = await hashUtils.blake3(message);
     return {
-        from, // string
+        networkId, // number
         hash, // Buffer
+        from, // string
+        to, // string
+        amount: _bufferToHexString(amountPadded), // string
         validity, // string
         nonce, // Buffer
-        amount: _bufferToHexString(amountPadded), // string
-        to, // string
     };
 }
 
@@ -79,9 +81,9 @@ function build(transactionData, secretKey) {
         tro: {
             tx: _bufferToHexString(transactionData.hash),
             txv: transactionData.validity,
-            in: _bufferToHexString(transactionData.nonce),
             to: transactionData.to,
             am: transactionData.amount,
+            in: _bufferToHexString(transactionData.nonce),
             is: _bufferToHexString(sig)
         }
     }

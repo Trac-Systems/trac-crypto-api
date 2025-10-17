@@ -15,6 +15,7 @@ const data = require('./modules/data.js');
 const utils = require('./modules/utils.js');
 const transaction = require('./modules/transaction.js');
 const operation = require('./modules/operation.js');
+const constants = require('./constants.js');
 
 const sign = signature.sign;
 
@@ -28,5 +29,7 @@ module.exports = {
     utils,
     transaction,
     operation,
-    sign
+    sign,
+    MAINNET_ID: constants.TRAC_NETWORK_MAINNET_ID,
+    TESTNET_ID: constants.TRAC_NETWORK_TESTNET_ID,
 };
