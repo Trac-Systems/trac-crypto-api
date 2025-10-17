@@ -4,7 +4,7 @@ const nonceUtils = require("./nonce.js");
 const hashUtils = require("./hash.js");
 const signatureUtils = require("./signature.js");
 const addressUtils = require("./address.js");
-const { TRAC_VALIDITY_SIZE_BYTES } = require("../constants.js");
+const { TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = require("../constants.js");
 
 const OP_TYPE_TX = 12; // Operation type for a transaction in Trac Network
 
@@ -25,10 +25,11 @@ const _bufferToHexString = (buf) => {
  * @param {string} originBootstrap - The origin bootstrap node as a hex string.
  * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
  * @param {string} validity - The Trac Network current indexer hash as a hex string.
+ * @param {number} [networkId=TRAC_NETWORK_MAINNET_ID] - The network ID (defaults to mainnet).
  * @returns {Promise<Object>} Resolves to the transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
  * @throws Will throw an error if any of the inputs are invalid.
  */
-async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity) {
+async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
     // validate inputs
     if (!addressUtils.isValid(from)) {
         throw new Error('Invalid "from" address format');
@@ -57,27 +58,28 @@ async function preBuild(from, validator, contentHash, originBootstrap, destinati
     // For now, we just return an object with the fields
     const nonce = nonceUtils.generate();
     const serialized = utils.serialize(
-        addressUtils.toBuffer(from),
+        networkId,
         b4a.from(validity, 'hex'),
         b4a.from(validator, 'hex'),
         b4a.from(contentHash, 'hex'),
-        nonce,
         b4a.from(originBootstrap, 'hex'),
         b4a.from(destinationBootstrap, 'hex'),
+        nonce,
         OP_TYPE_TX
     );
 
     const hash = await hashUtils.blake3(serialized);
 
     const txData = {
-        from, // string
+        networkId, // number
         hash, // Buffer
+        from, // string
         validity, // string
         validator, // string
         contentHash, // string
-        nonce, // Buffer
         originBootstrap, // string
         destinationBootstrap, // string
+        nonce, // Buffer
     };
 
     return txData;
@@ -102,11 +104,11 @@ function build(operationData, secretKey) {
             tx: _bufferToHexString(operationData.hash),
             txv: operationData.validity,
             iw: operationData.validator,
-            in: _bufferToHexString(operationData.nonce),
             ch: operationData.contentHash,
-            is: _bufferToHexString(sig),
             bs: operationData.originBootstrap,
             mbs: operationData.destinationBootstrap,
+            in: _bufferToHexString(operationData.nonce),
+            is: _bufferToHexString(sig),
         }
     }
 

@@ -115232,6 +115232,9 @@
 		const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16; // 128 bits / 16 bytes
 		const TRAC_VALIDITY_SIZE_BYTES = 32; // 256 bits / 32 bytes
 
+		const TRAC_NETWORK_MAINNET_ID = 0x01;
+		const TRAC_NETWORK_TESTNET_ID = 0x02;
+
 		constants$2 = {
 		    TRAC_PUB_KEY_SIZE,
 		    TRAC_PRIV_KEY_SIZE,
@@ -115240,7 +115243,9 @@
 		    TRAC_NONCE_SIZE,
 		    TRAC_HASH_SIZE,
 		    TRAC_TOKEN_AMOUNT_SIZE_BYTES,
-		    TRAC_VALIDITY_SIZE_BYTES
+		    TRAC_VALIDITY_SIZE_BYTES,
+		    TRAC_NETWORK_MAINNET_ID,
+		    TRAC_NETWORK_TESTNET_ID
 		};
 		return constants$2;
 	}
@@ -156465,7 +156470,7 @@ zoo`.split('\n');
 		const hashUtils = requireHash();
 		const signatureUtils = requireSignature();
 		const addressUtils = requireAddress();
-		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
+		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = requireConstants$2();
 
 		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
@@ -156480,10 +156485,11 @@ zoo`.split('\n');
 		 * @param {string} to - The recipient's address.
 		 * @param {string} amount - The amount to transfer as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 * @param {number} [networkId=TRAC_NETWORK_MAINNET_ID] - The network ID (defaults to mainnet).
 		 * @returns {Promise<Object>} Resolves to the transaction data object containing from, to, amount, validity, nonce, and hash.
 		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
-		async function preBuild(from, to, amount, validity) {
+		async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
 		    if (!addressUtils.isValid(from)) {
 		        throw new Error('Invalid "from" address format');
@@ -156505,21 +156511,22 @@ zoo`.split('\n');
 		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
 		        amountBuf;
 		    const message = utils.serialize(
-		        addressUtils.toBuffer(from),
+		        networkId,
 		        b4a.from(validity, 'hex'),
-		        nonce,
 		        addressUtils.toBuffer(to),
 		        amountPadded,
+		        nonce,
 		        OP_TYPE_TRANSFER
 		    );
 		    const hash = await hashUtils.blake3(message);
 		    return {
-		        from, // string
+		        networkId, // number
 		        hash, // Buffer
+		        from, // string
+		        to, // string
+		        amount: _bufferToHexString(amountPadded), // string
 		        validity, // string
 		        nonce, // Buffer
-		        amount: _bufferToHexString(amountPadded), // string
-		        to, // string
 		    };
 		}
 
@@ -156540,9 +156547,9 @@ zoo`.split('\n');
 		        tro: {
 		            tx: _bufferToHexString(transactionData.hash),
 		            txv: transactionData.validity,
-		            in: _bufferToHexString(transactionData.nonce),
 		            to: transactionData.to,
 		            am: transactionData.amount,
+		            in: _bufferToHexString(transactionData.nonce),
 		            is: _bufferToHexString(sig)
 		        }
 		    };
@@ -156570,7 +156577,7 @@ zoo`.split('\n');
 		const hashUtils = requireHash();
 		const signatureUtils = requireSignature();
 		const addressUtils = requireAddress();
-		const { TRAC_VALIDITY_SIZE_BYTES } = requireConstants$2();
+		const { TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = requireConstants$2();
 
 		const OP_TYPE_TX = 12; // Operation type for a transaction in Trac Network
 
@@ -156591,10 +156598,11 @@ zoo`.split('\n');
 		 * @param {string} originBootstrap - The origin bootstrap node as a hex string.
 		 * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
 		 * @param {string} validity - The Trac Network current indexer hash as a hex string.
+		 * @param {number} [networkId=TRAC_NETWORK_MAINNET_ID] - The network ID (defaults to mainnet).
 		 * @returns {Promise<Object>} Resolves to the transaction data object containing from, validator, contentHash, originBootstrap, destinationBootstrap, validity, nonce, and hash.
 		 * @throws Will throw an error if any of the inputs are invalid.
 		 */
-		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity) {
+		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
 		    if (!addressUtils.isValid(from)) {
 		        throw new Error('Invalid "from" address format');
@@ -156623,27 +156631,28 @@ zoo`.split('\n');
 		    // For now, we just return an object with the fields
 		    const nonce = nonceUtils.generate();
 		    const serialized = utils.serialize(
-		        addressUtils.toBuffer(from),
+		        networkId,
 		        b4a.from(validity, 'hex'),
 		        b4a.from(validator, 'hex'),
 		        b4a.from(contentHash, 'hex'),
-		        nonce,
 		        b4a.from(originBootstrap, 'hex'),
 		        b4a.from(destinationBootstrap, 'hex'),
+		        nonce,
 		        OP_TYPE_TX
 		    );
 
 		    const hash = await hashUtils.blake3(serialized);
 
 		    const txData = {
-		        from, // string
+		        networkId, // number
 		        hash, // Buffer
+		        from, // string
 		        validity, // string
 		        validator, // string
 		        contentHash, // string
-		        nonce, // Buffer
 		        originBootstrap, // string
 		        destinationBootstrap, // string
+		        nonce, // Buffer
 		    };
 
 		    return txData;
@@ -156668,11 +156677,11 @@ zoo`.split('\n');
 		            tx: _bufferToHexString(operationData.hash),
 		            txv: operationData.validity,
 		            iw: operationData.validator,
-		            in: _bufferToHexString(operationData.nonce),
 		            ch: operationData.contentHash,
-		            is: _bufferToHexString(sig),
 		            bs: operationData.originBootstrap,
 		            mbs: operationData.destinationBootstrap,
+		            in: _bufferToHexString(operationData.nonce),
+		            is: _bufferToHexString(sig),
 		        }
 		    };
 
@@ -156710,6 +156719,7 @@ zoo`.split('\n');
 		const utils = requireUtils();
 		const transaction = requireTransaction();
 		const operation = requireOperation();
+		const constants = requireConstants$2();
 
 		const sign = signature.sign;
 
@@ -156723,7 +156733,9 @@ zoo`.split('\n');
 		    utils,
 		    transaction,
 		    operation,
-		    sign
+		    sign,
+		    MAINNET_ID: constants.TRAC_NETWORK_MAINNET_ID,
+		    TESTNET_ID: constants.TRAC_NETWORK_TESTNET_ID,
 		};
 		return tracCryptoApi;
 	}

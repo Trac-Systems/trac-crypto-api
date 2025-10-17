@@ -7,6 +7,7 @@ const OP_TYPE_TX = 12;
 const TRAC_VALIDITY_SIZE_BYTES = 32;
 const TRAC_HASH_SIZE = 32;
 const TRAC_NONCE_SIZE = 32;
+const TRAC_NETWORK_MAINNET_ID = apiReq.MAINNET_ID;
 
 function randomBuf(size) {
     const buf = b4a.alloc(size);
@@ -49,6 +50,7 @@ test("operation: should build a valid operation", async () => {
     expect(txData.nonce && txData.nonce.length === TRAC_NONCE_SIZE).toBe(true);
     expect(txData.originBootstrap).toBe(originBootstrap);
     expect(txData.destinationBootstrap).toBe(destinationBootstrap);
+    expect(txData.networkId).toBe(TRAC_NETWORK_MAINNET_ID);
 
     // Check Build
     const payload = api.operation.build(txData, fromKeyPair.secretKey);

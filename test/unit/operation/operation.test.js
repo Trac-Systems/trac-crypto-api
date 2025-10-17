@@ -3,7 +3,7 @@ const api = require("../../../index.js");
 const b4a = require("b4a");
 const sodium = require("sodium-universal");
 
-const { TRAC_VALIDITY_SIZE_BYTES, TRAC_HASH_SIZE, TRAC_NONCE_SIZE } = require("../../../constants.js");
+const { TRAC_VALIDITY_SIZE_BYTES, TRAC_HASH_SIZE, TRAC_NONCE_SIZE, TRAC_NETWORK_MAINNET_ID } = require("../../../constants.js");
 
 const OP_TYPE_TX = 12;
 
@@ -36,6 +36,7 @@ test("operation: should build a valid operation", async (t) => {
     t.ok(txData.nonce && txData.nonce.length === TRAC_NONCE_SIZE, `Nonce should be ${TRAC_NONCE_SIZE} bytes`);
     t.is(txData.originBootstrap, originBootstrap, "Origin bootstrap should match");
     t.is(txData.destinationBootstrap, destinationBootstrap, "Destination bootstrap should match");
+    t.is(txData.networkId, TRAC_NETWORK_MAINNET_ID, "Network ID defaults to mainnet");
 
     // Check Build
     const payload = api.operation.build(txData, fromKeyPair.secretKey);
@@ -68,4 +69,23 @@ test("operation: should build a valid operation", async (t) => {
         b4a.from(data.txo.tx, "hex"),
         fromKeyPair.publicKey
     ), "Signature should be valid");
+});
+
+test("operation preBuild: networkId is used in serialization", async (t) => {
+    const fromKeyPair = await api.address.generate("trac");
+    const customNetworkId = 42;
+
+    // Check Pre-Build with custom networkId
+    const txData = await api.operation.preBuild(
+        fromKeyPair.address,
+        validator = randomBuf(32).toString("hex"),
+        contentHash = randomBuf(32).toString("hex"),
+        originBootstrap = randomBuf(32).toString("hex"),
+        destinationBootstrap = randomBuf(32).toString("hex"),
+        validity = randomBuf(TRAC_VALIDITY_SIZE_BYTES).toString("hex"),
+        customNetworkId
+    );
+
+    t.ok(txData, "Transaction data should be created");
+    t.is(txData.networkId, customNetworkId, "Network ID should match the custom value");
 });
