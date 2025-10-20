@@ -11,8 +11,8 @@ const TRAC_HASH_SIZE = 32;
 const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16; // 128 bits / 16 bytes
 const TRAC_VALIDITY_SIZE_BYTES = 32; // 256 bits / 32 bytes
 
-const TRAC_NETWORK_MAINNET_ID = 0x01;
-const TRAC_NETWORK_TESTNET_ID = 0x02;
+const TRAC_NETWORK_MAINNET_ID = 918;
+const TRAC_NETWORK_TESTNET_ID = 919;
 
 module.exports = {
     TRAC_PUB_KEY_SIZE,
