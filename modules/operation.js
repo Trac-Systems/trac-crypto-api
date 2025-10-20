@@ -20,7 +20,7 @@ const _bufferToHexString = (buf) => {
  * Builds an unsigned transaction message.
  * @async
  * @param {string} from - The sender's address.
- * @param {string} validator - The subnetwork validator key as a hex string.
+ * @param {string} validator - The subnetwork validator writing key as a hex string.
  * @param {string} contentHash - The content hash as a hex string.
  * @param {string} originBootstrap - The origin bootstrap node as a hex string.
  * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
