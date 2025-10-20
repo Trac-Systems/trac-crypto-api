@@ -12,6 +12,11 @@ const _bufferToHexString = (buf) => {
     return utils.toHexString(buf);
 }
 
+const _padAmountHex = (amountHex) => {
+    amountHex = amountHex.padStart(TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2, '0');
+    return b4a.from(amountHex, 'hex');
+}
+
 /**
  * Builds an unsigned transaction message.
  * @async
@@ -40,10 +45,7 @@ async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAI
 
     // Generate transaction object
     const nonce = nonceUtils.generate();
-    const amountBuf = b4a.from(amount, 'hex');
-    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
-        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
-        amountBuf;
+    const amountPadded = _padAmountHex(amount);
     const message = utils.serialize(
         networkId,
         b4a.from(validity, 'hex'),

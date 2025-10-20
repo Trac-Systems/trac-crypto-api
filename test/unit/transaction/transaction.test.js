@@ -13,6 +13,10 @@ function randomBuf(size) {
     return buf;
 }
 
+const numToHex = (num) => {
+    return num.toString(16);
+}
+
 function unpaddHex(hexStr) {
     if (typeof hexStr !== 'string' || hexStr.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(hexStr)) {
         throw new Error('Invalid hex string');
@@ -97,4 +101,31 @@ test("transaction preBuild: networkId is used in serialization", async (t) => {
 
     t.ok(txData, "Transaction data should be created");
     t.is(txData.networkId, customNetworkId, "Network ID should match the custom value provided");
+});
+
+test("transaction preBuild: amount is padded correctly", async (t) => {
+    const fromKeyPair = await api.address.generate("trac");
+    const toKeyPair = await api.address.generate("trac");
+    const validity = randomBuf(TRAC_VALIDITY_SIZE_BYTES).toString("hex");
+
+    const testAmounts = [
+        { input: "1", expectedHex: "00000000000000000000000000000001" }, // 1/10^18 $TNK
+        { input: "ff", expectedHex: "000000000000000000000000000000ff" },
+        { input: "3e8", expectedHex: "000000000000000000000000000003e8" }, // 1000/10^18 $TNK
+        { input: numToHex(1000), expectedHex: "000000000000000000000000000003e8" }, // 1000/10^18 $TNK
+        { input: numToHex(1_000_000_000_000_000_000), expectedHex: "00000000000000000de0b6b3a7640000" }, // 1 $TNK
+        { input: numToHex(1_000_000_000_000_000_000_000), expectedHex: "000000000000003635c9adc5dea00000" }, // 1000 $TNK
+        { input: "ffffffffffffffffffffffffffffffff", expectedHex: "ffffffffffffffffffffffffffffffff" },
+    ];
+
+    for (const { input, expectedHex } of testAmounts) {
+        const txData = await api.transaction.preBuild(
+            fromKeyPair.address,
+            toKeyPair.address,
+            input,
+            validity
+        );
+
+        t.is(txData.amount, expectedHex, `Amount ${input} should be padded correctly to ${expectedHex}`);
+    }
 });
