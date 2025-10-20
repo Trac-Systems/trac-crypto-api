@@ -115232,8 +115232,8 @@
 		const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16; // 128 bits / 16 bytes
 		const TRAC_VALIDITY_SIZE_BYTES = 32; // 256 bits / 32 bytes
 
-		const TRAC_NETWORK_MAINNET_ID = 0x01;
-		const TRAC_NETWORK_TESTNET_ID = 0x02;
+		const TRAC_NETWORK_MAINNET_ID = 918;
+		const TRAC_NETWORK_TESTNET_ID = 919;
 
 		constants$2 = {
 		    TRAC_PUB_KEY_SIZE,
@@ -156478,6 +156478,11 @@ zoo`.split('\n');
 		    return utils.toHexString(buf);
 		};
 
+		const _padAmountHex = (amountHex) => {
+		    amountHex = amountHex.padStart(TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2, '0');
+		    return b4a.from(amountHex, 'hex');
+		};
+
 		/**
 		 * Builds an unsigned transaction message.
 		 * @async
@@ -156506,10 +156511,7 @@ zoo`.split('\n');
 
 		    // Generate transaction object
 		    const nonce = nonceUtils.generate();
-		    const amountBuf = b4a.from(amount, 'hex');
-		    const amountPadded = amountBuf.length < TRAC_TOKEN_AMOUNT_SIZE_BYTES ?
-		        b4a.concat([b4a.alloc(TRAC_TOKEN_AMOUNT_SIZE_BYTES - amountBuf.length, 0), amountBuf]) :
-		        amountBuf;
+		    const amountPadded = _padAmountHex(amount);
 		    const message = utils.serialize(
 		        networkId,
 		        b4a.from(validity, 'hex'),
@@ -156593,7 +156595,7 @@ zoo`.split('\n');
 		 * Builds an unsigned transaction message.
 		 * @async
 		 * @param {string} from - The sender's address.
-		 * @param {string} validator - The subnetwork validator key as a hex string.
+		 * @param {string} validator - The subnetwork validator writing key as a hex string.
 		 * @param {string} contentHash - The content hash as a hex string.
 		 * @param {string} originBootstrap - The origin bootstrap node as a hex string.
 		 * @param {string} destinationBootstrap - The destination bootstrap node as a hex string.
