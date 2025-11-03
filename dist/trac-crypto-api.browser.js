@@ -155970,6 +155970,19 @@ zoo`.split('\n');
 		  return buffer;
 		}
 
+		/**
+		 * Safely decodes a bech32m address string into a 32-byte public key Buffer.
+		 * @param {string} address - The bech32m encoded address.
+		 * @returns {Buffer|null} The decoded public key buffer, or null if decoding fails.
+		 */
+		function decodeSafe(address) {
+		  try {
+		    return decode(address);
+		  } catch (err) {
+		    return null;
+		  }
+		}
+
 
 		/**
 		 * @async
@@ -156031,6 +156044,7 @@ zoo`.split('\n');
 		  generate,
 		  encode,
 		  decode,
+		  decodeSafe,
 		  size,
 		  isValid,
 		  toBuffer,
@@ -156038,6 +156052,7 @@ zoo`.split('\n');
 		  fromSecretKey,
 		  PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
 		  PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
+		  DEFAULT_DERIVATION_PATH,
 		};
 		return address;
 	}
@@ -156471,6 +156486,7 @@ zoo`.split('\n');
 		const signatureUtils = requireSignature();
 		const addressUtils = requireAddress();
 		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = requireConstants$2();
+		requireAddress();
 
 		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
@@ -156496,10 +156512,10 @@ zoo`.split('\n');
 		 */
 		async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
-		    if (!addressUtils.isValid(from)) {
+		    if (!addressUtils.isValid(from) && addressUtils.decodeSafe(from) === null) {
 		        throw new Error('Invalid "from" address format');
 		    }
-		    if (!addressUtils.isValid(to)) {
+		    if (!addressUtils.isValid(to) && addressUtils.decodeSafe(to) === null) {
 		        throw new Error('Invalid "to" address format');
 		    }
 		    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
@@ -156606,7 +156622,7 @@ zoo`.split('\n');
 		 */
 		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
-		    if (!addressUtils.isValid(from)) {
+		    if (!addressUtils.isValid(from) || addressUtils.decodeSafe(from) === null) {
 		        throw new Error('Invalid "from" address format');
 		    }
 		    if (!_isValidInput(validator, 64)) {
