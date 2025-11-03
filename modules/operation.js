@@ -31,7 +31,7 @@ const _bufferToHexString = (buf) => {
  */
 async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
     // validate inputs
-    if (!addressUtils.isValid(from)) {
+    if (!addressUtils.isValid(from) || addressUtils.decodeSafe(from) === null) {
         throw new Error('Invalid "from" address format');
     }
     if (!_isValidInput(validator, 64)) {
