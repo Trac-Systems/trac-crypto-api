@@ -5,7 +5,6 @@ const hashUtils = require("./hash.js");
 const signatureUtils = require("./signature.js");
 const addressUtils = require("./address.js");
 const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = require("../constants.js");
-const address = require("./address.js");
 
 const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
@@ -31,10 +30,10 @@ const _padAmountHex = (amountHex) => {
  */
 async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
     // validate inputs
-    if (!addressUtils.isValid(from) && addressUtils.decodeSafe(from) === null) {
+    if (!addressUtils.isValid(from) || addressUtils.decodeSafe(from) === null) {
         throw new Error('Invalid "from" address format');
     }
-    if (!addressUtils.isValid(to) && addressUtils.decodeSafe(to) === null) {
+    if (!addressUtils.isValid(to) || addressUtils.decodeSafe(to) === null) {
         throw new Error('Invalid "to" address format');
     }
     if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
