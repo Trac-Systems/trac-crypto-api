@@ -258,6 +258,19 @@ function decode(address) {
   return buffer;
 }
 
+/**
+ * Safely decodes a bech32m address string into a 32-byte public key Buffer.
+ * @param {string} address - The bech32m encoded address.
+ * @returns {Buffer|null} The decoded public key buffer, or null if decoding fails.
+ */
+function decodeSafe(address) {
+  try {
+    return decode(address);
+  } catch (err) {
+    return null;
+  }
+}
+
 
 /**
  * @async
@@ -319,6 +332,7 @@ module.exports = {
   generate,
   encode,
   decode,
+  decodeSafe,
   size,
   isValid,
   toBuffer,
@@ -326,4 +340,5 @@ module.exports = {
   fromSecretKey,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
+  DEFAULT_DERIVATION_PATH,
 };
