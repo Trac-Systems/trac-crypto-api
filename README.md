@@ -15,7 +15,7 @@ npm i trac-crypto-api
 ## Quick start
 
 ```js
-import tracCrypto from './index.js';
+import tracCrypto from 'trac-crypto-api';
 
 // 1) Generate a keypair + address (using a new random mnemonic & default derivation path)
 const {
