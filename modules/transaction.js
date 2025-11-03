@@ -30,10 +30,10 @@ const _padAmountHex = (amountHex) => {
  */
 async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
     // validate inputs
-    if (!addressUtils.isValid(from) || addressUtils.decodeSafe(from) === null) {
+    if (!addressUtils.isValid(from) || !addressUtils.canDecode(from)) {
         throw new Error('Invalid "from" address format');
     }
-    if (!addressUtils.isValid(to) || addressUtils.decodeSafe(to) === null) {
+    if (!addressUtils.isValid(to) || !addressUtils.canDecode(to)) {
         throw new Error('Invalid "to" address format');
     }
     if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {

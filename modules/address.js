@@ -1,7 +1,7 @@
 const mnemonicUtils = require("./mnemonic.js");
 const { bech32m } = require("bech32");
 const b4a = require("b4a");
-const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = require("../constants.js");
+const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE, NULL_BUFFER } = require("../constants.js");
 const runtime = require('./runtime.js');
 
 // Note: The HRP size limit is 83 characters according to BIP-173,
@@ -267,7 +267,21 @@ function decodeSafe(address) {
   try {
     return decode(address);
   } catch (err) {
-    return null;
+    return NULL_BUFFER;
+  }
+}
+
+/**
+ * Checks if a bech32m address string can be decoded.
+ * @param {string} address - The bech32m encoded address.
+ * @returns {boolean} True if the address can be decoded, false otherwise.
+ */
+function canDecode(address) {
+  try {
+    decode(address);
+    return true;
+  } catch (err) {
+    return false;
   }
 }
 
@@ -333,8 +347,9 @@ module.exports = {
   encode,
   decode,
   decodeSafe,
-  size,
+  canDecode,
   isValid,
+  size,
   toBuffer,
   fromBuffer,
   fromSecretKey,

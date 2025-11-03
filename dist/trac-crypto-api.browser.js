@@ -115220,6 +115220,7 @@
 		if (hasRequiredConstants$2) return constants$2;
 		hasRequiredConstants$2 = 1;
 		const sodium = requireSodiumUniversal();
+		const b4a = requireBrowser$1();
 
 		const TRAC_PUB_KEY_SIZE = sodium.crypto_sign_PUBLICKEYBYTES;
 		const TRAC_PRIV_KEY_SIZE = sodium.crypto_sign_SECRETKEYBYTES;
@@ -115235,6 +115236,8 @@
 		const TRAC_NETWORK_MAINNET_ID = 918;
 		const TRAC_NETWORK_TESTNET_ID = 919;
 
+		const NULL_BUFFER = b4a.alloc(0);
+
 		constants$2 = {
 		    TRAC_PUB_KEY_SIZE,
 		    TRAC_PRIV_KEY_SIZE,
@@ -115245,7 +115248,8 @@
 		    TRAC_TOKEN_AMOUNT_SIZE_BYTES,
 		    TRAC_VALIDITY_SIZE_BYTES,
 		    TRAC_NETWORK_MAINNET_ID,
-		    TRAC_NETWORK_TESTNET_ID
+		    TRAC_NETWORK_TESTNET_ID,
+		    NULL_BUFFER
 		};
 		return constants$2;
 	}
@@ -155713,7 +155717,7 @@ zoo`.split('\n');
 		const mnemonicUtils = requireMnemonic();
 		const { bech32m } = requireDist$4();
 		const b4a = requireBrowser$1();
-		const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE } = requireConstants$2();
+		const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE, NULL_BUFFER } = requireConstants$2();
 		const runtime = requireRuntime();
 
 		// Note: The HRP size limit is 83 characters according to BIP-173,
@@ -155979,7 +155983,21 @@ zoo`.split('\n');
 		  try {
 		    return decode(address);
 		  } catch (err) {
-		    return null;
+		    return NULL_BUFFER;
+		  }
+		}
+
+		/**
+		 * Checks if a bech32m address string can be decoded.
+		 * @param {string} address - The bech32m encoded address.
+		 * @returns {boolean} True if the address can be decoded, false otherwise.
+		 */
+		function canDecode(address) {
+		  try {
+		    decode(address);
+		    return true;
+		  } catch (err) {
+		    return false;
 		  }
 		}
 
@@ -156045,8 +156063,9 @@ zoo`.split('\n');
 		  encode,
 		  decode,
 		  decodeSafe,
-		  size,
+		  canDecode,
 		  isValid,
+		  size,
 		  toBuffer,
 		  fromBuffer,
 		  fromSecretKey,
@@ -156486,7 +156505,6 @@ zoo`.split('\n');
 		const signatureUtils = requireSignature();
 		const addressUtils = requireAddress();
 		const { TRAC_TOKEN_AMOUNT_SIZE_BYTES, TRAC_VALIDITY_SIZE_BYTES, TRAC_NETWORK_MAINNET_ID } = requireConstants$2();
-		requireAddress();
 
 		const OP_TYPE_TRANSFER = 13; // Operation type for a transaction in Trac Network
 
@@ -156512,10 +156530,10 @@ zoo`.split('\n');
 		 */
 		async function preBuild(from, to, amount, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
-		    if (!addressUtils.isValid(from) && addressUtils.decodeSafe(from) === null) {
+		    if (!addressUtils.isValid(from) || !addressUtils.canDecode(from)) {
 		        throw new Error('Invalid "from" address format');
 		    }
-		    if (!addressUtils.isValid(to) && addressUtils.decodeSafe(to) === null) {
+		    if (!addressUtils.isValid(to) || !addressUtils.canDecode(to)) {
 		        throw new Error('Invalid "to" address format');
 		    }
 		    if (!utils.isHexString(amount) || amount.length > TRAC_TOKEN_AMOUNT_SIZE_BYTES * 2) {
@@ -156622,7 +156640,7 @@ zoo`.split('\n');
 		 */
 		async function preBuild(from, validator, contentHash, originBootstrap, destinationBootstrap, validity, networkId = TRAC_NETWORK_MAINNET_ID) {
 		    // validate inputs
-		    if (!addressUtils.isValid(from) || addressUtils.decodeSafe(from) === null) {
+		    if (!addressUtils.isValid(from) || !addressUtils.canDecode(from)) {
 		        throw new Error('Invalid "from" address format');
 		    }
 		    if (!_isValidInput(validator, 64)) {

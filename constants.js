@@ -1,4 +1,5 @@
 const sodium = require('sodium-universal');
+const b4a = require('b4a');
 
 const TRAC_PUB_KEY_SIZE = sodium.crypto_sign_PUBLICKEYBYTES;
 const TRAC_PRIV_KEY_SIZE = sodium.crypto_sign_SECRETKEYBYTES;
@@ -14,6 +15,8 @@ const TRAC_VALIDITY_SIZE_BYTES = 32; // 256 bits / 32 bytes
 const TRAC_NETWORK_MAINNET_ID = 918;
 const TRAC_NETWORK_TESTNET_ID = 919;
 
+const NULL_BUFFER = b4a.alloc(0);
+
 module.exports = {
     TRAC_PUB_KEY_SIZE,
     TRAC_PRIV_KEY_SIZE,
@@ -24,5 +27,6 @@ module.exports = {
     TRAC_TOKEN_AMOUNT_SIZE_BYTES,
     TRAC_VALIDITY_SIZE_BYTES,
     TRAC_NETWORK_MAINNET_ID,
-    TRAC_NETWORK_TESTNET_ID
+    TRAC_NETWORK_TESTNET_ID,
+    NULL_BUFFER
 };
