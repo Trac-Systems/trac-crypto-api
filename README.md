@@ -1,61 +1,138 @@
 # trac-crypto-api
 
-A lightweight cryptography API for TRAC Network
+A stateless lightweight JavaScript cryptography toolkit for the TRAC Network. It provides primitives (Ed25519, BIP-39 mnemonics, bech32m addresses) and simple helpers for signing, address encoding/decoding, nonces, hashing, and transaction assembly.
 
-## Features
+---
 
-- **Ed25519 Key Generation**: Create key pairs from BIP39 mnemonics or random entropy.
-- **Bech32m Address Encoding/Decoding**: Encode public keys as human-readable addresses and decode them back.
-- **Mnemonic Utilities**: Generate, sanitize, and convert BIP39 mnemonics to seeds.
-- **Secure Nonce Generation**: Create cryptographically secure nonces for transaction and message uniqueness.
-- **Message Signing & Verification**: Sign messages and verify signatures using Ed25519.
-- **Hashing**: SHA-256 hashing (Blake3 to be implemented soon).
+## Installation
 
-## Usage
+```bash
+npm i trac-crypto-api
+```
+
+---
+
+## Quick start
 
 ```js
-import tracCrypto from "trac-crypto-api";
+import tracCrypto from './index.js';
 
-// Generate a keypair and address from a mnemonic and derivation path.
-// When no mnemonic is provided, the function will generate a random one
-// When no derivation path is provided, the function will use the default one 
-const { address, publicKey, secretKey, mnemonic, derivationPath } = await tracCrypto.address.generate("trac", null, null);
+// 1) Generate a keypair + address (using a new random mnemonic & default derivation path)
+const {
+  address,
+  publicKey,
+  secretKey,
+  mnemonic,
+  derivationPath,
+} = await tracCrypto.address.generate('trac'); // HRP (prefix) is required
 
-// Derive a different address
-const derived = await tracCrypto.address.generate("trac", mnemonic, "m/0'/1'/2'/3'");
+console.log('Address:', address); // A valid trac address
+console.log('Mnemonic:', mnemonic); // Some random mnemonic
+console.log('Derivation path:', derivationPath); // default derivation path: "m/918'/0'/0'/0'"
 
-console.log(derived.mnemonic === mnemonic) // will print 'true'
-console.log(derived.address === address) // will print 'false'
+// 2) Derive another address from the same mnemonic but a different path
+const alt = await tracCrypto.address.generate('trac', mnemonic, "m/918'/0'/0'/1'");
+console.log('Same mnemonic?', alt.mnemonic === mnemonic); // true
+console.log('Different address?', alt.address !== address); // true
 
-// Encode a public key to address
-const encoded = tracCrypto.address.encode("trac", publicKey);
+// 3) Encode/decode
+const encoded = tracCrypto.address.encode('trac', publicKey);
+const decodedPubKey = tracCrypto.address.decode(encoded);
 
-// Decode an address to public key
-const decodedPubKey = tracCrypto.address.decode(address);
+// 4) Sign & verify
+const msg = Buffer.from('hello, trac');
+const signature = tracCrypto.sign(msg, secretKey);
+const ok = tracCrypto.signature.verify(signature, msg, publicKey);
+console.log('Signature valid?', ok);
 
-// Sign a message
-const signature = tracCrypto.sign(Buffer.from('message'), secretKey);
-
-// Verify a signature
-const isValid = tracCrypto.signature.verify(signature, Buffer.from('message'), publicKey);
-
-// Generate a secure nonce
+// 5) Nonce
 const nonce = tracCrypto.nonce.generate();
 
-// Forge a transaction
-const from = "trac1erl5alvuwq27ylssu20f2wwfh6xzr9pta6z5c4p6h9ram2uf4unstekq72"
-const to = "trac1xwggfmeffw08n49qfk9w4hu9u32wnxu9mn04dvprk70mv3larpvsade4d5"
-const validity = rundomeBuffer(32) // In a real case scenario, the current validity should be fetched through RPC call
-const amount = "1234abcd" // Amount in hex format
+// 6) Hashing
+const digest = await tracCrypto.hash.blake3(Buffer.from('data'));
 
-// This function generates a nonce internally and assembles a transaction object that can me signed by transaction.build
-const txData = await tracCrypto.transaction.preBuild(
-    fromKeyPair.address,
-    toKeyPair.address,
-    amount,
-    validity
-);
+// 7) Transaction (example)
+const fromAddr = address;
+const toAddr = alt.address;
 
-// This function returns the signed transaction as a Base64 encoded string, which can be used in /broascast-transaction RPC call
-const txPayload = tracCrypto.transaction.build(txData, yourSecretKey);
+// validity: fetch from RPC in real apps; here we just generate a random 32-byte buffer
+const validity = tracCrypto.nonce.generate().toString('hex');
+
+// amount in hex string
+const amount = '1234abcd';
+
+// Pre-build gathers fields and generates a nonce internally
+const txData = await tracCrypto.transaction.preBuild(fromAddr, toAddr, amount, validity);
+
+// Build returns a base64 payload ready for the /broadcast-transaction RPC call
+const txPayload = tracCrypto.transaction.build(txData, secretKey);
+console.log('Signed tx (base64):', txPayload);
+```
+---
+
+## Testing locally
+
+```bash
+# for Bare
+npm run test:bare
+
+# for Node.js
+npm run test:node
+
+# for browser
+npm run test:browser
+```
+
+---
+
+## Security notes
+
+* Keep **mnemonics** and **secret keys** out of logs and source control.
+* Consider **hardware-backed** key storage in production environments.
+* Always validate user inputs before building/signing transactions.
+* Fetch **current validity** from an authoritative RPC before broadcasting.
+
+## FAQ
+
+**Why bech32m?**
+It’s a checksummed, human-readable encoding broadly used in crypto ecosystems. It reduces transcription errors and supports HRPs like `trac`.
+
+**Where do I get “validity”?**
+From your network’s RPC (block height/epoch/etc.). The helper accepts a 32-byte value so you can slot in the latest validity from your backend before `preBuild`.
+
+---
+
+### Minimal examples
+
+**Create & verify a signature**
+
+```js
+import tracCrypto from 'trac-crypto-api';
+
+const { publicKey, secretKey } = await tracCrypto.address.generate('trac');
+const msg = Buffer.from('ping');
+const sig = tracCrypto.sign(msg, secretKey);
+console.log(tracCrypto.signature.verify(sig, msg, publicKey)); // true
+```
+
+**Encode & decode an address**
+
+```js
+const { publicKey } = await tracCrypto.address.generate('trac');
+const addr = tracCrypto.address.encode('trac', publicKey);
+const pub2 = tracCrypto.address.decode(addr);
+console.log(Buffer.compare(Buffer.from(publicKey), Buffer.from(pub2)) === 0); // true
+```
+
+**Build a transaction payload**
+
+```js
+const { address: from, secretKey } = await tracCrypto.address.generate('trac');
+const { address: to } = await tracCrypto.address.generate('trac');
+const validity = require('crypto').randomBytes(32); // replace with RPC-fetched validity
+const amountHex = '1234abcd';
+
+const txData = await tracCrypto.transaction.preBuild(from, to, amountHex, validity);
+const payload = tracCrypto.transaction.build(txData, secretKey);
+// send payload to /broadcast-transaction
 ```
