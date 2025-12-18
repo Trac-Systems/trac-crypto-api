@@ -1,22 +1,22 @@
 {
   "name": "trac-crypto-api",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "index.js",
   "pear": {
     "name": "trac-crypto-api",
     "type": "terminal"
   },
   "scripts": {
-    "build:browser": "rollup -c && cd test/browser/ && npm i && cd ../..",
+    "build:browser": "rollup -c && npm --prefix test/browser install --cache ./test/browser/.npm-cache",
     "build:rn": "npm run setup:rn && webpack --config webpack.config.rn.js && npm run cleanup:rn",
-    "setup:rn": "npm install crypto-browserify stream-browserify vm-browserify buffer url assert --no-save",
+    "setup:rn": "npm install crypto-browserify stream-browserify vm-browserify buffer url assert --no-save --cache ./.npm-cache",
     "cleanup:rn": "npm uninstall crypto-browserify stream-browserify vm-browserify buffer url assert --no-save",
     "test:node": "brittle-node -t 120000 test/unit/all.test.js",
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",
     "test:all": "npm run test:node && npm run test:browser",
-    "ci:clean": "npm cache clean -f && rm -rf node_modules package-lock.json && cd test/browser/ && npm cache clean -f && rm -rf node_modules && cd ../.. && rm -rf dist && npm i",
-    "ci:full": "npm run ci:clean && npm i && npm run test:node && npm run test:bare && npm run build:browser && npm run test:browser && npm run build:rn"
+    "ci:clean": "rm -rf node_modules dist .npm-cache test/browser/node_modules test/browser/.npm-cache && npm ci --cache ./.npm-cache && npm --prefix test/browser ci --cache ./test/browser/.npm-cache",
+    "ci:full": "npm run ci:clean && npm run test:node && npm run test:bare && npm run build:browser && npm run test:browser && npm run build:rn"
   },
   "keywords": [],
   "author": "",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@metamask/key-tree": "10.1.1",
-    "@tracsystems/blake3": "0.0.13",
+    "@tracsystems/blake3": "0.0.15",
     "b4a": "1.6.7",
     "bare-fs": "4.5.0",
     "bech32": "2.0.0",
