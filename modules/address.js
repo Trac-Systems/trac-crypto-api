@@ -120,7 +120,7 @@ function _sanitizeDerivationPath(path) {
  * @param {string} [path] - Optional derivation path. Defaults to "m/918'/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
-async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
+async function _generateKeyPair(masterPathSegments, mnemonic = null, path = DEFAULT_DERIVATION_PATH) {
   const node = loadSLIP10Node();
 
   let safeMnemonic;
@@ -128,10 +128,6 @@ async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null
     safeMnemonic = mnemonicUtils.generate();
   } else {
     safeMnemonic = mnemonicUtils.sanitize(mnemonic); // Will throw if the mnemonic is invalid
-  }
-
-  if (path === null) {
-    path = DEFAULT_DERIVATION_PATH;
   }
 
   let masterPath = [`bip39:${safeMnemonic}`];
@@ -291,9 +287,10 @@ function canDecode(address) {
  * Generates a new keypair and address.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
  * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
- * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
+ * @param {string} [derivationPath] - Optional derivation path. Defaults to "m/918'/0'/0'/0'"
+ * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string, derivationPath: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
  */
-async function generate(hrp, mnemonic = null, derivationPath = null) {
+async function generate(hrp, mnemonic = null, derivationPath = DEFAULT_DERIVATION_PATH) {
   _validateHrp(hrp);
   const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
   const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
