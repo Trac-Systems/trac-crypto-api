@@ -1,0 +1,105 @@
+name: Trac Crypto API CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [ 20 ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install bare
+        run: npm i -g bare
+
+      - name: Run tests
+        run: npm run ci:full
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci --cache ./.npm-cache
+      - name: Run coverage
+        run: npm run coverage
+      - name: Read coverage totals
+        id: coverage_totals
+        run: node scripts/ci/export-coverage-totals.mjs
+      - name: Add coverage summary to GitHub
+        env:
+          LINES_PCT: ${{ steps.coverage_totals.outputs.lines_pct }}
+          LINES_COV: ${{ steps.coverage_totals.outputs.lines_cov }}
+          LINES_TOTAL: ${{ steps.coverage_totals.outputs.lines_total }}
+          STATEMENTS_PCT: ${{ steps.coverage_totals.outputs.statements_pct }}
+          STATEMENTS_COV: ${{ steps.coverage_totals.outputs.statements_cov }}
+          STATEMENTS_TOTAL: ${{ steps.coverage_totals.outputs.statements_total }}
+          FUNCTIONS_PCT: ${{ steps.coverage_totals.outputs.functions_pct }}
+          FUNCTIONS_COV: ${{ steps.coverage_totals.outputs.functions_cov }}
+          FUNCTIONS_TOTAL: ${{ steps.coverage_totals.outputs.functions_total }}
+          BRANCHES_PCT: ${{ steps.coverage_totals.outputs.branches_pct }}
+          BRANCHES_COV: ${{ steps.coverage_totals.outputs.branches_cov }}
+          BRANCHES_TOTAL: ${{ steps.coverage_totals.outputs.branches_total }}
+        run: bash scripts/ci/write-coverage-summary.sh
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+        uses: actions/github-script@v7
+        env:
+          LINES_PCT: ${{ steps.coverage_totals.outputs.lines_pct }}
+          LINES_COV: ${{ steps.coverage_totals.outputs.lines_cov }}
+          LINES_TOTAL: ${{ steps.coverage_totals.outputs.lines_total }}
+          STATEMENTS_PCT: ${{ steps.coverage_totals.outputs.statements_pct }}
+          STATEMENTS_COV: ${{ steps.coverage_totals.outputs.statements_cov }}
+          STATEMENTS_TOTAL: ${{ steps.coverage_totals.outputs.statements_total }}
+          FUNCTIONS_PCT: ${{ steps.coverage_totals.outputs.functions_pct }}
+          FUNCTIONS_COV: ${{ steps.coverage_totals.outputs.functions_cov }}
+          FUNCTIONS_TOTAL: ${{ steps.coverage_totals.outputs.functions_total }}
+          BRANCHES_PCT: ${{ steps.coverage_totals.outputs.branches_pct }}
+          BRANCHES_COV: ${{ steps.coverage_totals.outputs.branches_cov }}
+          BRANCHES_TOTAL: ${{ steps.coverage_totals.outputs.branches_total }}
+        with:
+          script: |
+            const path = require('node:path');
+            const commentCoverage = require(path.join(process.env.GITHUB_WORKSPACE, 'scripts/ci/comment-coverage.cjs'));
+            await commentCoverage({ github, context });
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage/index.html
+            coverage/lcov.info
+            coverage/lcov-report

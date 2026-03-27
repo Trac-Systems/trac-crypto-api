@@ -15,7 +15,9 @@
     "test:bare": "brittle-bare -t 120000 test/unit/all.test.js",
     "test:browser": "cd test/browser && npm run test:browser",
     "test:all": "npm run test:node && npm run test:browser",
-    "ci:clean": "rm -rf node_modules dist .npm-cache test/browser/node_modules test/browser/.npm-cache && npm ci --cache ./.npm-cache && npm --prefix test/browser ci --cache ./test/browser/.npm-cache",
+    "coverage": "c8 --all --include=constants.js --include=entry.js --include=index.js --include=index.rn.js --include=modules/**/*.js --exclude=test/** --exclude=dist/** --exclude=scripts/** --reporter=text --reporter=json-summary --reporter=lcov --reporter=html npm run test:node",
+    "coverage:report": "c8 report --all --include=constants.js --include=entry.js --include=index.js --include=index.rn.js --include=modules/**/*.js --exclude=test/** --exclude=dist/** --exclude=scripts/** --reporter=text --reporter=json-summary --reporter=lcov --reporter=html",
+    "ci:clean": "node scripts/ci/clean.cjs && npm ci --cache ./.npm-cache && npm --prefix test/browser ci --cache ./test/browser/.npm-cache",
     "ci:full": "npm run ci:clean && npm run test:node && npm run test:bare && npm run build:browser && npm run test:browser && npm run build:rn"
   },
   "keywords": [],
@@ -64,6 +66,7 @@
     "@rollup/plugin-replace": "^6.0.2",
     "babel-loader": "^10.0.0",
     "brittle": "^3.18.0",
+    "c8": "^11.0.0",
     "ignore-loader": "^0.1.2",
     "rollup": "^4.50.2",
     "webpack": "^5.102.1",
