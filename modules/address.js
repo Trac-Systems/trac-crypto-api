@@ -12,7 +12,9 @@ const runtime = require('./runtime.js');
 // effectiveness starts to decrease
 // See: https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#checksum-design
 const HRP_SIZE_LIMIT = 31;
-const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
+const MAINNET_DERIVATION_PATH = "m/918'/0'/0'/0'";
+const TESNET_DERIVATION_PATH = "m/919'/0'/0'/0'";
+const DEFAULT_DERIVATION_PATH = MAINNET_DERIVATION_PATH;
 
 let SLIP10Node;
 
@@ -355,5 +357,7 @@ module.exports = {
   fromSecretKey,
   PUB_KEY_SIZE: TRAC_PUB_KEY_SIZE,
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
-  DEFAULT_DERIVATION_PATH,
+  MAINNET_DERIVATION_PATH,
+  TESNET_DERIVATION_PATH,
+  DEFAULT_DERIVATION_PATH
 };
