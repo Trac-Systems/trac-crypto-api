@@ -1,23 +1,23 @@
-const path = require('path')
-const webpack = require('webpack')
+const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
-  mode: 'production',
+  mode: "production",
 
-  entry: './index.rn.js',
+  entry: "./index.js",
 
   output: {
-    filename: 'trac-crypto-api.rn.js',
-    path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs2', // ✅ Keep CommonJS output
-    publicPath: '',
+    filename: "trac-crypto-api.rn.js",
+    path: path.resolve(__dirname, "dist"),
+    libraryTarget: "commonjs2", // Keep CommonJS output
+    publicPath: "",
   },
 
-  target: ['web', 'es5'], // ✅ Prevent browser globals like 'document'
+  target: ["web", "es5"], // Prevent browser globals like 'document'
   node: {
     global: true,
-    __filename: 'mock',
-    __dirname: 'mock',
+    __filename: "mock",
+    __dirname: "mock",
   },
 
   optimization: {
@@ -31,26 +31,26 @@ module.exports = {
   resolve: {
     alias: {
       // Sodium
-      'sodium-universal': 'sodium-javascript',
+      "sodium-universal": "sodium-javascript",
 
       // Disable wasm-based blake3 for React Native
-      '@tracsystems/blake3/dist/wasm/blake3_wasm.mjs': false,
-      '@tracsystems/blake3/dist/wasm/internal/blake3_wasm.mjs': false,
-      '@tracsystems/blake3': path.resolve(
+      "@tracsystems/blake3/dist/wasm/blake3_wasm.mjs": false,
+      "@tracsystems/blake3/dist/wasm/internal/blake3_wasm.mjs": false,
+      "@tracsystems/blake3": path.resolve(
         __dirname,
-        'node_modules/@tracsystems/blake3/dist/wasm/blake3_rn.js'
+        "node_modules/@tracsystems/blake3/dist/wasm/blake3_rn.js",
       ),
     },
 
-    extensions: ['.js', '.ts', '.tsx', '.mjs'],
+    extensions: [".js", ".ts", ".tsx", ".mjs"],
 
     fallback: {
-      crypto: require.resolve('crypto-browserify'),
-      buffer: require.resolve('buffer'),
-      stream: require.resolve('stream-browserify'),
-      vm: require.resolve('vm-browserify'),
-      url: require.resolve('url'),
-      assert: require.resolve('assert'),
+      crypto: require.resolve("crypto-browserify"),
+      buffer: require.resolve("buffer"),
+      stream: require.resolve("stream-browserify"),
+      vm: require.resolve("vm-browserify"),
+      url: require.resolve("url"),
+      assert: require.resolve("assert"),
       fs: false,
       path: false,
       util: false,
@@ -65,37 +65,40 @@ module.exports = {
       {
         test: /\.js$/,
         include: /node_modules\/react-native-b4a/,
-        use: { loader: 'ignore-loader' },
+        use: { loader: "ignore-loader" },
       },
 
       // Babel for your modules and selected node_modules
       {
         test: /\.js$/,
         include: [
-          path.resolve(__dirname, 'modules'),
-          path.resolve(__dirname, 'index.rn.js'),
-          path.resolve(__dirname, 'node_modules/@tracsystems'), // blake3
-          path.resolve(__dirname, 'node_modules/hdkey'),
-          path.resolve(__dirname, 'node_modules/bip39-mnemonic'),
+          path.resolve(__dirname, "modules"),
+          path.resolve(__dirname, "index.js"),
+          path.resolve(__dirname, "node_modules/@tracsystems"), // blake3
+          path.resolve(__dirname, "node_modules/hdkey"),
+          path.resolve(__dirname, "node_modules/bip39-mnemonic"),
         ],
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
             presets: [
               [
-                '@babel/preset-env',
+                "@babel/preset-env",
                 {
-                  modules: 'commonjs', // ✅ Force CommonJS everywhere
+                  modules: "commonjs", // ✅ Force CommonJS everywhere
                   targets: { esmodules: true },
                 },
               ],
             ],
             plugins: [
-              ['@babel/plugin-proposal-class-properties', { loose: true }],
-              ['@babel/plugin-transform-classes', { loose: true }],
-              ['@babel/plugin-transform-private-methods', { loose: true }],
-              ['@babel/plugin-transform-private-property-in-object', { loose: true }],
-              ['@babel/plugin-transform-modules-commonjs', { loose: true }], // ✅ ensure import/export -> CJS
+              ["@babel/plugin-proposal-class-properties", { loose: true }],
+              ["@babel/plugin-transform-classes", { loose: true }],
+              ["@babel/plugin-transform-private-methods", { loose: true }],
+              [
+                "@babel/plugin-transform-private-property-in-object",
+                { loose: true },
+              ],
+              ["@babel/plugin-transform-modules-commonjs", { loose: true }], // ensure import/export -> CJS
             ],
           },
         },
@@ -105,27 +108,24 @@ module.exports = {
 
   plugins: [
     new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
+      Buffer: ["buffer", "Buffer"],
     }),
 
-    new webpack.ContextReplacementPlugin(
-      /modules\/address$/,
-      data => {
-        delete data.dependencies[0].critical
-        return
-      }
-    ),
+    new webpack.ContextReplacementPlugin(/modules\/address$/, (data) => {
+      delete data.dependencies[0].critical;
+      return;
+    }),
 
     new webpack.IgnorePlugin({
       resourceRegExp: /randombytes\/browser|randombytes\/index/,
     }),
 
-    // 🧩 Optional: Neutralize document / window if any dependency expects it
+    // Optional: Neutralize document / window if any dependency expects it
     new webpack.DefinePlugin({
-      'typeof document': JSON.stringify('undefined'),
-      'typeof window': JSON.stringify('undefined'),
-      document: 'undefined',
-      window: 'undefined',
+      "typeof document": JSON.stringify("undefined"),
+      "typeof window": JSON.stringify("undefined"),
+      document: "undefined",
+      window: "undefined",
     }),
   ],
-}
+};
