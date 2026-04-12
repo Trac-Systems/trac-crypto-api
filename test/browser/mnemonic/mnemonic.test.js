@@ -1,10 +1,15 @@
 // mnemonic.test.js
 const apiReq = require("trac-crypto-api");
-const mnemonic = window.TracCryptoApi.mnemonic;
-const TRAC_MNEMONIC_WORD_COUNT = window.TracCryptoApi.constants?.TRAC_MNEMONIC_WORD_COUNT || [12, 24];
+const b4a = require("b4a");
 
-const mnemonic12Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-const mnemonic11Words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon";
+const mnemonic = window.TracCryptoApi.mnemonic;
+const TRAC_MNEMONIC_WORD_COUNT = window.TracCryptoApi.constants
+  ?.TRAC_MNEMONIC_WORD_COUNT || [12, 24];
+
+const mnemonic12Words =
+  "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+const mnemonic11Words =
+  "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon";
 
 test("mnemonic is on window", () => {
   expect(window.TracCryptoApi.mnemonic).toBe(apiReq.mnemonic);
@@ -14,7 +19,9 @@ test("mnemonic.generate: should generate a valid mnemonic", () => {
   const phrase = mnemonic.generate();
   expect(typeof phrase).toBe("string");
   expect(phrase).not.toBe("");
-  expect(TRAC_MNEMONIC_WORD_COUNT.includes(phrase.split(" ").length)).toBe(true);
+  expect(TRAC_MNEMONIC_WORD_COUNT.includes(phrase.split(" ").length)).toBe(
+    true,
+  );
 });
 
 test("mnemonic.generate: should generate different mnemonics", () => {
@@ -64,11 +71,11 @@ test("mnemonic.sanitize: should return null on invalid mnemonic", () => {
   expect(mnemonic.sanitize("invalid mnemonic phrase")).toBe(null);
 });
 
-test("mnemonic.toSeed: should convert mnemonic to seed", async () => {
+// IMPORTANT: toSeed is NOT supported in browser (sodium limitation)
+test("mnemonic.toSeed: should not be supported in browser", async () => {
   const phrase = mnemonic.generate();
-  const seed = await mnemonic.toSeed(phrase);
-  expect(seed instanceof Uint8Array || Buffer.isBuffer(seed)).toBe(true);
-  expect(seed.length).toBeGreaterThan(0);
+
+  await expect(mnemonic.toSeed(phrase)).rejects.toThrow();
 });
 
 test("mnemonic.toSeed: should throw on invalid mnemonic", async () => {

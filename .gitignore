@@ -10,3 +10,4 @@ dist/trac-crypto-api.rn.js.LICENSE.txt
 dist/
 test-node/
 test-browser-esm/
+trac-crypto-api-*.tgz
