@@ -32,7 +32,7 @@
     "test:browser": "rm -rf test/browser/node_modules/trac-crypto-api && rm -f test/browser/*.tgz && npm run pack:test && cd test/browser && npm install ./trac-crypto-api-*.tgz && npm run test:browser",
     "test:all": "npm run test:node && npm run test:browser",
     "coverage": "c8 --all --include=constants.js --include=index.js --include=modules/**/*.js --exclude=test/** --exclude=dist/** --exclude=scripts/** --reporter=text --reporter=json-summary --reporter=lcov --reporter=html npm run test:node",
-    "ci:clean": "node scripts/ci/clean.cjs && npm ci --cache ./.npm-cache && npm --prefix test/browser ci --cache ./test/browser/.npm-cache",
+    "ci:clean": "node scripts/ci/clean.cjs && npm ci --cache ./.npm-cache",
     "ci:full": "npm run ci:clean && npm run test:node && npm run test:bare && npm run build:browser && npm run test:browser && npm run build:rn",
     "pack:test": "npm pack --pack-destination test/browser"
   },
