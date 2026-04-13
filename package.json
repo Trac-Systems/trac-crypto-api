@@ -11,10 +11,9 @@
   },
   "files": [
     "index.js",
-    "modules/",
     "constants.js",
-    "dist/*.js",
-    "dist/*.txt"
+    "modules",
+    "dist"
   ],
   "pear": {
     "name": "trac-crypto-api",

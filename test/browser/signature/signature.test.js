@@ -1,34 +1,157 @@
 // signature.test.js
-const apiReq = require("trac-crypto-api");
+
 const api = window.TracCryptoApi;
 const address = api.address;
 const signature = api.signature;
-const b4a = require("b4a");
+const b4a = window.b4a;
+
+// NOTE: requires sodium to be injected in window (browser runtime dependency)
+const sodium = window.sodium;
 
 const hrp = "trac";
 
 test("signature is on window", () => {
-  expect(window.TracCryptoApi.signature).toBe(apiReq.signature);
+  expect(api.signature).toBeDefined();
 });
 
 test("address is on window", () => {
-  expect(window.TracCryptoApi.address).toBe(apiReq.address);
+  expect(api.address).toBeDefined();
 });
 
 test("b4a is on window", () => {
-  expect(window.b4a).toBe(b4a);
+  expect(b4a).toBeDefined();
 });
 
-// ⚠️ browser: sign pode não funcionar (sodium)
-test("signature.sign: should throw in browser", async () => {
-  const { secretKey } = await api.address.generate(hrp);
-  const message = b4a.from("hello world");
+test("sodium is on window", () => {
+  expect(sodium).toBeDefined();
+});
 
-  expect(() => signature.sign(message, secretKey)).toThrow();
+test("signature.sign: should return a valid signature", async () => {
+  const { secretKey, publicKey } = await address.generate(hrp);
+
+  const message = new Uint8Array(b4a.from("hello world"));
+  const sk = new Uint8Array(secretKey);
+  const pk = new Uint8Array(publicKey);
+
+  const sig = signature.sign(message, sk);
+
+  expect(sig.length).toBe(64);
+
+  const verified = signature.verify(sig, message, pk);
+  expect(verified).toBe(true);
+});
+
+test("signature.verify: should fail for wrong message", async () => {
+  const { secretKey, publicKey } = await address.generate(hrp);
+
+  const message = new Uint8Array(b4a.from("hello world"));
+  const wrongMessage = new Uint8Array(b4a.from("other message"));
+
+  const sk = new Uint8Array(secretKey);
+  const pk = new Uint8Array(publicKey);
+
+  const sig = signature.sign(message, sk);
+
+  const valid = signature.verify(sig, wrongMessage, pk);
+  expect(valid).toBe(false);
+});
+
+test("signature.verify: should fail for tampered message", () => {
+  const {
+    crypto_sign_keypair,
+    crypto_sign_PUBLICKEYBYTES,
+    crypto_sign_SECRETKEYBYTES,
+  } = sodium;
+
+  const publicKey = b4a.alloc(crypto_sign_PUBLICKEYBYTES);
+  const secretKey = b4a.alloc(crypto_sign_SECRETKEYBYTES);
+
+  crypto_sign_keypair(publicKey, secretKey);
+
+  const originalMessage = b4a.from("This is the original message.");
+  const tamperedMessage = b4a.from(originalMessage);
+
+  tamperedMessage[5] ^= 1;
+
+  const sig = signature.sign(
+    new Uint8Array(originalMessage),
+    new Uint8Array(secretKey),
+  );
+
+  const result = signature.verify(
+    sig,
+    new Uint8Array(tamperedMessage),
+    new Uint8Array(publicKey),
+  );
+
+  expect(result).toBe(false);
+});
+
+test("signature.verify: should fail with wrong public key", () => {
+  const {
+    crypto_sign_keypair,
+    crypto_sign_PUBLICKEYBYTES,
+    crypto_sign_SECRETKEYBYTES,
+  } = sodium;
+
+  const correctPk = b4a.alloc(crypto_sign_PUBLICKEYBYTES);
+  const correctSk = b4a.alloc(crypto_sign_SECRETKEYBYTES);
+
+  const wrongPk = b4a.alloc(crypto_sign_PUBLICKEYBYTES);
+  const wrongSk = b4a.alloc(crypto_sign_SECRETKEYBYTES);
+
+  crypto_sign_keypair(correctPk, correctSk);
+  crypto_sign_keypair(wrongPk, wrongSk);
+
+  const message = b4a.from("Testing with a wrong key.");
+
+  const sig = signature.sign(
+    new Uint8Array(message),
+    new Uint8Array(correctSk),
+  );
+
+  const result = signature.verify(
+    sig,
+    new Uint8Array(message),
+    new Uint8Array(wrongPk),
+  );
+
+  expect(result).toBe(false);
+});
+
+test("signature.verify: should fail for tampered signature", () => {
+  const {
+    crypto_sign_keypair,
+    crypto_sign_PUBLICKEYBYTES,
+    crypto_sign_SECRETKEYBYTES,
+  } = sodium;
+
+  const publicKey = b4a.alloc(crypto_sign_PUBLICKEYBYTES);
+  const secretKey = b4a.alloc(crypto_sign_SECRETKEYBYTES);
+
+  crypto_sign_keypair(publicKey, secretKey);
+
+  const message = b4a.from("This signature will be tampered with.");
+
+  const sig = signature.sign(
+    new Uint8Array(message),
+    new Uint8Array(secretKey),
+  );
+
+  const tamperedSig = b4a.from(sig);
+  tamperedSig[0] ^= 1;
+
+  const result = signature.verify(
+    new Uint8Array(tamperedSig),
+    new Uint8Array(message),
+    new Uint8Array(publicKey),
+  );
+
+  expect(result).toBe(false);
 });
 
 test("signature.verify: should return boolean", async () => {
-  const { publicKey } = await api.address.generate(hrp);
+  const { publicKey } = await address.generate(hrp);
   const message = b4a.from("hello world");
 
   const result = signature.verify(b4a.alloc(64), message, publicKey);
@@ -36,9 +159,8 @@ test("signature.verify: should return boolean", async () => {
   expect(typeof result).toBe("boolean");
 });
 
-// determinismo
 test("signature.verify: should be deterministic", async () => {
-  const { publicKey } = await api.address.generate(hrp);
+  const { publicKey } = await address.generate(hrp);
   const message = b4a.from("hello world");
   const sig = b4a.alloc(64);
 
@@ -48,9 +170,8 @@ test("signature.verify: should be deterministic", async () => {
   expect(r1).toBe(r2);
 });
 
-// variação de input
 test("signature.verify: should change with different inputs", async () => {
-  const { publicKey } = await api.address.generate(hrp);
+  const { publicKey } = await address.generate(hrp);
 
   const msg1 = b4a.from("hello");
   const msg2 = b4a.from("world");
@@ -64,12 +185,10 @@ test("signature.verify: should change with different inputs", async () => {
   expect(typeof r2).toBe("boolean");
 });
 
-// invalid private key
 test("signature.sign: should throw on invalid private key", () => {
   expect(() => signature.sign(b4a.from("msg"), b4a.alloc(10))).toThrow();
 });
 
-// sanity
 test("signature.verify: should not throw on random inputs", () => {
   const message = b4a.from("hello");
 

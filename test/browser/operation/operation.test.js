@@ -1,28 +1,31 @@
 // operation.test.js
-const apiReq = require("trac-crypto-api");
+
 const api = window.TracCryptoApi;
 const b4a = window.b4a;
 
+const OP_TYPE_TX = 12;
 const TRAC_VALIDITY_SIZE_BYTES = 32;
 const TRAC_HASH_SIZE = 32;
 const TRAC_NONCE_SIZE = 32;
-const TRAC_NETWORK_MAINNET_ID = apiReq.MAINNET_ID;
+const TRAC_NETWORK_MAINNET_ID = api.MAINNET_ID;
 
 function randomBuf(size) {
   const buf = b4a.alloc(size);
+
   if (window.sodium && window.sodium.randombytes_buf) {
     window.sodium.randombytes_buf(buf);
   } else if (window.crypto && window.crypto.getRandomValues) {
     window.crypto.getRandomValues(buf);
   }
+
   return buf;
 }
 
 test("operation is on window", () => {
-  expect(window.TracCryptoApi.operation).toBe(apiReq.operation);
+  expect(api.operation).toBeDefined();
 });
 
-test("operation: should build (browser-safe validation)", async () => {
+test("operation: preBuild should work correctly", async () => {
   const fromKeyPair = await api.address.generate("trac");
 
   const validator = randomBuf(32).toString("hex");
@@ -42,8 +45,10 @@ test("operation: should build (browser-safe validation)", async () => {
 
   expect(txData).toBeDefined();
   expect(txData.from).toBe(fromKeyPair.address);
+
   expect(txData.hash && txData.hash.length === TRAC_HASH_SIZE).toBe(true);
   expect(txData.nonce && txData.nonce.length === TRAC_NONCE_SIZE).toBe(true);
+
   expect(txData.networkId).toBe(TRAC_NETWORK_MAINNET_ID);
 
   expect(api.utils.isHexString(txData.validity)).toBe(true);
@@ -52,13 +57,78 @@ test("operation: should build (browser-safe validation)", async () => {
   expect(api.utils.isHexString(txData.originBootstrap)).toBe(true);
   expect(api.utils.isHexString(txData.destinationBootstrap)).toBe(true);
 
-  const payload = api.operation.build(txData, fromKeyPair.secretKey);
+  expect(txData.validity).toBe(validity);
+  expect(txData.validator).toBe(validator);
+  expect(txData.contentHash).toBe(contentHash);
+  expect(txData.originBootstrap).toBe(originBootstrap);
+  expect(txData.destinationBootstrap).toBe(destinationBootstrap);
+});
+
+test("operation.build: should produce valid payload", async () => {
+  const fromKeyPair = await api.address.generate("trac");
+
+  const validator = randomBuf(32).toString("hex");
+  const contentHash = randomBuf(32).toString("hex");
+  const originBootstrap = randomBuf(32).toString("hex");
+  const destinationBootstrap = randomBuf(32).toString("hex");
+  const validity = randomBuf(TRAC_VALIDITY_SIZE_BYTES).toString("hex");
+
+  const txData = await api.operation.preBuild(
+    fromKeyPair.address,
+    validator,
+    contentHash,
+    originBootstrap,
+    destinationBootstrap,
+    validity,
+  );
+
+  const payload = api.operation.build(
+    txData,
+    new Uint8Array(fromKeyPair.secretKey),
+  );
 
   expect(payload).toBeDefined();
   expect(typeof payload).toBe("string");
 
   const decoded = b4a.from(payload, "base64");
 
-  expect(decoded).toBeDefined();
   expect(decoded.length).toBeGreaterThan(0);
+
+  // tenta interpretar como JSON (sem obrigar)
+  let parsed;
+  try {
+    // NOTE: payload is not guaranteed to be JSON in browser build
+    parsed = JSON.parse(decoded.toString("utf-8"));
+  } catch (_) {}
+
+  if (parsed && parsed.txo) {
+    expect(parsed.type).toBe(OP_TYPE_TX);
+    expect(parsed.address).toBe(fromKeyPair.address);
+
+    expect(parsed.txo).toBeDefined();
+
+    expect(api.utils.isHexString(parsed.txo.tx)).toBe(true);
+    expect(api.utils.isHexString(parsed.txo.txv)).toBe(true);
+    expect(api.utils.isHexString(parsed.txo.iw)).toBe(true);
+    expect(api.utils.isHexString(parsed.txo.in)).toBe(true);
+    expect(api.utils.isHexString(parsed.txo.is)).toBe(true);
+
+    expect(parsed.txo.tx).toBe(txData.hash.toString("hex"));
+    expect(parsed.txo.txv).toBe(txData.validity);
+    expect(parsed.txo.iw).toBe(txData.validator);
+    expect(parsed.txo.in).toBe(txData.nonce.toString("hex"));
+    expect(parsed.txo.ch).toBe(txData.contentHash);
+    expect(parsed.txo.bs).toBe(txData.originBootstrap);
+    expect(parsed.txo.mbs).toBe(txData.destinationBootstrap);
+
+    expect(parsed.txo.is.length).toBe(128);
+
+    const isValid = api.signature.verify(
+      b4a.from(parsed.txo.is, "hex"),
+      b4a.from(parsed.txo.tx, "hex"),
+      fromKeyPair.publicKey,
+    );
+
+    expect(isValid).toBe(true);
+  }
 });

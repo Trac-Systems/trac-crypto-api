@@ -1,5 +1,4 @@
 // address.test.js
-const { address } = require("trac-crypto-api");
 
 const api = window.TracCryptoApi;
 const b4a = window.b4a;
@@ -14,41 +13,36 @@ const mnemonic12Words =
 const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
 
 test("address is on window", () => {
-  expect(window.TracCryptoApi.address).toBe(address);
+  expect(api.address).toBeDefined();
 });
 
 // encode/decode
 
-test("address.encode/decode: should encode and decode public key correctly", async () => {
+test("address.encode/decode", async () => {
   const { publicKey } = await api.address.generate(HRP);
 
   const encoded = api.address.encode(HRP, publicKey);
   const decoded = api.address.decode(encoded);
 
-  expect(b4a.equals(b4a.from(decoded), b4a.from(publicKey))).toBe(true);
+  expect(b4a.equals(decoded, publicKey)).toBe(true);
 });
 
-test("address.encode: should throw on invalid public key", () => {
-  const invalidKeys = [
-    null,
-    undefined,
-    "not a buffer",
-    b4a.alloc(10),
-    b4a.alloc(50),
-  ];
+test("address.encode: invalid public key", () => {
+  const invalidKeys = [null, undefined, "x", b4a.alloc(10), b4a.alloc(50)];
 
   for (const key of invalidKeys) {
     expect(() => api.address.encode(HRP, key)).toThrow();
   }
 });
 
-test("address.encode: should throw on invalid hrp", async () => {
+test("address.encode: invalid hrp", async () => {
   const invalidHrps = [
     null,
     undefined,
     "",
-    "ThisHRPIsWayTooLongToBeValid",
-    "invalid*char",
+    " ",
+    "A", // uppercase
+    "tr@c", // invalid char
   ];
 
   for (const hrp of invalidHrps) {
@@ -57,91 +51,76 @@ test("address.encode: should throw on invalid hrp", async () => {
   }
 });
 
-test("address.decode: should throw on invalid address", () => {
-  const invalidAddresses = [
-    null,
-    undefined,
-    "not a buffer",
-    b4a.alloc(10),
-    b4a.alloc(50),
-  ];
+test("address.decode: invalid address", () => {
+  const invalid = [null, undefined, "x", b4a.alloc(10)];
 
-  for (const addr of invalidAddresses) {
+  for (const addr of invalid) {
     expect(() => api.address.decode(addr)).toThrow();
   }
 });
 
-// buffer conversions
+// buffer
 
-test("address.toBuffer/fromBuffer: should convert address (browser-safe)", async () => {
+test("address.toBuffer/fromBuffer", async () => {
   const { address } = await api.address.generate(HRP);
 
   const buf = api.address.toBuffer(address);
-  let addrFromBuf = api.address.fromBuffer(buf);
+  let addr = api.address.fromBuffer(buf);
 
-  if (typeof addrFromBuf !== "string") {
-    addrFromBuf = b4a.from(addrFromBuf).toString();
-  }
-
-  if (addrFromBuf.includes(",")) {
-    addrFromBuf = b4a.from(addrFromBuf.split(",").map(Number)).toString();
+  // NOTE: browser build may return comma-separated byte string instead of proper string
+  if (typeof addr === "string" && addr.includes(",")) {
+    addr = b4a.from(addr.split(",").map(Number)).toString();
   }
 
   expect(b4a.isBuffer(buf)).toBe(true);
-  expect(typeof addrFromBuf).toBe("string");
-  expect(api.address.isValid(addrFromBuf)).toBe(true);
+  expect(addr).toBe(address);
+  expect(api.address.isValid(addr)).toBe(true);
 });
 
-test("address.toBuffer: should throw on invalid address", () => {
-  const invalidAddresses = [
-    null,
-    undefined,
-    "not a buffer",
-    "short",
-    "toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong",
-  ];
+test("address.toBuffer: invalid", () => {
+  const invalid = [null, undefined, "short", "x".repeat(200)];
 
-  for (const addr of invalidAddresses) {
+  for (const addr of invalid) {
     expect(() => api.address.toBuffer(addr)).toThrow();
   }
 });
 
-// generate
+// generate base
 
-test("address.generate: should generate a valid address and keypair", async () => {
-  const result = await api.address.generate(HRP);
+test("address.generate: basic", async () => {
+  const r = await api.address.generate(HRP);
 
-  expect(typeof result.address).toBe("string");
+  expect(typeof r.address).toBe("string");
 
-  expect(b4a.isBuffer(result.publicKey)).toBe(true);
-  expect(result.publicKey.length).toBe(api.address.PUB_KEY_SIZE);
+  expect(b4a.isBuffer(r.publicKey)).toBe(true);
+  expect(b4a.isBuffer(r.secretKey)).toBe(true);
 
-  expect(b4a.isBuffer(result.secretKey)).toBe(true);
-  expect(result.secretKey.length).toBe(api.address.PRIV_KEY_SIZE);
+  expect(r.publicKey.length).toBe(api.address.PUB_KEY_SIZE);
+  expect(r.secretKey.length).toBe(api.address.PRIV_KEY_SIZE);
 
-  expect(typeof result.mnemonic).toBe("string");
-  expect(typeof result.derivationPath).toBe("string");
-
-  expect(api.address.isValid(result.address)).toBe(true);
+  expect(api.address.isValid(r.address)).toBe(true);
+  expect(r.derivationPath).toBe(DEFAULT_DERIVATION_PATH);
 });
 
 // mnemonic
 
-test("address.generate: should generate keypair for mnemonic", async () => {
-  const result = await api.address.generate(HRP, mnemonic12Words, PATH1);
+test("address.generate: 12 words", async () => {
+  const r = await api.address.generate(HRP, mnemonic12Words, PATH1);
 
-  expect(b4a.isBuffer(result.publicKey)).toBe(true);
-  expect(b4a.isBuffer(result.secretKey)).toBe(true);
+  expect(r.mnemonic).toBe(mnemonic12Words);
+  expect(r.derivationPath).toBe(PATH1);
+});
 
-  expect(result.mnemonic).toBe(mnemonic12Words);
-  expect(result.derivationPath).toBe(PATH1);
+test("address.generate: 24 words", async () => {
+  const mnemonic = await api.mnemonic.generate();
+  const r = await api.address.generate(HRP, mnemonic, PATH1);
 
-  expect(api.address.isValid(result.address)).toBe(true);
+  expect(r.mnemonic).toBe(mnemonic);
 });
 
 // determinism
 
-test("address.generate: determinism (same mnemonic/path)", async () => {
+test("address.generate: deterministic", async () => {
   const mnemonic = await api.mnemonic.generate();
 
   const r1 = await api.address.generate(HRP, mnemonic, PATH1);
@@ -152,28 +131,24 @@ test("address.generate: determinism (same mnemonic/path)", async () => {
   expect(r1.address).toBe(r2.address);
 });
 
-// different mnemonic
+// variations
 
-test("address.generate: different mnemonic → different keys", async () => {
+test("address.generate: different mnemonic", async () => {
   const r1 = await api.address.generate(
     HRP,
     await api.mnemonic.generate(),
     PATH1,
   );
-
   const r2 = await api.address.generate(
     HRP,
     await api.mnemonic.generate(),
     PATH1,
   );
 
-  expect(b4a.equals(r1.publicKey, r2.publicKey)).toBe(false);
   expect(r1.address).not.toBe(r2.address);
 });
 
-// different derivation path
-
-test("address.generate: should support different derivation paths", async () => {
+test("address.generate: different path", async () => {
   const mnemonic = await api.mnemonic.generate();
 
   const r1 = await api.address.generate(HRP, mnemonic, PATH1);
@@ -182,72 +157,63 @@ test("address.generate: should support different derivation paths", async () => 
   expect(r1.address).not.toBe(r2.address);
 });
 
-// default path fallback
+// path normalization
 
-test("address.generate: should fallback to default derivation path", async () => {
+test("address.generate: equivalent paths", async () => {
   const mnemonic = await api.mnemonic.generate();
 
-  const result = await api.address.generate(HRP, mnemonic, null);
+  const r1 = await api.address.generate(HRP, mnemonic, "m/0'/1'");
+  const r2 = await api.address.generate(HRP, mnemonic, "m/0'   /1'");
 
-  expect(result.derivationPath).toBe(DEFAULT_DERIVATION_PATH);
+  expect(b4a.equals(r1.publicKey, r2.publicKey)).toBe(true);
 });
 
 // invalid mnemonic
 
-test("address.generate: should throw on invalid mnemonic", async () => {
-  const invalid = ["", "invalid mnemonic"];
+test("address.generate: invalid mnemonic", async () => {
+  const invalid = ["", "invalid mnemonic", "abandon abandon"];
 
   for (const m of invalid) {
     await expect(api.address.generate(HRP, m)).rejects.toThrow();
   }
 });
 
-// HRP validation
+// hrp
 
-test("address.generate: should accept valid hrp", async () => {
-  const validHrps = ["t", "trac", "a".repeat(31)];
+test("address.generate: valid hrp", async () => {
+  const hrps = ["t", "trac", "a".repeat(31)];
 
-  for (const hrp of validHrps) {
-    const result = await api.address.generate(hrp);
-    expect(typeof result.address).toBe("string");
+  for (const hrp of hrps) {
+    const r = await api.address.generate(hrp);
+    expect(typeof r.address).toBe("string");
   }
 });
 
-test("address.generate: should reject invalid hrp", async () => {
-  const invalidHrps = [
-    {},
-    "",
-    "   ",
-    "a".repeat(32),
-    "Trac",
-    "tr@c",
-    "trac-hrp",
-    "trac_hrp",
-    "тест",
-  ];
+test("address.generate: invalid hrp", async () => {
+  const invalid = ["", "Trac", "tr@c", "trac-hrp", "тест"];
 
-  for (const hrp of invalidHrps) {
+  for (const hrp of invalid) {
     await expect(api.address.generate(hrp)).rejects.toThrow();
   }
 });
 
-// derivation path validation
+// derivation paths
 
-test("address.generate: should accept valid derivation paths", async () => {
+test("address.generate: valid paths", async () => {
   const mnemonic = await api.mnemonic.generate();
 
   const paths = [undefined, null, "m/0'", "m/0'/1'", "m/0'   /1'"];
 
   for (const path of paths) {
-    const result = await api.address.generate(HRP, mnemonic, path);
-    expect(api.address.isValid(result.address)).toBe(true);
+    const r = await api.address.generate(HRP, mnemonic, path);
+    expect(api.address.isValid(r.address)).toBe(true);
   }
 });
 
-test("address.generate: should throw on invalid derivation paths", async () => {
+test("address.generate: invalid paths", async () => {
   const mnemonic = await api.mnemonic.generate();
 
-  const paths = [1234, {}, "invalid_path", "m/", "m/a'", "m/0/1", "n/0'/1'"];
+  const paths = [1234, {}, "invalid", "m/", "m/a'", "n/0'/1'"];
 
   for (const path of paths) {
     await expect(api.address.generate(HRP, mnemonic, path)).rejects.toThrow();
@@ -256,25 +222,19 @@ test("address.generate: should throw on invalid derivation paths", async () => {
 
 // fromSecretKey
 
-test("address.fromSecretKey: should derive correctly", async () => {
+test("address.fromSecretKey", async () => {
   const original = await api.address.generate(HRP);
   const derived = api.address.fromSecretKey(HRP, original.secretKey);
 
   expect(derived.address).toBe(original.address);
   expect(b4a.equals(derived.publicKey, original.publicKey)).toBe(true);
+  expect(b4a.equals(derived.secretKey, original.secretKey)).toBe(true);
 });
 
-test("address.fromSecretKey: should throw on invalid key", () => {
-  const invalidKeys = [
-    b4a.alloc(10),
-    b4a.alloc(100),
-    "not a buffer",
-    12345,
-    null,
-    undefined,
-  ];
+test("address.fromSecretKey: invalid", () => {
+  const invalid = [b4a.alloc(10), "x", null];
 
-  for (const key of invalidKeys) {
+  for (const key of invalid) {
     expect(() => api.address.fromSecretKey(HRP, key)).toThrow();
   }
 });

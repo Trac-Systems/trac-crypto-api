@@ -13,12 +13,14 @@ if (isBare) {
   global.TextDecoder = util.TextDecoder;
 }
 
-if (typeof location === "undefined") {
-  globalThis.location = { href: "" };
-}
+if (isBrowser) {
+  if (typeof location === "undefined") {
+    globalThis.location = { href: "" };
+  }
 
-if (typeof document === "undefined") {
-  globalThis.document = { currentScript: { src: "" } };
+  if (typeof document === "undefined") {
+    globalThis.document = { currentScript: { src: "" } };
+  }
 }
 
 // ===== MODULES =====
