@@ -47,10 +47,11 @@ try {
   sodium = require("sodium-universal");
 } catch {}
 
-// ===== BASE EXPORT =====
+// ===== BASE =====
 const sign = signature.sign;
 
-const api = {
+// ===== EXPORT OBJECT =====
+const exported = {
   address,
   hash,
   mnemonic,
@@ -60,30 +61,17 @@ const api = {
   transaction,
   operation,
   sign,
+
+  // node/base
+  data,
+  MAINNET_ID: constants.TRAC_NETWORK_MAINNET_ID,
+  TESTNET_ID: constants.TRAC_NETWORK_TESTNET_ID,
 };
 
-// ===== NODE EXPORTS =====
-api.data = data;
-api.MAINNET_ID = constants.TRAC_NETWORK_MAINNET_ID;
-api.TESTNET_ID = constants.TRAC_NETWORK_TESTNET_ID;
-
-// ===== BROWSER / RN EXPORTS =====
+// ===== BROWSER / RN EXTENSIONS =====
 if (isBrowser || isRN) {
-  if (b4a) api.b4a = b4a;
-  if (sodium) api.sodium = sodium;
+  if (b4a) exported.b4a = b4a;
+  if (sodium) exported.sodium = sodium;
 }
 
-module.exports = api;
-
-module.exports.address = api.address;
-module.exports.hash = api.hash;
-module.exports.mnemonic = api.mnemonic;
-module.exports.nonce = api.nonce;
-module.exports.signature = api.signature;
-module.exports.data = api.data;
-module.exports.utils = api.utils;
-module.exports.transaction = api.transaction;
-module.exports.operation = api.operation;
-module.exports.sign = api.sign;
-module.exports.MAINNET_ID = api.MAINNET_ID;
-module.exports.TESTNET_ID = api.TESTNET_ID;
+module.exports = exported;
