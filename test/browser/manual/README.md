@@ -126,9 +126,3 @@ console.log(sanitized);
 | data        | ✅   | ✅      | ✅           |
 | transaction | ✅   | ✅      | ✅           |
 | operation   | ✅   | ✅      | ✅           |
-
----
-
-## License
-
-ISC
