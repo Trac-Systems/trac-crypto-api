@@ -2,6 +2,22 @@ import js from "@eslint/js";
 import globals from "globals";
 import {defineConfig} from "eslint/config";
 
+const jestGlobals = {
+    beforeAll: "readonly",
+    beforeEach: "readonly",
+    afterAll: "readonly",
+    afterEach: "readonly",
+    describe: "readonly",
+    expect: "readonly",
+    fit: "readonly",
+    it: "readonly",
+    jest: "readonly",
+    test: "readonly",
+    xdescribe: "readonly",
+    xit: "readonly",
+    xtest: "readonly"
+};
+
 export default defineConfig([
     {
         ignores: [
@@ -50,6 +66,17 @@ export default defineConfig([
             "require-yield": "error",
             "use-isnan": "error",
             "valid-typeof": "error",
+        }
+    },
+    {
+        files: ["test/browser/**/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+                ...jestGlobals,
+                fail: "readonly"
+            }
         }
     },
 ]);

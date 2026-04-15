@@ -1,12 +1,12 @@
 const test = require('brittle');
 
 function runTests() {
-  test.pause();
+    test.pause();
 
-  require('./encoding.test.js');
-  require('./generate.test.js');
+    require('./encoding.test.js');
+    require('./generate.test.js');
 
-  test.resume();
+    test.resume();
 }
 
 runTests();
