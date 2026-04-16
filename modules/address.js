@@ -1,12 +1,8 @@
 const mnemonicUtils = require("./mnemonic.js");
 const { bech32m } = require("bech32");
 const b4a = require("b4a");
-const {
-  TRAC_PUB_KEY_SIZE,
-  TRAC_PRIV_KEY_SIZE,
-  NULL_BUFFER,
-} = require("../constants.js");
-const runtime = require("./runtime.js");
+const { TRAC_PUB_KEY_SIZE, TRAC_PRIV_KEY_SIZE, NULL_BUFFER } = require("../constants.js");
+const runtime = require('./runtime.js');
 
 // Note: The HRP size limit is 83 characters according to BIP-173,
 // but we enforce a more restrictive limit of 31 characters here
@@ -45,9 +41,7 @@ function loadSLIP10Node() {
     SLIP10Node = require("@metamask/key-tree").SLIP10Node;
     return SLIP10Node;
   } catch (err) {
-    throw new Error(
-      `[trac-crypto-api] Failed to load @metamask/key-tree: ${err.message}`,
-    );
+    throw new Error(`[trac-crypto-api] Failed to load @metamask/key-tree: ${err.message}`);
   }
 }
 
@@ -58,11 +52,7 @@ function loadSLIP10Node() {
  */
 function _isValidHrp(hrp) {
   // HRP must be a non-empty string with length between 1 and HRP_SIZE_LIMIT characters
-  if (
-    typeof hrp !== "string" ||
-    hrp.length < 1 ||
-    hrp.length > HRP_SIZE_LIMIT
-  ) {
+  if (typeof hrp !== 'string' || hrp.length < 1 || hrp.length > HRP_SIZE_LIMIT) {
     return false;
   }
   // HRP must consist of printable lower-case ASCII characters (33-126)
@@ -78,14 +68,12 @@ function _isValidHrp(hrp) {
 
 function _validateHrp(hrp) {
   if (!_isValidHrp(hrp)) {
-    throw new Error(
-      `Invalid HRP. It must be a non-empty string with length between 1 and ${HRP_SIZE_LIMIT} characters, consisting of lowercase characters a-z.`,
-    );
+    throw new Error(`Invalid HRP. It must be a non-empty string with length between 1 and ${HRP_SIZE_LIMIT} characters, consisting of lowercase characters a-z.`);
   }
 }
 
 /**
- * Validates a BIP32-style derivation path string (e.g. "m/0'/1'/2'") and assembles
+ * Validates a BIP32-style derivation path string (e.g. "m/0'/1'/2'") and assembles 
  * an array of SLIP-10 path segments.
  * @param {string} path - The BIP32-style derivation path string to validate.
  * @returns {string[]} Array of SLIP-10 path segments.
@@ -93,34 +81,32 @@ function _validateHrp(hrp) {
  */
 function _sanitizeDerivationPath(path) {
   // Validate input type
-  if (typeof path !== "string") {
-    throw new TypeError("Derivation path must be a string");
+  if (typeof path !== 'string') {
+    throw new TypeError('Derivation path must be a string');
   }
   // Remove all spaces from the input path
-  path = path.replace(/\s+/g, "");
+  path = path.replace(/\s+/g, '');
 
   // Must start with 'm/'
-  // Observation: Although 'm' is not necessary for SLIP-10,
-  // we enforce it for clarity and consistency with BIP32
-  if (!path.startsWith("m/")) {
+  // Observation: Although 'm' is not necessary for SLIP-10, 
+  // enforce it for clarity and consistency with BIP32
+  if (!path.startsWith('m/')) {
     throw new Error("Derivation path must start with 'm/'");
   }
 
   // Disallow empty and invalid segments
-  const segments = path.split("/").map((seg) => seg.trim());
+  const segments = path.split('/').map(seg => seg.trim());
   segments.shift(); // Remove initial 'm' and process segments separately
 
   if (segments.length < 1) {
-    throw new Error("Derivation path must have at least one child segment");
+    throw new Error('Derivation path must have at least one child segment');
   }
 
   const segmentRegex = /^\d+'$/;
   let slip10Segments = [];
   for (const seg of segments) {
     if (!segmentRegex.test(seg)) {
-      throw new Error(
-        `Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`,
-      );
+      throw new Error(`Invalid segment: '${seg}'. Only hardened segments (e.g. 0') are supported.`);
     }
     slip10Segments.push(`slip10:${seg}`);
   }
@@ -136,11 +122,7 @@ function _sanitizeDerivationPath(path) {
  * @param {string} [path] - Optional derivation path. Defaults to "m/918'/0'/0'/0'".
  * @returns {Promise<{publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the public key, secret key, and mnemonic used.
  */
-async function _generateKeyPair(
-  masterPathSegments,
-  mnemonic = null,
-  path = null,
-) {
+async function _generateKeyPair(masterPathSegments, mnemonic = null, path = null) {
   const node = loadSLIP10Node();
 
   let safeMnemonic;
@@ -160,7 +142,7 @@ async function _generateKeyPair(
   }
 
   const masterNode = await node.fromDerivationPath({
-    curve: "ed25519",
+    curve: 'ed25519',
     derivationPath: masterPath,
   });
 
@@ -174,21 +156,14 @@ async function _generateKeyPair(
   // More info here:
   // https://libsodium.gitbook.io/doc/public-key_cryptography/public-key_signatures#generating-a-new-signing-key-pair
   const publicKey = b4a.from(childNode.publicKeyBytes.subarray(1)); // Remove compressed public key prefix byte (always 0x00)
-  const secretKey = b4a.concat([
-    b4a.from(childNode.privateKeyBytes),
-    publicKey,
-  ]);
+  const secretKey = b4a.concat([b4a.from(childNode.privateKeyBytes), publicKey]);
 
   // Sanity checks. Maybe not necessary, but better safe than sorry.
   if (publicKey.length !== TRAC_PUB_KEY_SIZE) {
-    throw new Error(
-      `Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`,
-    );
+    throw new Error(`Derived public key has invalid length. Expected ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`);
   }
   if (secretKey.length !== TRAC_PRIV_KEY_SIZE) {
-    throw new Error(
-      `Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`,
-    );
+    throw new Error(`Derived secret key has invalid length. Expected ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`);
   }
 
   return {
@@ -210,8 +185,8 @@ async function _generateKeyPair(
 function isValid(address) {
   const _separateHrp = (address) => {
     let ret = { prefix: null, suffix: null };
-    if (typeof address === "string") {
-      const separatorIndex = address.indexOf("1");
+    if (typeof address === 'string') {
+      const separatorIndex = address.indexOf('1');
       if (separatorIndex > -1) {
         ret.prefix = address.slice(0, separatorIndex);
         ret.suffix = address.slice(separatorIndex + 1);
@@ -224,13 +199,11 @@ function isValid(address) {
   const { prefix, suffix } = _separateHrp(address);
   const suffixLength = Math.ceil((TRAC_PUB_KEY_SIZE * 8) / 5) + 6; // Data part + checksum
 
-  return (
-    typeof prefix === "string" &&
-    typeof suffix === "string" &&
+  return typeof prefix === 'string' &&
+    typeof suffix === 'string' &&
     _isValidHrp(prefix) &&
     bech32Chars.test(suffix) &&
-    suffix.length === suffixLength
-  );
+    suffix.length === suffixLength;
 }
 
 /**
@@ -240,16 +213,16 @@ function isValid(address) {
  */
 function toBuffer(address) {
   if (!isValid(address)) {
-    throw new Error("Invalid address");
+    throw new Error('Invalid address');
   }
-  return b4a.from(address, "ascii");
+  return b4a.from(address, 'ascii');
 }
 
 function fromBuffer(buffer) {
   if (!b4a.isBuffer(buffer)) {
-    throw new Error("Invalid input: buffer must be a Buffer");
+    throw new Error('Invalid input: buffer must be a Buffer');
   }
-  return buffer.toString("ascii");
+  return buffer.toString('ascii');
 }
 
 /**
@@ -263,7 +236,7 @@ function encode(hrp, publicKey) {
   _validateHrp(hrp);
   if (!b4a.isBuffer(publicKey) || publicKey.length !== TRAC_PUB_KEY_SIZE) {
     throw new Error(
-      `Invalid public key. Expected a Buffer of length ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`,
+      `Invalid public key. Expected a Buffer of length ${TRAC_PUB_KEY_SIZE}, got ${publicKey.length}`
     );
   }
   const words = bech32m.toWords(publicKey);
@@ -281,7 +254,7 @@ function decode(address) {
   const buffer = b4a.from(bech32m.fromWords(words));
   if (buffer.length !== TRAC_PUB_KEY_SIZE) {
     throw new Error(
-      `Decoded buffer is invalid. Expected ${TRAC_PUB_KEY_SIZE} bytes, got ${buffer.length} bytes`,
+      `Decoded buffer is invalid. Expected ${TRAC_PUB_KEY_SIZE} bytes, got ${buffer.length} bytes`
     );
   }
   return buffer;
@@ -314,6 +287,7 @@ function canDecode(address) {
   }
 }
 
+
 /**
  * @async
  * Generates a new keypair and address.
@@ -324,12 +298,8 @@ function canDecode(address) {
  */
 async function generate(hrp, mnemonic = null, derivationPath = null) {
   _validateHrp(hrp);
-  const masterPathSegments = b4a.from(hrp, "utf8"); // The master path segments used in address generation are derived from the HRP
-  const keypair = await _generateKeyPair(
-    masterPathSegments,
-    mnemonic,
-    derivationPath,
-  );
+  const masterPathSegments = b4a.from(hrp, 'utf8'); // The master path segments used in address generation are derived from the HRP
+  const keypair = await _generateKeyPair(masterPathSegments, mnemonic, derivationPath);
   const address = encode(hrp, keypair.publicKey);
   return {
     address,
@@ -350,7 +320,7 @@ async function generate(hrp, mnemonic = null, derivationPath = null) {
 function fromSecretKey(hrp, secretKey) {
   if (!b4a.isBuffer(secretKey) || secretKey.length !== TRAC_PRIV_KEY_SIZE) {
     throw new Error(
-      `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`,
+      `Invalid secret key. Expected a Buffer of length ${TRAC_PRIV_KEY_SIZE}, got ${secretKey.length}`
     );
   }
   const publicKey = secretKey.subarray(32); // The public key is the last 32 bytes of the 64-byte secret key
@@ -364,9 +334,7 @@ function fromSecretKey(hrp, secretKey) {
 
 function size(hrp) {
   if (!_isValidHrp(hrp)) {
-    throw new Error(
-      "Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.",
-    );
+    throw new Error('Invalid HRP. It must be a non-empty string with length between 1 and 83 characters, consisting of printable ASCII characters.');
   }
   const hrpSize = hrp.length;
   const separatorSize = 1; // The '1' character separating HRP and data part
@@ -392,5 +360,5 @@ module.exports = {
   PRIV_KEY_SIZE: TRAC_PRIV_KEY_SIZE,
   MAINNET_DERIVATION_PATH,
   TESNET_DERIVATION_PATH,
-  DEFAULT_DERIVATION_PATH,
+  DEFAULT_DERIVATION_PATH
 };
