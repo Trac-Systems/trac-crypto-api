@@ -318,7 +318,8 @@ function canDecode(address) {
  * @async
  * Generates a new keypair and address.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
- * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
+ * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a random one is generated.
+ * @param {string} [derivationPath] - Optional derivation path. if not provided, the default derivation path for mainnet is used.
  * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string, derivationPath: string}>} Resolves to an object containing the address, public key, secret key, mnemonic and derivationPath used.
  */
 async function generate(hrp, mnemonic = null, derivationPath = null) {
