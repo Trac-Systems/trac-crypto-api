@@ -5,7 +5,8 @@ const HRP = 'trac';
 const PATH1 = "m/0'/1'/2'";
 const PATH2 = "m/0'/1'/10000000'";
 
-const mnemonic12Words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+const mnemonic12Words = 'army van defense carry jealous true garbage claim echo media make crunch';
+const mnemonic24Words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art';
 const DEFAULT_DERIVATION_PATH = "m/918'/0'/0'/0'";
 
 test('address is on window', () => {
@@ -317,4 +318,27 @@ test('address.fromSecretKey: invalid', () => {
     for (const key of invalid) {
         expect(() => api.address.fromSecretKey(HRP, key)).toThrow();
     }
+});
+
+test('mnemonic.generate: should produce valid 12 or 24 words', async () => {
+    const mnemonic = await api.mnemonic.generate();
+
+    expect(typeof mnemonic).toBe('string');
+
+    const words = mnemonic.trim().split(/\s+/);
+    expect([12, 24]).toContain(words.length);
+
+    // sanity: can generate address
+    const r = await api.address.generate(HRP, mnemonic, PATH1);
+    expect(api.address.isValid(r.address)).toBe(true);
+});
+
+test('address.generate: deterministic (24 words)', async () => {
+    const r1 = await api.address.generate(HRP, mnemonic24Words, PATH1);
+    const r2 = await api.address.generate(HRP, mnemonic24Words, PATH1);
+
+    expect(b4a.equals(r1.publicKey, r2.publicKey)).toBe(true);
+    expect(b4a.equals(r1.secretKey, r2.secretKey)).toBe(true);
+    expect(r1.address).toBe(r2.address);
+    expect(r1.mnemonic).toBe(mnemonic24Words);
 });
