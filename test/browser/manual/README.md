@@ -1,128 +1,56 @@
-# TRAC Crypto API
+# TRAC Crypto API – Browser Usage Guide
 
-A lightweight cryptographic toolkit for TRAC, supporting Node.js, Browser, and React Native environments.
-
----
+The **TRAC Crypto API** can be consumed directly in the browser using the pre-bundled distribution we ship under `dist/`.
 
 ## Installation
 
-### Node.js / General
+If you’re consuming this inside another project:
 
 ```bash
 npm install trac-crypto-api
 ```
 
----
+After installation, you’ll find the browser build under:
 
-## Usage
-
-### Node.js
-
-```js
-const trac = require("trac-crypto-api");
-
-const { address } = trac;
-
-(async () => {
-  const wallet = await address.generate("trac");
-  console.log(wallet.address);
-})();
+```bash
+node_modules/trac-crypto-api/dist/
 ```
 
----
+- trac-crypto-api.browser.js → Browser-ready bundle
+- trac-crypto-api.browser.js.map → Source map (optional for debugging)
 
-### Browser
+## Installation
 
-#### Using CDN
+# Global Variable (recommended)
 
-```html
-<script src="https://unpkg.com/trac-crypto-api/dist/trac-crypto-api.browser.js"></script>
+The browser bundle also attaches itself to window.TracCryptoApi:
 
+```bash
+<script src="./node_modules/trac-crypto-api/dist/trac-crypto-api.browser.js"></script>
 <script>
-  async function run() {
+  async function testMnemonic() {
     const phrase = await window.TracCryptoApi.mnemonic.generate();
-    console.log(phrase);
+    console.log("Generated mnemonic:", phrase);
   }
 
-  run();
+  testMnemonic();
 </script>
 ```
 
-#### Using a bundler (Vite, Webpack, Next.js, etc.)
-
-Install the library:
+# Example: Sanitizing a Mnemonic
 
 ```bash
-npm install trac-crypto-api
-```
-
-Then import it:
-
-```js
-import TracCryptoApi from "trac-crypto-api";
-
-const phrase = await TracCryptoApi.mnemonic.generate();
-console.log(phrase);
-```
-
----
-
-### React Native
-
-The library works out of the box in React Native environments.
-
-Simply install it via:
-
-```bash
-yarn add trac-crypto-api
-```
-
-No additional setup is required in most modern React Native projects.
-
----
-
-## Examples
-
-### Generate Mnemonic
-
-```js
-const phrase = await TracCryptoApi.mnemonic.generate();
-```
-
----
-
-### Sanitize Mnemonic
-
-```js
 const phrase = await TracCryptoApi.mnemonic.generate();
 const sabotaged = phrase.replaceAll(" ", "   ").toUpperCase();
-
 const sanitized = await TracCryptoApi.mnemonic.sanitize(sabotaged);
 
-console.log(sanitized);
+console.log("Original:", phrase);
+console.log("Sanitized:", sanitized);
 ```
-
----
 
 ## Notes
 
-- `dist/trac-crypto-api.browser.js` → browser global build
-- `dist/trac-crypto-api.browser.esm.js` → ES module build
-- Source maps are optional and only useful for debugging
-- Cryptographic operations rely on a sodium-compatible implementation internally.
-
----
-
-## Environment Support
-
-| Feature     | Node | Browser | React Native |
-| ----------- | ---- | ------- | ------------ |
-| address     | ✅   | ✅      | ✅           |
-| mnemonic    | ✅   | ✅      | ✅           |
-| hash        | ✅   | ✅      | ✅           |
-| nonce       | ✅   | ✅      | ✅           |
-| signature   | ✅   | ✅      | ✅           |
-| utils       | ✅   | ✅      | ✅           |
-| data        | ✅   | ✅      | ✅           |
-| transaction | ✅   | ✅      | ✅           |
-| operation   | ✅   | ✅      | ✅           |
+- trac-crypto-api.browser.js is the only file required to use the library in browsers.
+- Use the \*.map file only if you want better debugging in dev tools.
+- For modern browsers and frameworks, prefer the ES module import (<script type="module">).
+- For quick tests or legacy pages, use the global window.TracCryptoApi.
