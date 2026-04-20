@@ -1,12 +1,9 @@
-require('./patches/sodiumPBKDF2.js')(); // SODIUM PATCH (browser only, async PBKDF2)
-const runtime = require('./modules/runtime.js');
 const util = require('util');
 
 // ===== ENV DETECTION =====
-const isBare = runtime.isBare();
+const isBare = require('./modules/runtime.js').isBare();
 const isBrowser = typeof window !== 'undefined';
-const isRN =
-    typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+const isRN = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
 
 // ===== POLYFILLS =====
 if (isBare) {
@@ -14,15 +11,10 @@ if (isBare) {
     global.TextDecoder = util.TextDecoder;
 }
 
-if (isBrowser) {
-    if (typeof location === 'undefined') {
-        globalThis.location = { href: '' };
-    }
+// ===== COMPATIBILITY LAYER =====
+if (isBrowser || isRN) require('./modules/compat/sodium').ensureSodiumCompat(); // PBKDF2 ON SODIUM
+if (isBrowser) require('./modules/compat/dom').ensureDOMCompat(); // DOM COMPATIBILITY (ONLY FOR BROWSER)
 
-    if (typeof document === 'undefined') {
-        globalThis.document = { currentScript: { src: '' } };
-    }
-}
 
 // ===== MODULES =====
 const address = require('./modules/address.js');
