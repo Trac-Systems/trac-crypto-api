@@ -23,7 +23,7 @@ test('hash module is on window', () => {
 
 // ===== BLAKE3 =====
 
-test('hash.blake3: Uint8Array input', async () => {
+test("hash.blake3: should compute Blake3 hash of an Uint8Array", async () => {
     const digest = await hash.blake3(MESSAGE_UINT8);
 
     expect(b4a.isBuffer(digest)).toBe(true);
@@ -31,13 +31,13 @@ test('hash.blake3: Uint8Array input', async () => {
     expect(b4a.equals(digest, b4a.from(BLAKE3_DIGEST, 'hex'))).toBe(true);
 });
 
-test('hash.blake3: invalid input', async () => {
+test("hash.blake3: should throw for invalid input", async () => {
     await expect(hash.blake3(MESSAGE))
         .rejects
         .toThrow('Invalid input: must be a Buffer or Uint8Array');
 });
 
-test('hash.blake3Safe: invalid input', async () => {
+test("hash.blake3Safe: should not throw for invalid input", async () => {
     const digest = await hash.blake3Safe(MESSAGE);
 
     expect(b4a.isBuffer(digest)).toBe(true);
@@ -46,7 +46,7 @@ test('hash.blake3Safe: invalid input', async () => {
 
 // ===== SHA256 =====
 
-test('hash.sha256: Uint8Array input', () => {
+test("hash.sha256: should compute SHA-256 hash of a Uint8Array", () => {
     const digest = hash.sha256(MESSAGE_UINT8);
 
     expect(b4a.isBuffer(digest)).toBe(true);
@@ -54,12 +54,12 @@ test('hash.sha256: Uint8Array input', () => {
     expect(b4a.equals(digest, b4a.from(SHA256_DIGEST, 'hex'))).toBe(true);
 });
 
-test('hash.sha256: invalid input', () => {
+test("hash.sha256: should throw for invalid input", async () => {
     expect(() => hash.sha256(MESSAGE))
         .toThrow('Invalid input: must be a Buffer or Uint8Array');
 });
 
-test('hash.sha256Safe: invalid input', async () => {
+test("hash.sha256Safe: should not throw for invalid input", async () => {
     const digest = await hash.sha256Safe(MESSAGE);
 
     expect(b4a.isBuffer(digest)).toBe(true);
