@@ -222,7 +222,8 @@ function fromBuffer(buffer) {
   if (!b4a.isBuffer(buffer)) {
     throw new Error('Invalid input: buffer must be a Buffer');
   }
-  return buffer.toString('ascii');
+
+  return b4a.toString(buffer, 'ascii');
 }
 
 /**
