@@ -1,6 +1,10 @@
 export default {
-    testEnvironment: 'jsdom',
-    setupFiles: ['./polyfills.js'], // Runs first, in the Node environment
-    setupFilesAfterEnv: ['./setupTests.js'], // Runs second, after JSDOM is ready
-    testMatch: ['**/*.test.js']
+  testEnvironment: 'jsdom',
+  setupFiles: ['./polyfills.js'],
+  setupFilesAfterEnv: ['./setupTests.js'],
+  testMatch: ['**/*.test.js'],
+
+  moduleNameMapper: {
+    'b4a': 'b4a/browser.js'
+  }
 };

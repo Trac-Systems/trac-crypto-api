@@ -1,6 +1,5 @@
 const api = window.TracCryptoApi;
 const b4a = window.b4a;
-
 const OP_TYPE_TRANSFER = 13;
 const TRAC_VALIDITY_SIZE_BYTES = 32;
 const TRAC_TOKEN_AMOUNT_SIZE_BYTES = 16;
@@ -37,12 +36,11 @@ test('transaction is on window', () => {
     expect(api.transaction).toBeDefined();
 });
 
-test('transaction: preBuild should work correctly', async () => {
+test('transaction.preBuild: should generate an unsigned transaction message', async () => {
     const fromKeyPair = await api.address.generate('trac');
     const toKeyPair = await api.address.generate('trac');
     const amount = '1000';
     const validity = b4a.toString(randomBuf(TRAC_VALIDITY_SIZE_BYTES), 'hex');
-
     const txData = await api.transaction.preBuild(fromKeyPair.address, toKeyPair.address, amount, validity);
 
     expect(txData).toBeDefined();
@@ -57,28 +55,45 @@ test('transaction: preBuild should work correctly', async () => {
     expect(txData.networkId).toBe(TRAC_NETWORK_MAINNET_ID);
 });
 
-test('transaction.build: should produce valid payload', async () => {
+test('transaction.build: should finalize a pre built transaction message', async () => {
+    const amount = '1000';
     const fromKeyPair = await api.address.generate('trac');
     const toKeyPair = await api.address.generate('trac');
-    const txData = await api.transaction.preBuild(fromKeyPair.address, toKeyPair.address, '1000', b4a.toString(randomBuf(TRAC_VALIDITY_SIZE_BYTES), 'hex'));
-    const payload = api.transaction.build(txData, new Uint8Array(fromKeyPair.secretKey)
-);
+    const txData = await api.transaction.preBuild(
+        fromKeyPair.address, 
+        toKeyPair.address, 
+        amount, 
+        b4a.toString(randomBuf(TRAC_VALIDITY_SIZE_BYTES), 'hex')
+    );
+    const payload = api.transaction.build(txData, fromKeyPair.secretKey);
 
     expect(payload).toBeDefined();
     expect(typeof payload).toBe('string');
 
-    const decoded = b4a.from(payload, 'base64');
+    const decodedPayload = b4a.from(payload, 'base64');
+    expect(decodedPayload.length).toBeGreaterThan(0);
 
-    expect(decoded.length).toBeGreaterThan(0);
+    const data = JSON.parse(b4a.toString(decodedPayload, "utf-8"));
+    expect(data).toBeDefined();
+    expect(data.tro).toBeDefined();
+    expect(data.type).toBe(OP_TYPE_TRANSFER);
+    expect(data.address).toBe(fromKeyPair.address);
+    expect(data.tro).toBeDefined();
+    expect(api.utils.isHexString(data.tro.tx)).toBe(true);
+    expect(data.tro.tx).toBe(b4a.toString(txData.hash, "hex"));
+    expect(data.tro.to).toBe(toKeyPair.address);
+    expect(data.tro.am).toBe(txData.amount);
+    expect(data.tro.txv).toBe(txData.validity);
+    expect(api.utils.isHexString(data.tro.in)).toBe(true);
+    expect(data.tro.in).toBe(b4a.toString(txData.nonce, "hex"));
+    expect(data.tro.is).toBeDefined();
+    expect(data.tro.is.length).toBe(128);
+    
+    const isValid = api.signature.verify(
+        b4a.from(data.tro.is, 'hex'), 
+        b4a.from(data.tro.tx, 'hex'), 
+        fromKeyPair.publicKey
+    );
 
-    let parsed;
-    try {
-        parsed = JSON.parse(decoded.toString('utf-8'));
-    } catch (_) {}
-
-    if (parsed && parsed.tro) {
-        const isValid = api.signature.verify(b4a.from(parsed.tro.is, 'hex'), b4a.from(parsed.tro.tx, 'hex'), fromKeyPair.publicKey);
-
-        expect(isValid).toBe(true);
-    }
+    expect(isValid).toBe(true);
 });

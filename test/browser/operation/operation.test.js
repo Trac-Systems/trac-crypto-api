@@ -23,7 +23,7 @@ test('operation is on window', () => {
     expect(api.operation).toBeDefined();
 });
 
-test('operation: preBuild should work correctly', async () => {
+test('operation: preBuild should create a valid operation data object', async () => {
     const fromKeyPair = await api.address.generate('trac');
 
     const validator = b4a.toString(randomBuf(32), 'hex');
@@ -82,7 +82,7 @@ test('operation.build: should produce valid payload', async () => {
 
     const payload = api.operation.build(
         txData,
-        new Uint8Array(fromKeyPair.secretKey)
+        fromKeyPair.secretKey
     );
 
     expect(payload).toBeDefined();

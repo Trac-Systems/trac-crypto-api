@@ -6,3 +6,10 @@ window.sodium = sodium;
 
 const TracCryptoApi = require('trac-crypto-api');
 window.TracCryptoApi = TracCryptoApi;
+
+
+const original = global.process;
+Object.defineProperty(global, 'process', {
+  value: undefined,
+  configurable: true
+});

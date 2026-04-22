@@ -10,14 +10,14 @@ test('b4a is on window', () => {
 });
 
 test('memzero: should zero out a buffer', () => {
-    const buf = new Uint8Array(b4a.from('hello world'));
+    const buf = b4a.from('hello world');
 
     api.utils.memzero(buf);
 
     expect([...buf].every((byte) => byte === 0)).toBe(true);
 });
 
-test('memzero: should not change non-buffer', () => {
+test('memzero: should not change a non-buffer object in the browser', () => {
     const nonBuffer = { a: 1, b: 'test' };
     const original = JSON.stringify(nonBuffer);
 
@@ -26,8 +26,8 @@ test('memzero: should not change non-buffer', () => {
     expect(JSON.stringify(nonBuffer)).toBe(original);
 });
 
-test('toUInt32: should convert number to buffer', () => {
-    const num = 16909060;
+test('toUInt32: should convert a number to a 4-byte big-endian buffer', () => {
+    const num = 16909060; // 0x01020304
     const buf = api.utils.toUInt32(num, 0);
 
     expect(b4a.isBuffer(buf)).toBe(true);
@@ -35,7 +35,7 @@ test('toUInt32: should convert number to buffer', () => {
     expect(b4a.equals(buf, b4a.from([1, 2, 3, 4]))).toBe(true);
 });
 
-test('isUInt32: validation', () => {
+test('isUInt32: should validate if a number is a valid uint32', () => {
     expect(api.utils.isUInt32(1)).toBe(true);
     expect(api.utils.isUInt32(4294967295)).toBe(true);
     expect(api.utils.isUInt32(0)).toBe(true);
@@ -45,7 +45,7 @@ test('isUInt32: validation', () => {
     expect(api.utils.isUInt32('string')).toBe(false);
 });
 
-test('isHexString: validation', () => {
+test('isHexString: should validate if a string is a valid hex string', () => {
     expect(api.utils.isHexString('abcdef123456')).toBe(true);
     expect(api.utils.isHexString('ABCDEF123456')).toBe(true);
     expect(api.utils.isHexString('xyz123')).toBe(false);
@@ -55,9 +55,9 @@ test('isHexString: validation', () => {
 });
 
 test('serialize: should serialize buffers and uint32', () => {
-    const buf1 = new Uint8Array([1, 2, 3]);
-    const num = 16909060;
-    const buf2 = new Uint8Array([5, 6, 7, 8]);
+    const buf1 = b4a.from([1, 2, 3]);
+    const num = 16909060; // 0x01020304
+    const buf2 = b4a.from([5, 6, 7, 8]);
 
     const serialized = api.utils.serialize(buf1, num, buf2);
 
@@ -67,48 +67,56 @@ test('serialize: should serialize buffers and uint32', () => {
     expect(b4a.equals(normalized, b4a.from([1, 2, 3, 1, 2, 3, 4, 5, 6, 7, 8]))).toBe(true);
 });
 
-test('serialize: should throw on invalid args', () => {
-    const buf = new Uint8Array([1, 2, 3]);
-    const invalidArgs = ['string', {}, null, undefined, 3.14, -1, 4294967296];
+test('serialize: should throw error on invalid argument types', () => {
+    const buf = b4a.from([1, 2, 3]);
+    const invalidArgs = [
+        'string', 
+        {}, 
+        null, 
+        undefined, 
+        3.14, 
+        -1, 
+        4294967296
+    ];
 
     for (const arg of invalidArgs) {
         expect(() => api.utils.serialize(buf, arg)).toThrow();
     }
 });
 
-test('toBase64: should convert object to base64', () => {
-    const obj = { foo: 'bar', num: 42, hex: '1234567890abcdef' };
+test('toBase64: should convert an object to a base64 string', () => {
+    const obj = { 
+        foo: 'bar', 
+        num: 42, 
+        hex: '1234567890abcdef' 
+    };
     const base64 = api.utils.toBase64(obj);
     expect(typeof base64).toBe('string');
 
-    // NOTE: output is not guaranteed to be JSON-encoded in browser build
-    const decoded = b4a.from(base64, 'base64');
-
-    let parsed;
-    try {
-        parsed = JSON.parse(decoded.toString('utf-8'));
-    } catch (_) {}
-
-    if (parsed) {
-        expect(parsed.foo).toBe(obj.foo);
-        expect(parsed.num).toBe(obj.num);
-        expect(parsed.hex).toBe(obj.hex);
-    }
+    const decoded = JSON.parse(b4a.toString(b4a.from(base64, 'base64'), 'utf-8'));
+    expect(decoded.foo).toBe(obj.foo);
+    expect(decoded.num).toBe(obj.num);
+    expect(decoded.hex).toBe(obj.hex);
 });
 
 test('toBase64: should throw on invalid input', () => {
-    const invalidInputs = ['string', 123, null, undefined];
+    const invalidInputs = [
+        'string', 
+        123, 
+        null, 
+        undefined
+    ];
 
     for (const input of invalidInputs) {
         expect(() => api.utils.toBase64(input)).toThrow();
     }
 });
 
-test('toHexString: buffer → hex', () => {
+test('buffer to hex string conversion', () => {
     const { toHexString } = api.utils;
 
-    const sixteen = Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef]);
-    const eight = Uint8Array.from([0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef]);
+    const sixteen = b4a.from([0, 0, 0, 0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef]);
+    const eight = b4a.from([0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef]);
 
     expect(toHexString(sixteen)).toBe('00000000000000001234567890abcdef');
     expect(toHexString(eight)).toBe('1234567890abcdef');

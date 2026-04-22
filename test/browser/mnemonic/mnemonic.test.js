@@ -68,13 +68,11 @@ test('mnemonic.sanitize: should return null for invalid mnemonic', () => {
     expect(mnemonic.sanitize('invalid mnemonic phrase')).toBe(null);
 });
 
-// browser constraint
-
 test('mnemonic.toSeed: should convert mnemonic to seed', async () => {
     const phrase = mnemonic.generate();
     const seed = await mnemonic.toSeed(phrase);
 
-    expect(seed instanceof Uint8Array).toBe(true);
+    expect(b4a.isBuffer(seed)).toBe(true);
     expect(seed.length).toBeGreaterThan(0);
 });
 
