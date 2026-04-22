@@ -10,7 +10,7 @@ function isBare() {
 }
 
 function isBrowser() {
-    return typeof window !== 'undefined' && typeof window.document !== 'undefined'
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined';
 }
 
 module.exports = {

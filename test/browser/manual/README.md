@@ -52,5 +52,8 @@ console.log("Sanitized:", sanitized);
 
 - trac-crypto-api.browser.js is the only file required to use the library in browsers.
 - Use the \*.map file only if you want better debugging in dev tools.
-- For modern browsers and frameworks, prefer the ES module import (<script type="module">).
 - For quick tests or legacy pages, use the global window.TracCryptoApi.
+- For modern browsers and frameworks, prefer the ES module import:
+```bash
+<script type="module">
+```

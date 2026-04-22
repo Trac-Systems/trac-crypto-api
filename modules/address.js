@@ -89,7 +89,7 @@ function _sanitizeDerivationPath(path) {
 
   // Must start with 'm/'
   // Observation: Although 'm' is not necessary for SLIP-10, 
-  // we enforce it for clarity and consistency with BIP32
+  // enforce it for clarity and consistency with BIP32
   if (!path.startsWith('m/')) {
     throw new Error("Derivation path must start with 'm/'");
   }
@@ -222,7 +222,8 @@ function fromBuffer(buffer) {
   if (!b4a.isBuffer(buffer)) {
     throw new Error('Invalid input: buffer must be a Buffer');
   }
-  return buffer.toString('ascii');
+
+  return b4a.toString(buffer, 'ascii');
 }
 
 /**
@@ -292,8 +293,9 @@ function canDecode(address) {
  * @async
  * Generates a new keypair and address.
  * @param {string} hrp - The human-readable part (HRP) for the address (prefix).
- * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a new one is generated.
- * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string}>} Resolves to an object containing the address, public key, secret key, and mnemonic used.
+ * @param {string} [mnemonic] - Optional BIP39 mnemonic phrase. If not provided, a random one is generated.
+ * @param {string} [derivationPath] - Optional derivation path. if not provided, the default derivation path for mainnet is used.
+ * @returns {Promise<{address: string, publicKey: Buffer, secretKey: Buffer, mnemonic: string, derivationPath: string}>} Resolves to an object containing the address, public key, secret key, mnemonic and derivationPath used.
  */
 async function generate(hrp, mnemonic = null, derivationPath = null) {
   _validateHrp(hrp);

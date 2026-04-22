@@ -1,3 +1,5 @@
+// NOTE: this test is using Uint8Array becasue we don't have env tests for blake3
+
 const test = require("brittle");
 const hash = require("../../../modules/hash.js");
 const b4a = require("b4a");
