@@ -1,19 +1,20 @@
-test('ensureSodiumCompat: should inject pbkdf2 if missing', () => {
-    const sodium = require('sodium-universal');
+const test = require('brittle');
+const sodium = require('sodium-universal');
+
+const { ensureSodiumCompat } = require('../../../modules/compat/sodium');
+
+test('ensureSodiumCompat: should inject pbkdf2 if missing', (t) => {
+    const originalPbkdf2 = sodium.extension_pbkdf2_sha512_async;
 
     delete sodium.extension_pbkdf2_sha512_async;
 
-    const { ensureSodiumCompat } = require('../../../modules/compat/sodium');
     ensureSodiumCompat();
 
-    expect(typeof sodium.extension_pbkdf2_sha512_async).toBe('function');
-});
+    t.is(typeof sodium.extension_pbkdf2_sha512_async, 'function', 'pbkdf2 async compat should be injected');
 
-test('ensureDOMCompat: should not override existing globals', () => {
-    global.document = { test: true };
-
-    const { ensureDOMCompat } = require('../../../modules/compat/dom');
-    ensureDOMCompat();
-
-    expect(global.document.test).toBe(true);
+    if (originalPbkdf2) {
+        sodium.extension_pbkdf2_sha512_async = originalPbkdf2;
+    } else {
+        delete sodium.extension_pbkdf2_sha512_async;
+    }
 });

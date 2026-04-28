@@ -63,7 +63,7 @@ test("transaction: should build a valid transaction", async (t) => {
     try {
         data = JSON.parse(b4a.from(payload, "base64").toString("utf-8"));
         t.ok(data, "Payload should be a base64 encoded JSON");
-    } catch (error) {
+    } catch {
         t.fail("Payload is not a base64 encoded JSON");
     }
 
