@@ -1,3 +1,4 @@
+const b4a = require('b4a');
 const api = window.TracCryptoApi;
 const mnemonic = api.mnemonic;
 
