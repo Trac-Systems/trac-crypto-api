@@ -30,7 +30,7 @@ test("address.encode: should throw on invalid public key", () => {
         "not a buffer",
         b4a.alloc(10), // Too short
         b4a.alloc(50)  // Too long
-    ];
+];
 
     for (const key of invalidKeys) {
         expect(() => api.address.encode(HRP, key)).toThrow();
@@ -199,7 +199,7 @@ test("address.generate: should return an error for invalid mnemonic", async () =
         'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about extra',
     ];
 
-    for (const mnemonic of invalidMnemonics) {
+     for (const mnemonic of invalidMnemonics) {
         await expect(api.address.generate(HRP, mnemonic)).rejects.toThrow();
     }
 });
@@ -211,7 +211,7 @@ test("address.generate: should accept valid hrp", async () => {
         'a'.repeat(31)
     ];
 
-    for (const hrp of validHrps) {
+     for (const hrp of validHrps) {
         const result = await api.address.generate(hrp);
         expect(typeof result.address).toBe("string");
         expect(b4a.isBuffer(result.publicKey)).toBe(true);

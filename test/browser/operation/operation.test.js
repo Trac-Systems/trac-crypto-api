@@ -96,9 +96,7 @@ test('operation.build: should produce valid payload', async () => {
     try {
         // NOTE: payload is not guaranteed to be JSON in browser build
         parsed = JSON.parse(decoded.toString('utf-8'));
-    } catch {
-        // Ignore parse failures: browser payloads are not guaranteed to be JSON.
-    }
+    } catch (_) {}
 
     if (parsed && parsed.txo) {
         expect(parsed.type).toBe(OP_TYPE_TX);

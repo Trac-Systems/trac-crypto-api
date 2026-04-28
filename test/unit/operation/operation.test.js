@@ -3,12 +3,7 @@ const api = require("../../../index.js");
 const b4a = require("b4a");
 const sodium = require("sodium-universal");
 
-const {
-    TRAC_VALIDITY_SIZE_BYTES,
-    TRAC_HASH_SIZE,
-    TRAC_NONCE_SIZE,
-    TRAC_NETWORK_MAINNET_ID
-} = require("../../../constants.js");
+const { TRAC_VALIDITY_SIZE_BYTES, TRAC_HASH_SIZE, TRAC_NONCE_SIZE, TRAC_NETWORK_MAINNET_ID } = require("../../../constants.js");
 
 const OP_TYPE_TX = 12;
 
@@ -23,11 +18,6 @@ test("operation: should build a valid operation", async (t) => {
     const fromKeyPair = await api.address.generate("trac");
 
     // Check Pre-Build
-    let validator;
-    let contentHash;
-    let originBootstrap;
-    let destinationBootstrap;
-    let validity;
     const txData = await api.operation.preBuild(
         fromKeyPair.address,
         validator = randomBuf(32).toString("hex"),
@@ -58,7 +48,7 @@ test("operation: should build a valid operation", async (t) => {
     try {
         data = JSON.parse(b4a.from(payload, "base64").toString("utf-8"));
         t.ok(data, "Payload should be a base64 encoded JSON");
-    } catch {
+    } catch (error) {
         t.fail("Payload is not a base64 encoded JSON");
     }
 
@@ -86,18 +76,13 @@ test("operation preBuild: networkId is used in serialization", async (t) => {
     const customNetworkId = 42;
 
     // Check Pre-Build with custom networkId
-    const validator = randomBuf(32).toString("hex");
-    const contentHash = randomBuf(32).toString("hex");
-    const originBootstrap = randomBuf(32).toString("hex");
-    const destinationBootstrap = randomBuf(32).toString("hex");
-    const validity = randomBuf(TRAC_VALIDITY_SIZE_BYTES).toString("hex");
     const txData = await api.operation.preBuild(
         fromKeyPair.address,
-        validator,
-        contentHash,
-        originBootstrap,
-        destinationBootstrap,
-        validity,
+        validator = randomBuf(32).toString("hex"),
+        contentHash = randomBuf(32).toString("hex"),
+        originBootstrap = randomBuf(32).toString("hex"),
+        destinationBootstrap = randomBuf(32).toString("hex"),
+        validity = randomBuf(TRAC_VALIDITY_SIZE_BYTES).toString("hex"),
         customNetworkId
     );
 

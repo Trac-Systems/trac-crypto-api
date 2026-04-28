@@ -29,8 +29,16 @@ const operation = require('./modules/operation.js');
 const constants = require('./constants.js');
 
 // ===== OPTIONAL (browser/RN) =====
-const b4a = require('b4a');
-const sodium = require('sodium-universal');
+let b4a;
+let sodium;
+
+try {
+    b4a = require('b4a');
+} catch {}
+
+try {
+    sodium = require('sodium-universal');
+} catch {}
 
 // ===== BASE =====
 const sign = signature.sign;
@@ -55,8 +63,8 @@ const exported = {
 
 // ===== BROWSER / RN EXTENSIONS =====
 if (isBrowser || isRN) {
-    exported.b4a = b4a;
-    exported.sodium = sodium;
+    if (b4a) exported.b4a = b4a;
+    if (sodium) exported.sodium = sodium;
 }
 
 module.exports = exported;
