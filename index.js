@@ -27,7 +27,10 @@ const utils = require('./modules/utils.js');
 const transaction = require('./modules/transaction.js');
 const operation = require('./modules/operation.js');
 const htlc = require('./modules/htlc.js');
-const constants = require('./constants.js');
+const {
+    TRAC_NETWORK_MAINNET_ID: MAINNET_ID,
+    TRAC_NETWORK_TESTNET_ID: TESTNET_ID
+} = require('./constants.js');
 
 // ===== OPTIONAL (browser/RN) =====
 const b4a = require('b4a');
@@ -37,27 +40,24 @@ const sodium = require('sodium-universal');
 const sign = signature.sign;
 
 // ===== EXPORT OBJECT =====
-const exported = {
+module.exports = {
     address,
     hash,
     mnemonic,
     nonce,
     signature,
+    data,
     utils,
     transaction,
     operation,
     sign,
     htlc,
-    // node/base
-    data,
-    MAINNET_ID: constants.TRAC_NETWORK_MAINNET_ID,
-    TESTNET_ID: constants.TRAC_NETWORK_TESTNET_ID
+    MAINNET_ID,
+    TESTNET_ID
 };
 
 // ===== BROWSER / RN EXTENSIONS =====
 if (isBrowser || isRN) {
-    exported.b4a = b4a;
-    exported.sodium = sodium;
+    module.exports.b4a = b4a;
+    module.exports.sodium = sodium;
 }
-
-module.exports = exported;

@@ -7,7 +7,8 @@
       "react-native": "./dist/trac-crypto-api.rn.js",
       "browser": "./dist/trac-crypto-api.browser.js",
       "default": "./index.js"
-    }
+    },
+    "./constants.js": "./constants.js"
   },
   "files": [
     "index.js",
