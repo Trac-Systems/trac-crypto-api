@@ -26,6 +26,7 @@ const data = require('./modules/data.js');
 const utils = require('./modules/utils.js');
 const transaction = require('./modules/transaction.js');
 const operation = require('./modules/operation.js');
+const htlc = require('./modules/htlc.js');
 const constants = require('./constants.js');
 
 // ===== OPTIONAL (browser/RN) =====
@@ -46,7 +47,7 @@ const exported = {
     transaction,
     operation,
     sign,
-
+    htlc,
     // node/base
     data,
     MAINNET_ID: constants.TRAC_NETWORK_MAINNET_ID,
