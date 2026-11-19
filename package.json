@@ -42,6 +42,10 @@
   "license": "ISC",
   "description": "",
   "imports": {
+    "#key-tree": {
+      "bare": "./modules/key-tree.bare.js",
+      "default": "@metamask/key-tree"
+    },
     "fs": {
       "bare": "bare-fs",
       "default": "fs"
