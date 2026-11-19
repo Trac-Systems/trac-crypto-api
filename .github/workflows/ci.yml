@@ -35,8 +35,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install bare
-        run: npm i -g bare
+      # Stay on 1.28.x due to the async WASM initialization regression in Bare 1.38.0.
+      # Pin bare-runtime too: bare@1.28.7 accepts any runtime version.
+      - name: Install Bare 1.28.7
+        run: |
+          npm i -g bare@1.28.7 bare-runtime@1.28.7
+          bare --version
 
       - name: Run tests
         run: npm run ci:full
