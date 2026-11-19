@@ -25,20 +25,14 @@ function loadSLIP10Node() {
         if (runtime.isBare && runtime.isBare()) {
             // Use eval to hide from bundler (webpack react-native)
             const req = eval("require");
-            const keyTree = req("@metamask/key-tree", {
-                with: { imports: "../package.json" },
-            });
-            SLIP10Node = keyTree.SLIP10Node;
 
             // Polyfill
             const util = req("util");
             globalThis.TextEncoder = util.TextEncoder;
             globalThis.TextDecoder = util.TextDecoder;
-            return SLIP10Node;
         }
 
-        // Browser / RN / Node
-        SLIP10Node = require("@metamask/key-tree").SLIP10Node;
+        SLIP10Node = require("#key-tree").SLIP10Node;
         return SLIP10Node;
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

@@ -1,0 +1,294 @@
+{
+  "source": {
+    "repository": "Trac-Systems/main_settlement_bus",
+    "commit": "9008738f6acd5aa472c1b9aa5f2860b8826566d9",
+    "builder": "src/messages/state/ApplyStateMessageBuilder.js",
+    "description": "Expected payloads generated with the MSB builder and fixed Ed25519 seeds (32 repetitions of signerSeed). Multisig vectors skip the first optional cosigner."
+  },
+  "vectors": [
+    {
+      "name": "lock-918-single",
+      "operation": "lock",
+      "networkId": 918,
+      "from": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "terms": {
+        "claimAddress": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+        "refundAddress": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+        "amount": "00000000000000000de0b6b3a7640000",
+        "feeAmount": "00000000000000000000000000000000",
+        "hashLock": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+        "refundEpoch": "0000000000000064",
+        "signerSet": [
+          "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+        ],
+        "threshold": 1,
+        "nonce": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "signerSeed": 1,
+      "cosignerSignatures": [],
+      "expected": {
+        "type": 17,
+        "address": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+        "hlo": {
+          "tx": "7a168a7fdf66a02e4ec54c07f1895b05960c3f8eb6fa303c64c81ec3fd6b7088",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "ca": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+          "ra": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+          "am": "00000000000000000de0b6b3a7640000",
+          "fa": "00000000000000000000000000000000",
+          "hl": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+          "re": "0000000000000064",
+          "ss": [
+            "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+          ],
+          "th": "01",
+          "cs": [],
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "70180b808c6ea034e2e13b3e625bf0e1d449b9c17e3c2c3f15edab8a28aa9a7e9246519ce155ae55b53abb55813ea2d1e87f5dc3d342a2f198083632b8b93807"
+        }
+      }
+    },
+    {
+      "name": "lock-918-multisig",
+      "operation": "lock",
+      "networkId": 918,
+      "from": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "terms": {
+        "claimAddress": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+        "refundAddress": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+        "amount": "00000000000000000de0b6b3a7640000",
+        "feeAmount": "00000000000000000000000000000005",
+        "hashLock": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+        "refundEpoch": "ffffffffffffffff",
+        "signerSet": [
+          "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+          "ca93ac1705187071d67b83c7ff0efe8108e8ec4530575d7726879333dbdabe7c",
+          "ed4928c628d1c2c6eae90338905995612959273a5c63f93636c14614ac8737d1"
+        ],
+        "threshold": 2,
+        "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+        "feeRecipient": "trac1a4yj333g68pvd6hfqvufqkv4vy54jfe6t33ljd3kc9rpfty8xlgs4c6sx2",
+        "metadata": "0080ff"
+      },
+      "signerSeed": 1,
+      "cosignerSignatures": [
+        "7cc85a39acf07c8a3ca4ea911ad6f5757646bd22c33fc99e1b9c1ca586f9b66d6b64af9aad58bcb8bf54d534da0cc87cdf6d714640cb084448089f45d72a1000"
+      ],
+      "expected": {
+        "type": 17,
+        "address": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+        "hlo": {
+          "tx": "176cb205038da4edd7d2a0b7f2c3a3e4ff7a9d060628c5e33a7493e32aeba843",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "ca": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+          "ra": "trac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawql9ul7h",
+          "am": "00000000000000000de0b6b3a7640000",
+          "fa": "00000000000000000000000000000005",
+          "hl": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+          "re": "ffffffffffffffff",
+          "ss": [
+            "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+            "ca93ac1705187071d67b83c7ff0efe8108e8ec4530575d7726879333dbdabe7c",
+            "ed4928c628d1c2c6eae90338905995612959273a5c63f93636c14614ac8737d1"
+          ],
+          "th": "02",
+          "cs": [
+            "7cc85a39acf07c8a3ca4ea911ad6f5757646bd22c33fc99e1b9c1ca586f9b66d6b64af9aad58bcb8bf54d534da0cc87cdf6d714640cb084448089f45d72a1000"
+          ],
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "563d91bde70af3a64624a4e1edda43f2ffd05d14d670fe4d66e52af7c3f1bab84aea013a1746f17d3257d84c267602147c5bf7abee3b12e1b31520917347cf09",
+          "fr": "trac1a4yj333g68pvd6hfqvufqkv4vy54jfe6t33ljd3kc9rpfty8xlgs4c6sx2",
+          "md": "0080ff"
+        }
+      }
+    },
+    {
+      "name": "claim-918",
+      "operation": "claim",
+      "networkId": 918,
+      "from": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+      "signerSeed": 2,
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "lockId": "7a168a7fdf66a02e4ec54c07f1895b05960c3f8eb6fa303c64c81ec3fd6b7088",
+      "preimage": "3333333333333333333333333333333333333333333333333333333333333333",
+      "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+      "expected": {
+        "type": 18,
+        "address": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+        "hco": {
+          "tx": "e005df0ef5ac7acdf3e35661bae598e162076bf2f7c703de489e35446426bad4",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "li": "7a168a7fdf66a02e4ec54c07f1895b05960c3f8eb6fa303c64c81ec3fd6b7088",
+          "pi": "3333333333333333333333333333333333333333333333333333333333333333",
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "c3e8b8da7b0985e211468b2644a755d4f23ee3bd970dbd4f3e673442b2fc2554f93b5da8f45eea0bbcf691699d380e505afa61a68c8fe7e6eb64fa76d1470a03"
+        }
+      }
+    },
+    {
+      "name": "refund-918",
+      "operation": "refund",
+      "networkId": 918,
+      "from": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+      "signerSeed": 2,
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "lockId": "7a168a7fdf66a02e4ec54c07f1895b05960c3f8eb6fa303c64c81ec3fd6b7088",
+      "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+      "expected": {
+        "type": 19,
+        "address": "trac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qrd3jcp",
+        "hro": {
+          "tx": "90a1a921ad19a324e8076f0cd9e5acd0c16d93f76c9a80922ce8a4d3d9735a88",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "li": "7a168a7fdf66a02e4ec54c07f1895b05960c3f8eb6fa303c64c81ec3fd6b7088",
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "df1c9f9d94ba8d98f5088b7c4e82a6723d355fb5a50d7decf4fd7d2d3c189cef2aa3236a25041f27862475f5e7940c854fcf243481dab491453ec595bc726a09"
+        }
+      }
+    },
+    {
+      "name": "lock-919-single",
+      "operation": "lock",
+      "networkId": 919,
+      "from": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "terms": {
+        "claimAddress": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+        "refundAddress": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+        "amount": "00000000000000000de0b6b3a7640000",
+        "feeAmount": "00000000000000000000000000000000",
+        "hashLock": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+        "refundEpoch": "0000000000000064",
+        "signerSet": [
+          "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+        ],
+        "threshold": 1,
+        "nonce": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "signerSeed": 1,
+      "cosignerSignatures": [],
+      "expected": {
+        "type": 17,
+        "address": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+        "hlo": {
+          "tx": "14dccccec56252d4c48fc21094f8f1671c8a3fc2ce0d27ecc6e4374eef59afec",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "ca": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+          "ra": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+          "am": "00000000000000000de0b6b3a7640000",
+          "fa": "00000000000000000000000000000000",
+          "hl": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+          "re": "0000000000000064",
+          "ss": [
+            "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+          ],
+          "th": "01",
+          "cs": [],
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "7d0707e49b3e7c579c0b41d1c5dc419553d6487153623bcb5637e678049639f79fdcec45d48d14240a32e3a64b74ecaec2c0b590cfc1d290b23e4ab339723a0d"
+        }
+      }
+    },
+    {
+      "name": "lock-919-multisig",
+      "operation": "lock",
+      "networkId": 919,
+      "from": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "terms": {
+        "claimAddress": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+        "refundAddress": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+        "amount": "00000000000000000de0b6b3a7640000",
+        "feeAmount": "00000000000000000000000000000005",
+        "hashLock": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+        "refundEpoch": "ffffffffffffffff",
+        "signerSet": [
+          "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+          "ca93ac1705187071d67b83c7ff0efe8108e8ec4530575d7726879333dbdabe7c",
+          "ed4928c628d1c2c6eae90338905995612959273a5c63f93636c14614ac8737d1"
+        ],
+        "threshold": 2,
+        "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+        "feeRecipient": "testtrac1a4yj333g68pvd6hfqvufqkv4vy54jfe6t33ljd3kc9rpfty8xlgs2c5dwl",
+        "metadata": "0080ff"
+      },
+      "signerSeed": 1,
+      "cosignerSignatures": [
+        "f67167649e1e6c125b4a8b38a2c1ef80207d62cb0a43f9b7e2e040aa78a1c759d7b8bb52fb1f96026788436a721c353b76f0d4da2649f03d61c49ae62616ee03"
+      ],
+      "expected": {
+        "type": 17,
+        "address": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+        "hlo": {
+          "tx": "1594af0a2c836644df750bb739480dcdc31b3bfd57e368873bce4d8a1a9bc16a",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "ca": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+          "ra": "testtrac132yw8ht5p8cetl2jmvknewjawt9xwzdlrk2pyxlnwjyqrdq0dawqq9jzkz",
+          "am": "00000000000000000de0b6b3a7640000",
+          "fa": "00000000000000000000000000000005",
+          "hl": "deb0e38ced1e41de6f92e70e80c418d2d356afaaa99e26f5939dbc7d3ef4772a",
+          "re": "ffffffffffffffff",
+          "ss": [
+            "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+            "ca93ac1705187071d67b83c7ff0efe8108e8ec4530575d7726879333dbdabe7c",
+            "ed4928c628d1c2c6eae90338905995612959273a5c63f93636c14614ac8737d1"
+          ],
+          "th": "02",
+          "cs": [
+            "f67167649e1e6c125b4a8b38a2c1ef80207d62cb0a43f9b7e2e040aa78a1c759d7b8bb52fb1f96026788436a721c353b76f0d4da2649f03d61c49ae62616ee03"
+          ],
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "14770ffda6ed0cd052d2b07aa4a6c52aebbbbc9388cda39ca746407b52e84faca58345c20d53dc38d0500d2e80d0d2ee4f180590d26c8a2ef89f2060716a8003",
+          "fr": "testtrac1a4yj333g68pvd6hfqvufqkv4vy54jfe6t33ljd3kc9rpfty8xlgs2c5dwl",
+          "md": "0080ff"
+        }
+      }
+    },
+    {
+      "name": "claim-919",
+      "operation": "claim",
+      "networkId": 919,
+      "from": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+      "signerSeed": 2,
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "lockId": "14dccccec56252d4c48fc21094f8f1671c8a3fc2ce0d27ecc6e4374eef59afec",
+      "preimage": "3333333333333333333333333333333333333333333333333333333333333333",
+      "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+      "expected": {
+        "type": 18,
+        "address": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+        "hco": {
+          "tx": "f36a2fd17c5bd9a74ecf60f7505b0b331fe99b41e5588fc8089eb6e32675e0f2",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "li": "14dccccec56252d4c48fc21094f8f1671c8a3fc2ce0d27ecc6e4374eef59afec",
+          "pi": "3333333333333333333333333333333333333333333333333333333333333333",
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "06cb015943b3055a900eb76c3fca7a6b46fb3413735d4da154687e938cd97a68fd6a282e1ad52e2147677ac5d8023ed748c11e56721efc75f5d889ed22e91f0f"
+        }
+      }
+    },
+    {
+      "name": "refund-919",
+      "operation": "refund",
+      "networkId": 919,
+      "from": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+      "signerSeed": 2,
+      "validity": "1111111111111111111111111111111111111111111111111111111111111111",
+      "lockId": "14dccccec56252d4c48fc21094f8f1671c8a3fc2ce0d27ecc6e4374eef59afec",
+      "nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+      "expected": {
+        "type": 19,
+        "address": "testtrac1syuhwr4g05t4744r23nvxnr7en9cmz53knhr0gja7c84hr7fkw2qudl0s5",
+        "hro": {
+          "tx": "d157a99e2ae561ce40162f978baaf7d7b7be919c0e6ef557d40ce44b304be10a",
+          "txv": "1111111111111111111111111111111111111111111111111111111111111111",
+          "li": "14dccccec56252d4c48fc21094f8f1671c8a3fc2ce0d27ecc6e4374eef59afec",
+          "in": "2222222222222222222222222222222222222222222222222222222222222222",
+          "is": "eadca0d7e1bd403c6e7b08ecba34e9547c8a03e5a9f3b5b5e6005dd6413d508d4612f67606b14a2ff145a79d009581ea89548922083a1e52d5a6101ff38b9404"
+        }
+      }
+    }
+  ]
+}

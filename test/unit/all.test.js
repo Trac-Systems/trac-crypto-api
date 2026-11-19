@@ -14,6 +14,7 @@ function runTests() {
     require("./compat/sodium.test.js");
     require("./transaction/transaction.test.js");
     require("./operation/operation.test.js");
+    require("./htlc/htlc.test.js");
     require("./runtime/runtime.test.js");
 
     test.resume();
